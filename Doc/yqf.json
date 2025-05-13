@@ -1,0 +1,143 @@
+ // 3. 越千峰 (Yue Qian Feng)
+  {
+    "BasicInfo": {
+      "Name": {
+        "Value": "越千峰",
+        "Caption": "姓名"
+      },
+      "Age": {
+        "Value": 40, // 估算，经验丰富的将军
+        "Caption": "年龄"
+      },
+      "Nickname": {
+        "Value": "乞丐", // 早期伪装
+        "Caption": "外号"
+      }
+    },
+    "CoreTemperament": {
+      "OptimismLevel": {
+        "Value": 55, // 虽处困境但有目标，不算悲观
+        "Caption": "乐观度"
+      },
+      "CalmnessLevel": {
+        "Value": 45, // 易怒，尤其涉及原则时
+        "Caption": "冷静度"
+      },
+      "ExtroversionLevel": {
+        "Value": 70, // 豪迈，直接，不内敛
+        "Caption": "外向性"
+      },
+      "SeriousnessLevel": {
+        "Value": 75, // 对待武学、目标严肃认真
+        "Caption": "严肃性"
+      },
+      "PatienceLevel": {
+        "Value": 50, // 对敌人急躁，教导时还行
+        "Caption": "耐心度"
+      },
+      "SensitivityLevel": {
+        "Value": 45, // 粗中有细，但非细腻型
+        "Caption": "敏感度"
+      }
+    },
+    "InternalValues": {
+      "HonestyLevel": {
+        "Value": 75, // 对认可的人坦诚，重诺
+        "Caption": "诚实度"
+      },
+      "KindnessLevel": {
+        "Value": 60, // 报恩，惜才，但杀伐果断
+        "Caption": "善良度"
+      },
+      "JusticeLevel": {
+        "Value": 85, // 执着于为岳帅平反，有强烈正义感
+        "Caption": "公正性"
+      },
+      "LoyaltyLevel": {
+        "Value": 95, // 对岳帅极为忠诚
+        "Caption": "忠诚度"
+      },
+      "CourageLevel": {
+        "Value": 95, // 绝世猛将，悍不畏死
+        "Caption": "勇气度"
+      },
+      "StrengthOfPrinciples": {
+        "Value": 90, // 原则性极强，忠于信念
+        "Caption": "原则性强度"
+      }
+    },
+    "ThinkingStyle": {
+      "LogicalityLevel": {
+        "Value": 65, // 有战术思维
+        "Caption": "逻辑性"
+      },
+      "AnalyticalLevel": {
+        "Value": 70, // 能分析局势，判断人心
+        "Caption": "分析性"
+      },
+      "CreativityLevel": {
+        "Value": 55, // 战术应用，不算特别创新
+        "Caption": "创造性"
+      },
+      "FlexibilityLevel": {
+        "Value": 50, // 目标坚定，不轻易改变
+        "Caption": "灵活性"
+      },
+      "CuriosityLevel": {
+        "Value": 50, // 关注点在目标和武学
+        "Caption": "好奇心强度"
+      },
+      "DepthOfThought": {
+        "Value": 65, // 有谋略，思考深入
+        "Caption": "思考深度"
+      }
+    },
+    "InternalMotivation": {
+      "AmbitionLevel": {
+        "Value": 80, // 目标明确，为岳帅复仇
+        "Caption": "野心度"
+      },
+      "NeedForAchievementPower": {
+        "Value": 85, // 渴望完成目标，恢复名誉
+        "Caption": "成就/权力需求强度"
+      },
+      "NeedForKnowledgeUnderstanding": {
+        "Value": 60, // 武学知识
+        "Caption": "求知/理解需求强度"
+      },
+      "NeedForAffiliationBelonging": {
+        "Value": 75, // 归属于岳帅一派
+        "Caption": "归属/社交需求强度"
+      },
+      "SelfDisciplineLevel": {
+        "Value": 75, // 武者自律
+        "Caption": "自律性"
+      },
+      "PerseveranceLevel": {
+        "Value": 90, // 虽重伤仍坚持目标
+        "Caption": "毅力强度"
+      }
+    },
+    "SelfPerception": {
+      "ConfidenceLevel": {
+        "Value": 95, // 对自身武力极度自信
+        "Caption": "自信度"
+      },
+      "SelfEsteemLevel": {
+        "Value": 90, // 骄傲的名将
+        "Caption": "自尊水平"
+      },
+      "HumilityLevel": {
+        "Value": 25, // 颇为自负，豪迈近乎傲慢
+        "Caption": "谦逊度"
+      },
+      "AnxietyLevel": {
+        "Value": 55, // 担心目标失败，被追杀
+        "Caption": "焦虑水平"
+      },
+      "InnerPeaceLevel": {
+        "Value": 35, // 内心充满愤怒和不平
+        "Caption": "内在平静度"
+      }
+    }
+  }

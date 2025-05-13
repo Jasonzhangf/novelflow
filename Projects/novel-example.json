@@ -1,0 +1,302 @@
+{
+  "id": "novel-example",
+  "name": "Sample Novel Project",
+  "description": "A sample project demonstrating novel generation capabilities",
+  "nodes": [
+    {
+      "id": "start_0",
+      "type": "start",
+      "meta": {
+        "position": {
+          "x": 100,
+          "y": 200
+        }
+      },
+      "data": {
+        "title": "Start",
+        "outputs": {
+          "type": "object",
+          "properties": {
+            "query": {
+              "type": "string",
+              "default": "Generate a novel chapter."
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "character_1",
+      "type": "character",
+      "meta": {
+        "position": {
+          "x": 300,
+          "y": 100
+        }
+      },
+      "data": {
+        "title": "Character: Li Guanyi",
+        "inputs": {
+          "type": "object",
+          "required": ["name", "archetype"],
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "archetype": {
+              "type": "string"
+            },
+            "backstory": {
+              "type": "string"
+            },
+            "traits": {
+              "type": "array"
+            },
+            "goals": {
+              "type": "array"
+            },
+            "fears": {
+              "type": "array"
+            }
+          }
+        },
+        "inputsValues": {
+          "name": "Li Guanyi / 李观一",
+          "archetype": "hero",
+          "backstory": "Survived assassination attempt as infant, possesses mysterious bronze ding suppressing poison. Raised by sick aunt Murong Qiushui. Learned martial arts from fugitive general Yue Qianfeng. Seeks survival, cure, and strength while hiding from pursuers (Night Ride Cavalry).",
+          "traits": [
+            {
+              "name": "Analytical",
+              "value": 80,
+              "category": "personality",
+              "description": "Excellent at solving puzzles and analyzing situations"
+            },
+            {
+              "name": "Cautious",
+              "value": 75,
+              "category": "personality",
+              "description": "Always careful and wary of danger"
+            },
+            {
+              "name": "Martial Arts",
+              "value": 65,
+              "category": "abilities",
+              "description": "Learned Pojun Saber Technique from Yue Qianfeng"
+            }
+          ],
+          "goals": [
+            "Find a cure for the poison in his body",
+            "Protect his aunt Murong Qiushui",
+            "Discover the truth about his parents"
+          ],
+          "fears": [
+            "Being found by the Night Ride Cavalry",
+            "Losing control of the poison in his body",
+            "Failing to protect his loved ones"
+          ]
+        },
+        "outputs": {
+          "type": "object",
+          "properties": {
+            "character": {
+              "type": "object"
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "stmemory_1",
+      "type": "short-term-memory",
+      "meta": {
+        "position": {
+          "x": 300,
+          "y": 300
+        }
+      },
+      "data": {
+        "title": "Memory: Market Encounter",
+        "inputs": {
+          "type": "object",
+          "required": ["content"],
+          "properties": {
+            "content": {
+              "type": "string"
+            },
+            "importance": {
+              "type": "number"
+            },
+            "relatedTo": {
+              "type": "array"
+            },
+            "tags": {
+              "type": "array"
+            },
+            "expiresIn": {
+              "type": "number"
+            }
+          }
+        },
+        "inputsValues": {
+          "content": "Li Guanyi noticed a man with cloud-pattern trim on his clothes at the market. He quickly hid behind a stall and observed the man, who appeared to be looking for someone. The man eventually left without spotting him.",
+          "importance": 8,
+          "relatedTo": ["character_1"],
+          "tags": ["danger", "nightRideCavalry", "market"],
+          "expiresIn": 14
+        },
+        "outputs": {
+          "type": "object",
+          "properties": {
+            "memory": {
+              "type": "object"
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "ltmemory_1",
+      "type": "long-term-memory",
+      "meta": {
+        "position": {
+          "x": 550,
+          "y": 200
+        }
+      },
+      "data": {
+        "title": "Long-Term Memory: Night Ride Cavalry Patterns",
+        "inputs": {
+          "type": "object",
+          "required": ["summary"],
+          "properties": {
+            "summary": {
+              "type": "string"
+            },
+            "importance": {
+              "type": "number"
+            },
+            "sourceMemories": {
+              "type": "array"
+            }
+          }
+        },
+        "inputsValues": {
+          "summary": "The Night Ride Cavalry soldiers always wear clothing with cloud patterns. They tend to search in markets and crowded areas, often in pairs or alone. They never openly identify themselves and prefer to observe from a distance before taking action.",
+          "importance": 9,
+          "sourceMemories": ["stmemory_1"]
+        },
+        "outputs": {
+          "type": "object",
+          "properties": {
+            "memory": {
+              "type": "object"
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "llm_1",
+      "type": "llm",
+      "meta": {
+        "position": {
+          "x": 800,
+          "y": 200
+        }
+      },
+      "data": {
+        "title": "Generate Chapter",
+        "inputs": {
+          "type": "object",
+          "required": ["modelType", "temperature", "prompt"],
+          "properties": {
+            "modelType": {
+              "type": "string"
+            },
+            "temperature": {
+              "type": "number"
+            },
+            "systemPrompt": {
+              "type": "string"
+            },
+            "prompt": {
+              "type": "string"
+            }
+          }
+        },
+        "inputsValues": {
+          "modelType": "gemini-pro",
+          "temperature": 0.7,
+          "systemPrompt": "You are a skilled novelist specializing in wuxia and xianxia stories. Write engaging, descriptive prose with authentic Chinese cultural elements.",
+          "prompt": "Write a chapter where Li Guanyi is at the market and spots someone from the Night Ride Cavalry. Focus on his internal thoughts, the tension of the moment, and how he uses his environment to escape detection. Include some foreshadowing about the bronze ding and its mysterious powers."
+        },
+        "outputs": {
+          "type": "object",
+          "properties": {
+            "result": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "end_0",
+      "type": "end",
+      "meta": {
+        "position": {
+          "x": 1000,
+          "y": 200
+        }
+      },
+      "data": {
+        "title": "End",
+        "outputs": {
+          "type": "object",
+          "properties": {
+            "result": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "edge_1",
+      "source": "start_0",
+      "target": "character_1",
+      "sourceHandle": "query",
+      "targetHandle": null
+    },
+    {
+      "id": "edge_2",
+      "source": "character_1",
+      "target": "stmemory_1",
+      "sourceHandle": "character",
+      "targetHandle": null
+    },
+    {
+      "id": "edge_3",
+      "source": "stmemory_1",
+      "target": "ltmemory_1",
+      "sourceHandle": "memory",
+      "targetHandle": null
+    },
+    {
+      "id": "edge_4",
+      "source": "ltmemory_1",
+      "target": "llm_1",
+      "sourceHandle": "memory",
+      "targetHandle": null
+    },
+    {
+      "id": "edge_5",
+      "source": "llm_1",
+      "target": "end_0",
+      "sourceHandle": "result",
+      "targetHandle": "result"
+    }
+  ]
+} 

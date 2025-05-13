@@ -1,0 +1,11 @@
+---
+description:
+globs:
+alwaysApply: true
+---
+1. always write code comments and document in English and Chinese as it's a project for Chinese
+2. always make input/ouput UTF-8 support.
+3. always take English/Chinese Prompts as it's a mixed project.
+4. try to test before deliver to users.
+5. when made modifications,try to use MCP tools to run the program to verify first and if there's problem fix it and rerun.
+6. if you can do it with MPC tools, never ask user to do it manually

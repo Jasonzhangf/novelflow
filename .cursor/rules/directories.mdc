@@ -1,0 +1,11 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+ ./Doc :The documents on the designs and manuals for users
+ ./Templates :the data structure tamplates
+ ./Src :All the source codes
+ ./Projects :All the projects user created
+ ./Output :All the generated output from projects
+ ./Config :Configs and constants for the whole system including LLM API Keys and etc
