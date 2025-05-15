@@ -122,7 +122,8 @@ export const renderCharacterForm = ({ form }: FormRenderProps<CharacterNodeData>
   const commonLabelStyle: React.CSSProperties = {
     display: 'block',
     marginBottom: '2px', // Reduced margin for tighter spacing with input
-    fontWeight: 'normal'
+    fontWeight: 'normal', // Changed from bold to normal for sub-properties
+    fontSize: '0.95em', // Slightly smaller for sub-labels
   };
   
   const fieldContainerStyle: React.CSSProperties = {
@@ -134,6 +135,214 @@ export const renderCharacterForm = ({ form }: FormRenderProps<CharacterNodeData>
     if (!fullJson) return {};
     const { name, age, background, ...remaining } = fullJson;
     return remaining;
+  };
+
+  // Helper function to get Chinese names for known group keys
+  const getChineseGroupName = (key: string): string => {
+    const map: Record<string, string> = {
+      personality: "性格",
+      relationships: "关系",
+      language: "语言",
+      // Add more mappings as needed from your JSON structure
+      coretemperament: "核心气质",
+      internalvalues: "内在价值观",
+      thinkingstyle: "思维风格",
+      internalmotivation: "内在动机",
+      selfperception: "自我认知",
+    };
+    return map[key.toLowerCase()] || key.charAt(0).toUpperCase() + key.slice(1); // Fallback to capitalized key
+  };
+
+  // Helper function to update nested properties using a dot-separated path
+  const updatePropertyByPath = (obj: Record<string, any>, path: string, value: any): Record<string, any> => {
+    const pathParts = path.split('.');
+    const newObj = JSON.parse(JSON.stringify(obj)); // Deep clone the object it's supposed to modify
+
+    let currentLevel = newObj;
+    for (let i = 0; i < pathParts.length - 1; i++) {
+      const part = pathParts[i];
+      if (currentLevel[part] === undefined || typeof currentLevel[part] !== 'object' || currentLevel[part] === null) {
+        currentLevel[part] = {}; 
+      }
+      currentLevel = currentLevel[part];
+    }
+    
+    const lastPart = pathParts[pathParts.length - 1];
+    if (value === undefined || value === null || value === '') { // Allow unsetting or setting to empty
+      // Check if parent is an array or object to decide on delete vs set to null/empty
+      // For simplicity here, we'll set to undefined which might remove the key upon stringification if it's standard JSON behavior
+      // or set to null if that's preferred. Let's use undefined to effectively delete.
+      // However, directly deleting might be better: delete currentLevel[lastPart];
+      // For form consistency, often setting to null or empty string is better than deleting.
+      // Let's choose null for objects/numbers that become empty, and empty string for strings.
+      if (typeof currentLevel[lastPart] === 'string') currentLevel[lastPart] = '';
+      else if (typeof currentLevel[lastPart] === 'number') currentLevel[lastPart] = null; // Or undefined if you want to remove the key
+      else currentLevel[lastPart] = null; 
+    } else {
+      currentLevel[lastPart] = value;
+    }
+    return newObj;
+  };
+
+  // Recursive component to render individual properties or nested structures
+  const RenderPropertyField: React.FC<{
+    propKey: string; // The key of the current property/object/array
+    propValue: any;
+    currentPath: string; // Dot-separated path from the root of remainingJson, e.g., "personality.CoreTemperament.OptimismLevel"
+    form: FormRenderProps<CharacterNodeData>['form'];
+    commonInputStyle: React.CSSProperties;
+    commonLabelStyle: React.CSSProperties;
+    fieldContainerStyle: React.CSSProperties;
+    depth?: number; // For indentation
+  }> = ({ propKey, propValue, currentPath, form, commonInputStyle, commonLabelStyle, fieldContainerStyle, depth = 0 }) => {
+
+    const handleChange = (newValue: any) => {
+      const fullCharacterJson = form.getValueIn<Record<string, any>>('data.properties.characterJSON') || {};
+      const { name, age, background, ...currentRemaining } = fullCharacterJson;
+      
+      const updatedRemaining = updatePropertyByPath(currentRemaining, currentPath, newValue);
+
+      const newFullJson = {
+        name,
+        age,
+        background,
+        ...(Object.keys(updatedRemaining).length > 0 ? updatedRemaining : {}),
+      };
+      form.setValueIn('data.properties.characterJSON', newFullJson);
+    };
+
+    const currentIndent = depth * 15; // Indentation in pixels
+
+    // Case 1: Object with "Value" and "Caption"
+    if (typeof propValue === 'object' && propValue !== null && 'Value' in propValue && 'Caption' in propValue && Object.keys(propValue).length <= 3) {
+      return (
+        <div style={{ ...fieldContainerStyle, marginLeft: `${currentIndent}px` }} key={currentPath}>
+          <label style={commonLabelStyle}>{propValue.Caption || propKey}:</label>
+          <input
+            type={typeof propValue.Value === 'number' ? 'number' : 'text'}
+            style={commonInputStyle}
+            value={propValue.Value ?? ''}
+            onChange={(e) => {
+              const rawValue = e.target.value;
+              let newSubValue: string | number | undefined = rawValue;
+              if (typeof propValue.Value === 'number') {
+                newSubValue = parseInt(rawValue, 10);
+                if (isNaN(newSubValue as number)) newSubValue = undefined;
+              }
+              handleChange({ ...propValue, Value: newSubValue });
+            }}
+          />
+        </div>
+      );
+    }
+    // Case 2: Array
+    else if (Array.isArray(propValue)) {
+      return (
+        <div key={currentPath} style={{ marginBottom: '10px', marginLeft: `${currentIndent}px`, borderLeft: depth > 0 ? '2px solid #f0f0f0' : 'none', paddingLeft: depth > 0 ? '10px' : '0' }}>
+          <strong style={{ ...commonLabelStyle, marginTop: '10px', display: 'block', fontSize: '1em' }}>{getChineseGroupName(propKey)} ({propKey} - 列表):</strong>
+          {propValue.length > 0 && propValue.every(item => typeof item !== 'object' && !Array.isArray(item)) ? (
+             <textarea // Simple array of strings/numbers
+              style={{ ...commonInputStyle, minHeight: '60px', fontFamily: 'inherit', fontSize: '0.95em' }}
+              value={propValue.join('\n')}
+              onChange={(e) => {
+                handleChange(e.target.value.split('\n'));
+              }}
+              placeholder="每行一个项目 / One item per line"
+            />
+          ) : (
+            <>
+              {propValue.map((item, index) => (
+                <div key={`${currentPath}[${index}]`} style={{ border: '1px dashed #e0e0e0', padding: '8px', margin: '8px 0', backgroundColor: '#fff' }}>
+                  <em style={{display: 'block', marginBottom: '5px', color: '#555'}}>第 {index + 1} 项:</em>
+                  {typeof item === 'object' && item !== null ? (
+                    Object.entries(item).map(([itemKey, itemValue]) => (
+                      <RenderPropertyField
+                        key={itemKey}
+                        propKey={itemKey}
+                        propValue={itemValue}
+                        currentPath={`${currentPath}[${index}].${itemKey}`} // Placeholder path, direct editing of complex array items not fully supported by updatePropertyByPath yet
+                        form={form}
+                        commonInputStyle={commonInputStyle}
+                        commonLabelStyle={commonLabelStyle}
+                        fieldContainerStyle={fieldContainerStyle}
+                        depth={depth + 1} // Corrected depth for properties of objects within arrays
+                      />
+                    ))
+                  ) : (
+                     <input
+                        type="text"
+                        style={commonInputStyle}
+                        value={item ?? ''}
+                        readOnly // For now, simple array items displayed read-only, edit via JSON
+                     />
+                  )}
+                </div>
+              ))}
+              <div style={{ ...fieldContainerStyle, marginTop: '10px' }}>
+                  <label style={{...commonLabelStyle, fontSize: '0.9em' }}>编辑整个列表 (JSON格式):</label>
+                  <textarea
+                    style={{ ...commonInputStyle, minHeight: '100px', fontFamily: 'monospace', fontSize: '0.9em' }}
+                    value={JSON.stringify(propValue, null, 2)}
+                    onChange={(e) => {
+                      try {
+                        handleChange(JSON.parse(e.target.value));
+                      } catch (err) { console.warn(`Invalid JSON for ${propKey}:`, err); }
+                    }}
+                  />
+              </div>
+            </>
+          )}
+        </div>
+      );
+    }
+    // Case 3: Nested Object (not "Value/Caption" type)
+    else if (typeof propValue === 'object' && propValue !== null) {
+      return (
+        <div key={currentPath} style={{ marginLeft: `${currentIndent}px`, borderLeft: depth > 0 ? '2px solid #f0f0f0' : 'none', paddingLeft: depth > 0 ? '10px' : '0', marginBottom: '10px' }}>
+          { depth > 0 && <strong style={{ ...commonLabelStyle, marginTop: '10px', display: 'block', fontSize: '1em' }}>{getChineseGroupName(propKey)} ({propKey}):</strong> }
+          {Object.entries(propValue).map(([subKey, subValue]) => (
+            <RenderPropertyField
+              key={subKey}
+              propKey={subKey}
+              propValue={subValue}
+              currentPath={`${currentPath}.${subKey}`}
+              form={form}
+              commonInputStyle={commonInputStyle}
+              commonLabelStyle={commonLabelStyle}
+              fieldContainerStyle={fieldContainerStyle}
+              depth={depth + 1}
+            />
+          ))}
+        </div>
+      );
+    }
+    // Case 4: Simple value (string, number, boolean, null)
+    else {
+      return (
+        <div style={{ ...fieldContainerStyle, marginLeft: `${currentIndent}px` }} key={currentPath}>
+          <label style={commonLabelStyle}>{getChineseGroupName(propKey)} ({propKey}):</label>
+          <input
+            type={typeof propValue === 'number' ? 'number' : (typeof propValue === 'boolean' ? 'checkbox' : 'text')}
+            style={typeof propValue === 'boolean' ? { marginRight: '10px', verticalAlign: 'middle'} : commonInputStyle}
+            value={typeof propValue === 'boolean' ? undefined : (propValue ?? '')}
+            checked={typeof propValue === 'boolean' ? propValue : undefined}
+            onChange={(e) => {
+              let newValue: any;
+              if (typeof propValue === 'boolean') {
+                newValue = e.target.checked;
+              } else if (typeof propValue === 'number') {
+                newValue = parseFloat(e.target.value); // Use parseFloat for decimals
+                if (isNaN(newValue)) newValue = null; // Set to null if not a valid number
+              } else {
+                newValue = e.target.value;
+              }
+              handleChange(newValue);
+            }}
+          />
+          {typeof propValue === 'boolean' && <span style={{verticalAlign: 'middle'}}>{propValue ? '是' : '否'}</span>}
+        </div>
+      );
+    }
   };
 
   return (
@@ -278,41 +487,34 @@ export const renderCharacterForm = ({ form }: FormRenderProps<CharacterNodeData>
           />
         </div>
 
-        {/* Other Properties Section Title */}
-        <div style={{ padding: '0 10px', marginTop: '15px', marginBottom: '5px', borderTop: '1px solid #eee', paddingTop: '15px' }}>
-            <strong style={{ fontSize: '1.1em' }}>其他属性:</strong>
+        {/* Other Properties Dynamically Rendered */}
+        <div style={{ padding: '0 10px', marginTop: '20px', marginBottom: '10px', borderTop: '2px solid #ccc', paddingTop: '15px' }}>
+            <strong style={{ fontSize: '1.15em' }}>其他主要属性:</strong>
         </div>
 
-        {/* Other Properties JSON Textarea */}
-        <div style={fieldContainerStyle}>
-          <textarea
-            style={{ 
-              ...commonInputStyle, 
-              minHeight: '150px', 
-              fontFamily: 'monospace', 
-              fontSize: '13px' 
-            }}
-            value={JSON.stringify(getRemainingJson(form.getValueIn('data.properties.characterJSON')), null, 2)}
-            onChange={(e) => {
-              try {
-                const newRemainingJson = JSON.parse(e.target.value);
-                const currentCharJson = form.getValueIn<Record<string, any>>('data.properties.characterJSON') || {};
-                
-                const updatedFullJson = {
-                  ...newRemainingJson, // Start with new "other" data
-                  name: currentCharJson.name, // Preserve dedicated field values
-                  age: currentCharJson.age,
-                  background: currentCharJson.background,
-                };
-                form.setValueIn('data.properties.characterJSON', updatedFullJson);
-
-              } catch (error) {
-                console.warn("Invalid JSON entered in 'Other Properties':", error);
-                // Optionally: set a specific error message for this textarea
-              }
-            }}
-          />
-        </div>
+        {Object.entries(getRemainingJson(form.getValueIn('data.properties.characterJSON'))).map(([groupKey, groupData]) => (
+          <div key={groupKey} style={{ 
+            border: '1px solid #e0e0e0', 
+            borderRadius: '4px', 
+            padding: '15px', 
+            margin: '10px', 
+            backgroundColor: '#f9f9f9' 
+          }}>
+            <h4 style={{ marginTop: 0, marginBottom: '15px', borderBottom: '1px solid #ddd', paddingBottom: '10px', fontSize: '1.1em', color: '#333' }}>
+              {getChineseGroupName(groupKey)}
+            </h4>
+            <RenderPropertyField
+              propKey={groupKey}
+              propValue={groupData}
+              currentPath={groupKey} // Path is the groupKey itself from remainingJson root
+              form={form}
+              commonInputStyle={commonInputStyle}
+              commonLabelStyle={commonLabelStyle}
+              fieldContainerStyle={fieldContainerStyle}
+              depth={0} // Initial depth for top-level groups
+            />
+          </div>
+        ))}
       </FormContent>
     </>
   );
