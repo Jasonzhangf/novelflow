@@ -294,13 +294,15 @@ export const renderCharacterForm = ({ form }: FormRenderProps<CharacterNodeData>
     commonLabelStyle: React.CSSProperties;
     fieldContainerStyle: React.CSSProperties;
     depth?: number; // For indentation
-  }> = ({ propKey, propValue, currentPath, form, commonInputStyle, commonLabelStyle, fieldContainerStyle, depth = 0 }) => {
+    isInsidePersonalityGroup?: boolean; // Flag to indicate if we are rendering items within a personality subgroup
+  }> = ({ propKey, propValue, currentPath, form, commonInputStyle, commonLabelStyle, fieldContainerStyle, depth = 0, isInsidePersonalityGroup = false }) => {
 
-    const handleChange = (newValue: any) => {
+    const handleChange = (newValue: any, valuePathSuffix?: string) => {
       const fullCharacterJson = form.getValueIn<Record<string, any>>('data.properties.characterJSON') || {};
       const { name, age, background, ...currentRemaining } = fullCharacterJson;
       
-      const updatedRemaining = updatePropertyByPath(currentRemaining, currentPath, newValue);
+      const pathToUpdate = valuePathSuffix ? `${currentPath}.${valuePathSuffix}` : currentPath;
+      const updatedRemaining = updatePropertyByPath(currentRemaining, pathToUpdate, newValue);
 
       const newFullJson = {
         name,
@@ -309,6 +311,7 @@ export const renderCharacterForm = ({ form }: FormRenderProps<CharacterNodeData>
         ...(Object.keys(updatedRemaining).length > 0 ? updatedRemaining : {}),
       };
       form.setValueIn('data.properties.characterJSON', newFullJson);
+      setFormContentKey(prevKey => prevKey + 1);
     };
 
     const currentIndent = depth * 15; // Indentation in pixels
@@ -335,8 +338,101 @@ export const renderCharacterForm = ({ form }: FormRenderProps<CharacterNodeData>
         </div>
       );
     }
+
+    // Case 1.5: Object representing a personality subgroup (e.g., CoreTemperament)
+    // This will render its children (the actual traits) in a table.
+    const parentPath = currentPath.substring(0, currentPath.lastIndexOf('.'));
+    const isPersonalitySubGroup = parentPath === 'personality' && typeof propValue === 'object' && propValue !== null && !Array.isArray(propValue) && Object.values(propValue).every(v => isObject(v) && 'Value' in v && 'Caption' in v);
+
+    if (isPersonalitySubGroup) {
+      return (
+        <div key={currentPath} style={{ ...fieldContainerStyle, marginLeft: `${depth * 15}px`, marginBottom: '15px' }}>
+          <h5 style={{ marginTop: '10px', marginBottom: '10px', fontSize: '1em', fontWeight: 'bold' }}>{getChineseGroupName(propKey)}:</h5>
+          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <tbody>
+              {Object.entries(propValue).map(([traitKey, traitObject]) => {
+                if (isObject(traitObject) && 'Value' in traitObject && 'Caption' in traitObject) {
+                  const valuePath = `${traitKey}.Value`; // Path relative to the current subgroup
+                  return (
+                    <tr key={traitKey} style={{ borderBottom: '1px solid #eee' }}>
+                      <td style={{ padding: '8px 4px', textAlign: 'left', minWidth: '100px' }}>{(traitObject as any).Caption}:</td>
+                      <td style={{ padding: '8px 4px' }}>
+                        <input
+                          type="number"
+                          style={{ ...commonInputStyle, marginTop: 0, width: '100%' }} // Adjusted width and margin
+                          value={(traitObject as any).Value ?? ''}
+                          onChange={(e) => {
+                            const rawValue = e.target.value;
+                            let numValue: number | null = parseInt(rawValue, 10);
+                            if (isNaN(numValue)) numValue = null; // Allow clearing or invalid to be null
+                            handleChange(numValue, valuePath); // Pass numValue and the path to the Value field
+                          }}
+                        />
+                      </td>
+                    </tr>
+                  );
+                }
+                return null;
+              })}
+            </tbody>
+          </table>
+        </div>
+      );
+    }
+
     // Case 2: Array
     else if (Array.isArray(propValue)) {
+      // Special handling for the 'relationships' array
+      if (currentPath === 'relationships') {
+        return (
+          <div key={currentPath} style={{ marginBottom: '10px', marginLeft: `${currentIndent}px` }}>
+            {/* Title for relationships is handled by the parent RenderPropertyField call for the group */}
+            {propValue.map((item: any, index: number) => (
+              <div key={`${currentPath}.${index}`} style={{ border: '1px solid #ddd', padding: '10px', margin: '10px 0', backgroundColor: '#fdfdfd', borderRadius: '4px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                  <strong style={{fontSize: '0.95em'}}>关系 #{index + 1}</strong>
+                  <button 
+                    onClick={() => {
+                      const newRelationships = [...propValue];
+                      newRelationships.splice(index, 1);
+                      handleChange(newRelationships);
+                    }} 
+                    style={{ padding: '3px 8px', fontSize: '0.85em', backgroundColor: '#f44336', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer' }}
+                  >
+                    删除
+                  </button>
+                </div>
+                {(Object.keys(item || {}) as Array<keyof typeof item>).map(itemKey => (
+                  <div style={{ ...fieldContainerStyle, marginLeft: '0px', marginBottom: '8px' }} key={`${currentPath}.${index}.${String(itemKey)}`}>
+                    <label style={{...commonLabelStyle, textTransform: 'capitalize'}}>{getChineseGroupName(String(itemKey))} ({String(itemKey)}):</label>
+                    <input
+                      type="text"
+                      style={commonInputStyle}
+                      value={item[itemKey] || ''}
+                      onChange={(e) => {
+                        const newItem = { ...item, [itemKey]: e.target.value };
+                        const newRelationships = [...propValue];
+                        newRelationships[index] = newItem;
+                        handleChange(newRelationships);
+                      }}
+                    />
+                  </div>
+                ))}
+              </div>
+            ))}
+            <button 
+              onClick={() => {
+                const newRelationship = { character: "", type: "", description: "" }; // Default new relationship
+                handleChange([...propValue, newRelationship]);
+              }}
+              style={{ marginTop: '10px', padding: '8px 12px', backgroundColor: '#4CAF50', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+            >
+              添加关系
+            </button>
+          </div>
+        );
+      }
+      // Generic array rendering (for arrays other than relationships)
       return (
         <div key={currentPath} style={{ marginBottom: '10px', marginLeft: `${currentIndent}px`, borderLeft: depth > 0 ? '2px solid #f0f0f0' : 'none', paddingLeft: depth > 0 ? '10px' : '0' }}>
           <strong style={{ ...commonLabelStyle, marginTop: '10px', display: 'block', fontSize: '1em' }}>{getChineseGroupName(propKey)} ({propKey} - 列表):</strong>
@@ -366,6 +462,7 @@ export const renderCharacterForm = ({ form }: FormRenderProps<CharacterNodeData>
                         commonLabelStyle={commonLabelStyle}
                         fieldContainerStyle={fieldContainerStyle}
                         depth={depth + 1} // Corrected depth for properties of objects within arrays
+                        isInsidePersonalityGroup={parentPath === 'personality'} // Pass the flag down
                       />
                     ))
                   ) : (
@@ -411,6 +508,7 @@ export const renderCharacterForm = ({ form }: FormRenderProps<CharacterNodeData>
               commonLabelStyle={commonLabelStyle}
               fieldContainerStyle={fieldContainerStyle}
               depth={depth + 1}
+              isInsidePersonalityGroup={parentPath === 'personality'} // Pass the flag down
             />
           ))}
         </div>
@@ -418,6 +516,11 @@ export const renderCharacterForm = ({ form }: FormRenderProps<CharacterNodeData>
     }
     // Case 4: Simple value (string, number, boolean, null)
     else {
+      // If this simple value is directly under a personality group (e.g. personality.someDirectValue), don't render it.
+      // The table rendering for personality subgroups handles its children.
+      if (isInsidePersonalityGroup) {
+        return null;
+      }
       return (
         <div style={{ ...fieldContainerStyle, marginLeft: `${currentIndent}px` }} key={currentPath}>
           <label style={commonLabelStyle}>{getChineseGroupName(propKey)} ({propKey}):</label>
@@ -536,8 +639,9 @@ export const renderCharacterForm = ({ form }: FormRenderProps<CharacterNodeData>
         {/* Background Origin Field */}
         <div style={fieldContainerStyle}>
           <label style={commonLabelStyle}>出身:</label>
-          <textarea
-            style={{ ...commonInputStyle, minHeight: '60px', fontFamily: 'inherit', fontSize: 'inherit' }}
+          <input
+            type="text"
+            style={commonInputStyle}
             value={(form.getValueIn<Record<string, any>>('data.properties.characterJSON.background') || {}).origin || ''}
             onChange={(e) => {
               const newValue = e.target.value;
@@ -554,8 +658,9 @@ export const renderCharacterForm = ({ form }: FormRenderProps<CharacterNodeData>
         {/* Background Occupation Field */}
         <div style={fieldContainerStyle}>
           <label style={commonLabelStyle}>职业:</label>
-          <textarea
-            style={{ ...commonInputStyle, minHeight: '60px', fontFamily: 'inherit', fontSize: 'inherit' }}
+          <input
+            type="text"
+            style={commonInputStyle}
             value={(form.getValueIn<Record<string, any>>('data.properties.characterJSON.background') || {}).occupation || ''}
             onChange={(e) => {
               const newValue = e.target.value;
@@ -612,6 +717,7 @@ export const renderCharacterForm = ({ form }: FormRenderProps<CharacterNodeData>
               commonLabelStyle={commonLabelStyle}
               fieldContainerStyle={fieldContainerStyle}
               depth={0} // Initial depth for top-level groups
+              isInsidePersonalityGroup={groupKey === 'personality'} // Set flag if this is the personality group itself
             />
           </div>
         ))}
