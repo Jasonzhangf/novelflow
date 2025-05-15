@@ -69,6 +69,32 @@ export const renderCharacterForm = ({ form }: FormRenderProps<CharacterNodeData>
     }
   };
 
+  const commonInputStyle: React.CSSProperties = {
+    width: '100%',
+    padding: '8px',
+    border: '1px solid #ccc',
+    borderRadius: '4px',
+    boxSizing: 'border-box',
+    marginTop: '5px',
+  };
+
+  const commonLabelStyle: React.CSSProperties = {
+    display: 'block',
+    marginBottom: '2px', // Reduced margin for tighter spacing with input
+    fontWeight: 'normal'
+  };
+  
+  const fieldContainerStyle: React.CSSProperties = {
+    marginBottom: '15px', // Increased margin for more separation between fields
+    padding: '0 10px',
+  };
+
+  const getRemainingJson = (fullJson: Record<string, any> | undefined): Record<string, any> => {
+    if (!fullJson) return {};
+    const { name, age, background, ...remaining } = fullJson;
+    return remaining;
+  };
+
   return (
     <>
       <FormHeader />
@@ -92,46 +118,144 @@ export const renderCharacterForm = ({ form }: FormRenderProps<CharacterNodeData>
           </span>
           
           {form.getValueIn<string>('data.properties.loadError') && (
-            <p style={{ color: 'red' }}>{form.getValueIn<string>('data.properties.loadError')}</p>
+            <p style={{ color: 'red', marginTop: '5px' }}>{form.getValueIn<string>('data.properties.loadError')}</p>
           )}
         </div>
 
-        <div style={{ padding: '0 10px' }}>
-            <strong>Character Data (JSON) / 角色数据 (JSON):</strong>
+        <div style={{ padding: '0 10px', marginTop: '15px', marginBottom: '10px' }}>
+            <strong>Character Details / 角色详情:</strong>
         </div>
-        <Field
-          name="data.properties.characterJSON"
-          render={({ field }: { field: { value: Record<string, any>, onChange: (newVal: Record<string, any>) => void }}) => (
-            <div style={{ padding: '0 10px', marginTop: '5px', marginBottom: '10px' }}>
-              <textarea
-                style={{
-                  width: '100%',
-                  minHeight: '200px',
-                  border: '1px solid #ccc',
-                  borderRadius: '4px',
-                  padding: '8px',
-                  fontFamily: 'monospace',
-                  fontSize: '13px',
-                  boxSizing: 'border-box' // Ensures padding and border are included in width/height
-                }}
-                value={JSON.stringify(field.value || {}, null, 2)}
-                onChange={(e) => {
-                  try {
-                    const newJson = JSON.parse(e.target.value);
-                    field.onChange(newJson);
-                    if (newJson && typeof newJson === 'object' && 'name' in newJson && typeof newJson.name === 'string') {
-                      form.setValueIn('data.properties.characterName', newJson.name);
-                      form.setValueIn('data.title', newJson.name);
-                    }
-                  } catch (error) {
-                    // Optionally, handle JSON parsing errors (e.g., display a message)
-                    console.warn("Invalid JSON entered:", error);
-                  }
-                }}
-              />
-            </div>
-          )}
-        />
+
+        {/* Name Field */}
+        <div style={fieldContainerStyle}>
+          <label style={commonLabelStyle}>Name / 名称:</label>
+          <input
+            type="text"
+            style={commonInputStyle}
+            value={form.getValueIn<string>('data.properties.characterJSON.name') || ''}
+            onChange={(e) => {
+              const newValue = e.target.value;
+              const currentJson = form.getValueIn<Record<string, any>>('data.properties.characterJSON') || {};
+              form.setValueIn('data.properties.characterJSON', { ...currentJson, name: newValue });
+              form.setValueIn('data.properties.characterName', newValue);
+              form.setValueIn('data.title', newValue);
+            }}
+          />
+        </div>
+
+        {/* Age Field */}
+        <div style={fieldContainerStyle}>
+          <label style={commonLabelStyle}>Age / 年龄:</label>
+          <input
+            type="number"
+            style={commonInputStyle}
+            value={form.getValueIn<any>('data.properties.characterJSON.age') ?? ''}
+            onChange={(e) => {
+              const newValue = e.target.value;
+              const currentJson = form.getValueIn<Record<string, any>>('data.properties.characterJSON') || {};
+              const parsedAge = parseInt(newValue, 10);
+              form.setValueIn('data.properties.characterJSON', { 
+                ...currentJson, 
+                age: isNaN(parsedAge) ? undefined : parsedAge 
+              });
+            }}
+          />
+        </div>
+
+        {/* Background Section Title */}
+        <div style={{ padding: '0 10px', marginTop: '15px', marginBottom: '5px' }}>
+            <strong>Background / 背景:</strong>
+        </div>
+
+        {/* Background Origin Field */}
+        <div style={fieldContainerStyle}>
+          <label style={commonLabelStyle}>Origin / 出身:</label>
+          <textarea
+            style={{ ...commonInputStyle, minHeight: '60px', fontFamily: 'inherit', fontSize: 'inherit' }}
+            value={(form.getValueIn<Record<string, any>>('data.properties.characterJSON.background') || {}).origin || ''}
+            onChange={(e) => {
+              const newValue = e.target.value;
+              const charJson = form.getValueIn<Record<string, any>>('data.properties.characterJSON') || {};
+              const background = charJson.background || {};
+              form.setValueIn('data.properties.characterJSON', {
+                ...charJson,
+                background: { ...background, origin: newValue },
+              });
+            }}
+          />
+        </div>
+
+        {/* Background Occupation Field */}
+        <div style={fieldContainerStyle}>
+          <label style={commonLabelStyle}>Occupation / 职业:</label>
+          <textarea
+            style={{ ...commonInputStyle, minHeight: '60px', fontFamily: 'inherit', fontSize: 'inherit' }}
+            value={(form.getValueIn<Record<string, any>>('data.properties.characterJSON.background') || {}).occupation || ''}
+            onChange={(e) => {
+              const newValue = e.target.value;
+              const charJson = form.getValueIn<Record<string, any>>('data.properties.characterJSON') || {};
+              const background = charJson.background || {};
+              form.setValueIn('data.properties.characterJSON', {
+                ...charJson,
+                background: { ...background, occupation: newValue },
+              });
+            }}
+          />
+        </div>
+
+        {/* Background History Field */}
+        <div style={fieldContainerStyle}>
+          <label style={commonLabelStyle}>History / 经历:</label>
+          <textarea
+            style={{ ...commonInputStyle, minHeight: '100px', fontFamily: 'inherit', fontSize: 'inherit' }}
+            value={(form.getValueIn<Record<string, any>>('data.properties.characterJSON.background') || {}).history || ''}
+            onChange={(e) => {
+              const newValue = e.target.value;
+              const charJson = form.getValueIn<Record<string, any>>('data.properties.characterJSON') || {};
+              const background = charJson.background || {};
+              form.setValueIn('data.properties.characterJSON', {
+                ...charJson,
+                background: { ...background, history: newValue },
+              });
+            }}
+          />
+        </div>
+
+        {/* Other Properties Section Title */}
+        <div style={{ padding: '0 10px', marginTop: '15px', marginBottom: '5px' }}>
+            <strong>Other Properties / 其他属性:</strong>
+        </div>
+
+        {/* Other Properties JSON Textarea */}
+        <div style={fieldContainerStyle}>
+          <textarea
+            style={{ 
+              ...commonInputStyle, 
+              minHeight: '150px', 
+              fontFamily: 'monospace', 
+              fontSize: '13px' 
+            }}
+            value={JSON.stringify(getRemainingJson(form.getValueIn('data.properties.characterJSON')), null, 2)}
+            onChange={(e) => {
+              try {
+                const newRemainingJson = JSON.parse(e.target.value);
+                const currentCharJson = form.getValueIn<Record<string, any>>('data.properties.characterJSON') || {};
+                
+                const updatedFullJson = {
+                  ...newRemainingJson, // Start with new "other" data
+                  name: currentCharJson.name, // Preserve dedicated field values
+                  age: currentCharJson.age,
+                  background: currentCharJson.background,
+                };
+                form.setValueIn('data.properties.characterJSON', updatedFullJson);
+
+              } catch (error) {
+                console.warn("Invalid JSON entered in 'Other Properties':", error);
+                // Optionally: set a specific error message for this textarea
+              }
+            }}
+          />
+        </div>
       </FormContent>
     </>
   );
