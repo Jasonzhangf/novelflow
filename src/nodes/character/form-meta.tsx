@@ -5,8 +5,27 @@ import {
   FlowNodeJSON,
 } from '@flowgram.ai/free-layout-editor'; 
 import { FlowNodeEntity, FlowNodeFormData, FormModelV2 } from '@flowgram.ai/free-layout-editor';
+import defaultCharacterTemplateJson from '../../../Templates/default-character-template.json';
 
 import { FormHeader, FormContent } from '../../form-components'; 
+
+// Define an interface for the character template structure
+interface CharacterFullTemplate {
+  name?: string;
+  age?: number | null;
+  background?: {
+    origin?: string;
+    occupation?: string;
+    history?: string;
+  };
+  personality?: Record<string, any>; 
+  relationships?: Array<Record<string, any>>;
+  language?: string;
+  // Ensure all top-level keys from default-character-template.json are listed here
+}
+
+// Cast the imported JSON to our interface
+const defaultCharacterTemplate = defaultCharacterTemplateJson as CharacterFullTemplate;
 
 interface CharacterNodeDataProperties {
   characterName: string;
@@ -22,6 +41,37 @@ interface CharacterNodeData extends FlowNodeJSON {
   };
 }
 
+// Deep merge utility
+const isObject = (item: any): item is Record<string, any> => {
+  return (item && typeof item === 'object' && !Array.isArray(item));
+};
+
+const deepMerge = <T extends Record<string, any>>(target: T, ...sources: Partial<T>[]): T => {
+  if (!sources.length) return target;
+  const source = sources.shift();
+
+  if (isObject(target) && isObject(source)) {
+    for (const key in source) {
+      if (isObject(source[key])) {
+        if (!target[key]) Object.assign(target, { [key]: {} });
+        deepMerge(target[key] as Record<string, any>, source[key] as Record<string, any>);
+      } else if (Array.isArray(source[key]) && Array.isArray(target[key])) {
+        // Simple array merge: concatenate and remove duplicates if necessary, or replace.
+        // For this use case, replacing arrays from the source (or template) is often desired.
+        // If specific array merging logic is needed (e.g. merging objects within arrays by ID),
+        // this function would need to be more complex.
+        // Here, we'll replace the target array with the source array if the source array is not empty.
+        // If template has a default array, and loaded data has its own, loaded data takes precedence.
+        Object.assign(target, { [key]: source[key] });
+      }
+      else {
+        Object.assign(target, { [key]: source[key] });
+      }
+    }
+  }
+  return deepMerge(target, ...sources);
+};
+
 export const renderCharacterForm = ({ form }: FormRenderProps<CharacterNodeData>) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [displayedFileName, setDisplayedFileName] = useState<string>(() => {
@@ -32,7 +82,40 @@ export const renderCharacterForm = ({ form }: FormRenderProps<CharacterNodeData>
   useEffect(() => {
     const currentPathInForm = form.getValueIn<string>('data.properties.characterFilePath') || '';
     setDisplayedFileName(currentPathInForm);
-  }, [form, form.getValueIn<string>('data.properties.characterFilePath')]);
+  }, [form]);
+
+  // Effect to initialize characterJSON with defaults
+  useEffect(() => {
+    const currentJson = form.getValueIn<Record<string, any>>('data.properties.characterJSON');
+    if (!currentJson || Object.keys(currentJson).length === 0 || !currentJson.personality) {
+      console.log("Initializing characterJSON with default template.");
+      const templateCopy = JSON.parse(JSON.stringify(defaultCharacterTemplate)) as CharacterFullTemplate;
+      const initialCharacterData: CharacterFullTemplate = {
+        name: templateCopy.name || "新角色",
+        age: templateCopy.age !== undefined ? templateCopy.age : null,
+        background: templateCopy.background ? { ...templateCopy.background } : {
+            origin: "",
+            occupation: "",
+            history: ""
+        },
+        // Spread other properties from the template (personality, relationships, etc.)
+        personality: templateCopy.personality ? { ...templateCopy.personality } : {},
+        relationships: templateCopy.relationships ? [ ...templateCopy.relationships ] : [],
+        language: templateCopy.language || "chinese",
+      };
+      
+      const mergedData = deepMerge({} as CharacterFullTemplate, initialCharacterData, currentJson || {});
+      form.setValueIn('data.properties.characterJSON', mergedData);
+      
+      if (!form.getValueIn('data.properties.characterName') && mergedData.name) {
+        form.setValueIn('data.properties.characterName', mergedData.name);
+      }
+      if (!form.getValueIn('data.title') && mergedData.name) {
+         form.setValueIn('data.title', mergedData.name);
+      }
+      setFormContentKey(prevKey => prevKey + 1);
+    }
+  }, [form]);
 
   const handleBrowseClick = () => {
     fileInputRef.current?.click();
@@ -48,16 +131,33 @@ export const renderCharacterForm = ({ form }: FormRenderProps<CharacterNodeData>
       console.log(`Attempting to load character data from selected file: ${file.name}`);
       try {
         const fileContentString = await file.text();
-        const jsonData = JSON.parse(fileContentString);
+        const jsonDataFromFile = JSON.parse(fileContentString) as Partial<CharacterFullTemplate>; // Cast loaded data
 
-        form.setValueIn('data.properties.characterJSON', jsonData);
-        form.setValueIn('data.properties.characterName', jsonData.name || 'Unknown Character');
+        const templateCopy = JSON.parse(JSON.stringify(defaultCharacterTemplate)) as CharacterFullTemplate;
+        
+        // Start with a full structure from the template copy
+        let baseStructure = JSON.parse(JSON.stringify(templateCopy)) as CharacterFullTemplate;
+
+        // Explicitly set name, age, background from file or defaults if not in file
+        baseStructure.name = jsonDataFromFile.name || templateCopy.name || "新角色";
+        baseStructure.age = jsonDataFromFile.age !== undefined ? jsonDataFromFile.age : (templateCopy.age !== undefined ? templateCopy.age : null);
+        baseStructure.background = deepMerge(
+            {}, 
+            templateCopy.background || { origin: "", occupation: "", history: "" }, 
+            jsonDataFromFile.background || {}
+        );
+        // Ensure other parts from template are present if not in file (deepMerge handles this further down)
+
+        const mergedJsonData = deepMerge(baseStructure, jsonDataFromFile);
+
+        form.setValueIn('data.properties.characterJSON', mergedJsonData);
+        form.setValueIn('data.properties.characterName', mergedJsonData.name || '未知角色');
         form.setValueIn('data.properties.loadError', ''); 
 
-        if (jsonData.name) {
-          form.setValueIn('data.title', jsonData.name);
+        if (mergedJsonData.name) {
+          form.setValueIn('data.title', mergedJsonData.name);
         }
-        console.log('Character data loaded from file and form updated.');
+        console.log('Character data loaded from file, merged with defaults, and form updated.');
         setFormContentKey(prevKey => prevKey + 1);
       } catch (error: any) {
         console.error('Failed to load or parse character JSON from file:', error);

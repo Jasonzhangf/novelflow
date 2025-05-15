@@ -1,0 +1,51 @@
+{
+  "personality": {
+    "CoreTemperament": {
+      "OptimismLevel": { "Value": 50, "Caption": "乐观度" },
+      "CalmnessLevel": { "Value": 50, "Caption": "冷静度" },
+      "ExtroversionLevel": { "Value": 50, "Caption": "外向性" },
+      "SeriousnessLevel": { "Value": 50, "Caption": "严肃性" },
+      "PatienceLevel": { "Value": 50, "Caption": "耐心度" },
+      "SensitivityLevel": { "Value": 50, "Caption": "敏感度" }
+    },
+    "InternalValues": {
+      "HonestyLevel": { "Value": 50, "Caption": "诚实度" },
+      "KindnessLevel": { "Value": 50, "Caption": "善良度" },
+      "JusticeLevel": { "Value": 50, "Caption": "公正性" },
+      "LoyaltyLevel": { "Value": 50, "Caption": "忠诚度" },
+      "CourageLevel": { "Value": 50, "Caption": "勇气度" },
+      "StrengthOfPrinciples": { "Value": 50, "Caption": "原则性强度" }
+    },
+    "ThinkingStyle": {
+      "LogicalityLevel": { "Value": 50, "Caption": "逻辑性" },
+      "AnalyticalLevel": { "Value": 50, "Caption": "分析性" },
+      "CreativityLevel": { "Value": 50, "Caption": "创造性" },
+      "FlexibilityLevel": { "Value": 50, "Caption": "灵活性" },
+      "CuriosityLevel": { "Value": 50, "Caption": "好奇心强度" },
+      "DepthOfThought": { "Value": 50, "Caption": "思考深度" }
+    },
+    "InternalMotivation": {
+      "AmbitionLevel": { "Value": 50, "Caption": "野心度" },
+      "NeedForAchievementPower": { "Value": 50, "Caption": "成就/权力需求强度" },
+      "NeedForKnowledgeUnderstanding": { "Value": 50, "Caption": "求知/理解需求强度" },
+      "NeedForAffiliationBelonging": { "Value": 50, "Caption": "归属/社交需求强度" },
+      "SelfDisciplineLevel": { "Value": 50, "Caption": "自律性" },
+      "PerseveranceLevel": { "Value": 50, "Caption": "毅力强度" }
+    },
+    "SelfPerception": {
+      "ConfidenceLevel": { "Value": 50, "Caption": "自信度" },
+      "SelfEsteemLevel": { "Value": 50, "Caption": "自尊水平" },
+      "HumilityLevel": { "Value": 50, "Caption": "谦逊度" },
+      "AnxietyLevel": { "Value": 50, "Caption": "焦虑水平" },
+      "InnerPeaceLevel": { "Value": 50, "Caption": "内在平静度" }
+    }
+  },
+  "relationships": [
+    {
+      "character": "",
+      "type": "家庭成员",
+      "description": ""
+    }
+  ],
+  "language": "chinese"
+} 
