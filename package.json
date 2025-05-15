@@ -1,6 +1,6 @@
 {
   "name": "@flowgram.ai/demo-free-layout",
-  "version": "0.1.30",
+  "version": "0.1.31",
   "description": "",
   "keywords": [],
   "license": "MIT",
@@ -22,14 +22,14 @@
     "react": "^18",
     "react-dom": "^18",
     "styled-components": "^5",
-    "@flowgram.ai/free-layout-editor": "0.1.27",
-    "@flowgram.ai/free-node-panel-plugin": "0.1.27",
-    "@flowgram.ai/free-lines-plugin": "0.1.27",
-    "@flowgram.ai/minimap-plugin": "0.1.27",
-    "@flowgram.ai/free-container-plugin": "0.1.27",
-    "@flowgram.ai/free-snap-plugin": "0.1.27",
-    "@flowgram.ai/free-group-plugin": "0.1.27",
-    "@flowgram.ai/form-materials": "0.1.27"
+    "@flowgram.ai/free-layout-editor": "0.1.28",
+    "@flowgram.ai/free-snap-plugin": "0.1.28",
+    "@flowgram.ai/free-lines-plugin": "0.1.28",
+    "@flowgram.ai/minimap-plugin": "0.1.28",
+    "@flowgram.ai/free-node-panel-plugin": "0.1.28",
+    "@flowgram.ai/free-container-plugin": "0.1.28",
+    "@flowgram.ai/free-group-plugin": "0.1.28",
+    "@flowgram.ai/form-materials": "0.1.28"
   },
   "devDependencies": {
     "@rsbuild/core": "^1.2.16",
@@ -42,8 +42,8 @@
     "@types/styled-components": "^5",
     "eslint": "^8.54.0",
     "cross-env": "~7.0.3",
-    "@flowgram.ai/ts-config": "0.1.27",
-    "@flowgram.ai/eslint-config": "0.1.27"
+    "@flowgram.ai/ts-config": "0.1.28",
+    "@flowgram.ai/eslint-config": "0.1.28"
   },
   "publishConfig": {
     "access": "public",

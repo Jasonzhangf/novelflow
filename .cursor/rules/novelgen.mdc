@@ -1,6 +1,6 @@
 ---
-description:
-globs:
+description: 
+globs: 
 alwaysApply: true
 ---
 1. always write code comments and document in English and Chinese as it's a project for Chinese
@@ -9,3 +9,4 @@ alwaysApply: true
 4. try to test before deliver to users.
 5. when made modifications,try to use MCP tools to run the program to verify first and if there's problem fix it and rerun.
 6. if you can do it with MPC tools, never ask user to do it manually
+7. when creating nodes, check the design under ./src/nodes on how other nodes were designed and do it the same way. if some components don't fit for the node's need, try to create a component under ./src/components . You should create them the same way the components under this directories do. 

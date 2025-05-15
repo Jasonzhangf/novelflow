@@ -25,6 +25,7 @@ export const GroupHeader: FC<GroupHeaderProps> = ({
   return (
     <div
       className="workflow-group-header"
+      data-flow-editor-selectable="false"
       onMouseDown={onMouseDown}
       onFocus={onFocus}
       onBlur={onBlur}

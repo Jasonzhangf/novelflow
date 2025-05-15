@@ -8,7 +8,7 @@ export const initialData: FlowDocumentJSON = {
       meta: {
         position: {
           x: 180,
-          y: 298,
+          y: 381.75,
         },
       },
       data: {
@@ -30,7 +30,7 @@ export const initialData: FlowDocumentJSON = {
       meta: {
         position: {
           x: 640,
-          y: 279.5,
+          y: 363.25,
         },
       },
       data: {
@@ -80,7 +80,7 @@ export const initialData: FlowDocumentJSON = {
       meta: {
         position: {
           x: 2220,
-          y: 298,
+          y: 381.75,
         },
       },
       data: {
@@ -101,7 +101,7 @@ export const initialData: FlowDocumentJSON = {
       meta: {
         position: {
           x: 1020,
-          y: 452,
+          y: 547.96875,
         },
       },
       data: {
@@ -222,7 +222,7 @@ export const initialData: FlowDocumentJSON = {
       meta: {
         position: {
           x: 640,
-          y: 478,
+          y: 522.46875,
         },
       },
       data: {
@@ -238,8 +238,8 @@ export const initialData: FlowDocumentJSON = {
       type: 'group',
       meta: {
         position: {
-          x: -1.5112031149433278,
-          y: 0,
+          x: 1020,
+          y: 96.25,
         },
       },
       data: {
@@ -252,8 +252,8 @@ export const initialData: FlowDocumentJSON = {
           type: 'llm',
           meta: {
             position: {
-              x: 1660.1942854301792,
-              y: 1.8635936030104148,
+              x: 640,
+              y: 0,
             },
           },
           data: {
@@ -297,8 +297,8 @@ export const initialData: FlowDocumentJSON = {
           type: 'llm',
           meta: {
             position: {
-              x: 1202.8281207997074,
-              y: 1.8635936030104148,
+              x: 180,
+              y: 0,
             },
           },
           data: {

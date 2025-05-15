@@ -9,13 +9,17 @@ import './index.less';
 
 export const NodePanel: FC<NodePanelRenderProps> = (props) => {
   const { onSelect, position, onClose, panelProps } = props;
-  const { enableNodePlaceholder } = panelProps;
+  const enableNodePlaceholder = panelProps?.enableNodePlaceholder;
 
   return (
     <Popover
       trigger="click"
       visible={true}
-      onVisibleChange={(v) => (v ? null : onClose())}
+      onVisibleChange={(v) => {
+        if (!v) {
+          setTimeout(() => onClose(), 0);
+        }
+      }}
       content={<NodeList onSelect={onSelect} />}
       placement="right"
       popupAlign={{ offset: [30, 0] }}
