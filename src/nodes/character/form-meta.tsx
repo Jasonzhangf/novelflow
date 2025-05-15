@@ -27,6 +27,7 @@ export const renderCharacterForm = ({ form }: FormRenderProps<CharacterNodeData>
   const [displayedFileName, setDisplayedFileName] = useState<string>(() => {
     return form.getValueIn<string>('data.properties.characterFilePath') || '';
   });
+  const [formContentKey, setFormContentKey] = useState(0);
 
   useEffect(() => {
     const currentPathInForm = form.getValueIn<string>('data.properties.characterFilePath') || '';
@@ -57,16 +58,56 @@ export const renderCharacterForm = ({ form }: FormRenderProps<CharacterNodeData>
           form.setValueIn('data.title', jsonData.name);
         }
         console.log('Character data loaded from file and form updated.');
+        setFormContentKey(prevKey => prevKey + 1);
       } catch (error: any) {
         console.error('Failed to load or parse character JSON from file:', error);
         form.setValueIn('data.properties.loadError', error.message || 'Failed to load data.');
         form.setValueIn('data.properties.characterJSON', {}); 
         form.setValueIn('data.properties.characterName', '');
+        setFormContentKey(prevKey => prevKey + 1);
       }
     }
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
+  };
+
+  const triggerDownload = (content: string, fileName: string) => {
+    const blob = new Blob([content], { type: 'application/json;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', fileName);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
+  const handleSave = () => {
+    if (!displayedFileName) {
+      alert("没有加载文件，无法保存。请先使用 '导出' 或加载文件。");
+      return;
+    }
+    const characterJSON = form.getValueIn('data.properties.characterJSON');
+    if (!characterJSON) {
+      alert("没有数据可保存。");
+      return;
+    }
+    triggerDownload(JSON.stringify(characterJSON, null, 2), displayedFileName);
+  };
+
+  const handleExport = () => {
+    const characterJSON = form.getValueIn('data.properties.characterJSON');
+    if (!characterJSON || Object.keys(characterJSON).length === 0) {
+      alert("没有数据可导出。");
+      // Or trigger download with empty JSON object
+      // triggerDownload(JSON.stringify({}, null, 2), 'empty-character.json');
+      return;
+    }
+    const characterName = form.getValueIn<string>('data.properties.characterName');
+    const fileName = characterName ? `${characterName.replace(/[^a-z0-9_\-\s\u4e00-\u9fa5]/gi, '_')}.json` : 'character-export.json';
+    triggerDownload(JSON.stringify(characterJSON, null, 2), fileName);
   };
 
   const commonInputStyle: React.CSSProperties = {
@@ -98,37 +139,53 @@ export const renderCharacterForm = ({ form }: FormRenderProps<CharacterNodeData>
   return (
     <>
       <FormHeader />
-      <FormContent>
-        <div style={{ marginBottom: '10px', padding: '0 10px' }}>
-          <label style={{ display: 'block', marginBottom: '5px' }}>
-            Character File / 角色文件:
+      <FormContent key={formContentKey}>
+        <div style={{ marginBottom: '20px', padding: '0 10px' }}>
+          <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>
+            角色文件:
           </label>
-          <input 
-            type="file" 
-            accept=".json" 
-            ref={fileInputRef} 
-            onChange={handleFileSelected} 
-            style={{ display: 'none' }} 
-          />
-          <button onClick={handleBrowseClick} style={{ padding: '8px 12px', marginRight: '10px' }}>
-            Browse... / 浏览...
-          </button>
-          <span style={{ fontStyle: displayedFileName ? 'normal' : 'italic' }}>
-            {displayedFileName || 'No file selected / 未选择文件'}
-          </span>
-          
+          <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
+            <input
+              type="file"
+              accept=".json"
+              ref={fileInputRef}
+              onChange={handleFileSelected}
+              style={{ display: 'none' }}
+            />
+            <button onClick={handleBrowseClick} style={{ padding: '8px 12px' }}>
+              浏览...
+            </button>
+            <button onClick={handleSave} disabled={!displayedFileName} style={{ padding: '8px 12px' }}>
+              保存
+            </button>
+            <button onClick={handleExport} style={{ padding: '8px 12px' }}>
+              导出
+            </button>
+          </div>
+          {displayedFileName && (
+            <span style={{ fontStyle: 'italic', display: 'block', marginTop: '8px', color: '#555' }}>
+              已加载: {displayedFileName}
+            </span>
+          )}
+          {!displayedFileName && (
+             <span style={{ fontStyle: 'italic', display: 'block', marginTop: '8px', color: '#777' }}>
+                未选择文件
+             </span>
+          )}
           {form.getValueIn<string>('data.properties.loadError') && (
-            <p style={{ color: 'red', marginTop: '5px' }}>{form.getValueIn<string>('data.properties.loadError')}</p>
+            <p style={{ color: 'red', marginTop: '8px', fontSize: '0.9em' }}>
+              错误: {form.getValueIn<string>('data.properties.loadError')}
+            </p>
           )}
         </div>
 
-        <div style={{ padding: '0 10px', marginTop: '15px', marginBottom: '10px' }}>
-            <strong>Character Details / 角色详情:</strong>
+        <div style={{ padding: '0 10px', marginTop: '15px', marginBottom: '10px', borderTop: '1px solid #eee', paddingTop: '15px' }}>
+            <strong style={{ fontSize: '1.1em' }}>角色详情:</strong>
         </div>
 
         {/* Name Field */}
         <div style={fieldContainerStyle}>
-          <label style={commonLabelStyle}>Name / 名称:</label>
+          <label style={commonLabelStyle}>名称:</label>
           <input
             type="text"
             style={commonInputStyle}
@@ -145,7 +202,7 @@ export const renderCharacterForm = ({ form }: FormRenderProps<CharacterNodeData>
 
         {/* Age Field */}
         <div style={fieldContainerStyle}>
-          <label style={commonLabelStyle}>Age / 年龄:</label>
+          <label style={commonLabelStyle}>年龄:</label>
           <input
             type="number"
             style={commonInputStyle}
@@ -164,12 +221,12 @@ export const renderCharacterForm = ({ form }: FormRenderProps<CharacterNodeData>
 
         {/* Background Section Title */}
         <div style={{ padding: '0 10px', marginTop: '15px', marginBottom: '5px' }}>
-            <strong>Background / 背景:</strong>
+            <strong style={{ fontSize: '1.05em' }}>背景:</strong>
         </div>
 
         {/* Background Origin Field */}
         <div style={fieldContainerStyle}>
-          <label style={commonLabelStyle}>Origin / 出身:</label>
+          <label style={commonLabelStyle}>出身:</label>
           <textarea
             style={{ ...commonInputStyle, minHeight: '60px', fontFamily: 'inherit', fontSize: 'inherit' }}
             value={(form.getValueIn<Record<string, any>>('data.properties.characterJSON.background') || {}).origin || ''}
@@ -187,7 +244,7 @@ export const renderCharacterForm = ({ form }: FormRenderProps<CharacterNodeData>
 
         {/* Background Occupation Field */}
         <div style={fieldContainerStyle}>
-          <label style={commonLabelStyle}>Occupation / 职业:</label>
+          <label style={commonLabelStyle}>职业:</label>
           <textarea
             style={{ ...commonInputStyle, minHeight: '60px', fontFamily: 'inherit', fontSize: 'inherit' }}
             value={(form.getValueIn<Record<string, any>>('data.properties.characterJSON.background') || {}).occupation || ''}
@@ -205,7 +262,7 @@ export const renderCharacterForm = ({ form }: FormRenderProps<CharacterNodeData>
 
         {/* Background History Field */}
         <div style={fieldContainerStyle}>
-          <label style={commonLabelStyle}>History / 经历:</label>
+          <label style={commonLabelStyle}>经历:</label>
           <textarea
             style={{ ...commonInputStyle, minHeight: '100px', fontFamily: 'inherit', fontSize: 'inherit' }}
             value={(form.getValueIn<Record<string, any>>('data.properties.characterJSON.background') || {}).history || ''}
@@ -222,8 +279,8 @@ export const renderCharacterForm = ({ form }: FormRenderProps<CharacterNodeData>
         </div>
 
         {/* Other Properties Section Title */}
-        <div style={{ padding: '0 10px', marginTop: '15px', marginBottom: '5px' }}>
-            <strong>Other Properties / 其他属性:</strong>
+        <div style={{ padding: '0 10px', marginTop: '15px', marginBottom: '5px', borderTop: '1px solid #eee', paddingTop: '15px' }}>
+            <strong style={{ fontSize: '1.1em' }}>其他属性:</strong>
         </div>
 
         {/* Other Properties JSON Textarea */}
