@@ -1,91 +1,74 @@
 import { FlowDocumentJSON } from './typings';
+import { WorkflowNodeType } from './nodes'; // Ensure WorkflowNodeType is imported
 
 export const initialData: FlowDocumentJSON = {
   nodes: [
     {
       id: 'start_0',
-      type: 'start',
+      type: WorkflowNodeType.Start, // Use enum for type safety
       meta: {
         position: {
-          x: 180,
-          y: 381.75,
+          x: 100,
+          y: 200,
         },
       },
       data: {
-        title: 'Start',
+        title: 'Start / 开始',
         outputs: {
           type: 'object',
           properties: {
-            query: {
+            query: { // Default output for start node
               type: 'string',
-              default: 'Hello Flow.',
+              default: '',
             },
           },
         },
       },
     },
     {
-      id: 'condition_0',
-      type: 'condition',
+      id: 'character_0', // New character node
+      type: WorkflowNodeType.CHARACTER, // Use enum for type safety
       meta: {
         position: {
-          x: 640,
-          y: 363.25,
+          x: 400,
+          y: 200,
         },
       },
       data: {
-        title: 'Condition',
-        inputsValues: {
-          conditions: [
-            {
-              key: 'if_0',
-              value: {
-                type: 'expression',
-                content: '',
-              },
-            },
-            {
-              key: 'if_f0rOAt',
-              value: {
-                type: 'expression',
-                content: '',
-              },
-            },
-          ],
+        title: 'Character / 角色',
+        // inputs, outputs, properties will be set by onAdd or form initialization
+        // For initialData, we can set properties to ensure it's structured for the form.
+        // The form's useEffect will merge this with defaultCharacterTemplate.
+        properties: {
+          characterName: '新角色', // Default name
+          characterFilePath: '',
+          characterJSON: {
+            // Minimal structure, or rely on default template merge in form-meta
+            // name: "新角色",
+            // age: null,
+            // background: { origin: "", occupation: "", history: "" }
+            // Let's keep it minimal and let form-meta handle the full default structure.
+          }, 
+          loadError: '',
         },
-        inputs: {
-          type: 'object',
-          properties: {
-            conditions: {
-              type: 'array',
-              items: {
-                type: 'object',
-                properties: {
-                  key: {
-                    type: 'string',
-                  },
-                  value: {
-                    type: 'string',
-                  },
-                },
-              },
-            },
-          },
-        },
+        inputsValues: {},
+         // Define basic inputs/outputs if needed for direct connection,
+         // otherwise, ports might be dynamically added or inferred by the editor.
+         // For now, let's assume default ports are handled by the node registration.
       },
     },
     {
       id: 'end_0',
-      type: 'end',
+      type: WorkflowNodeType.End, // Use enum for type safety
       meta: {
         position: {
-          x: 2220,
-          y: 381.75,
+          x: 700,
+          y: 200,
         },
       },
       data: {
-        title: 'End',
-        outputs: {
+        title: 'End / 结束',
+        inputs: { // Default input for end node
           type: 'object',
           properties: {
             result: {
@@ -94,284 +77,19 @@ export const initialData: FlowDocumentJSON = {
           },
         },
       },
-    },
-    {
-      id: 'loop_H8M3U',
-      type: 'loop',
-      meta: {
-        position: {
-          x: 1020,
-          y: 547.96875,
-        },
-      },
-      data: {
-        title: 'Loop_2',
-        inputsValues: {
-          loopTimes: 2,
-        },
-        inputs: {
-          type: 'object',
-          required: ['loopTimes'],
-          properties: {
-            loopTimes: {
-              type: 'number',
-            },
-          },
-        },
-        outputs: {
-          type: 'object',
-          properties: {
-            result: {
-              type: 'string',
-            },
-          },
-        },
-      },
-      blocks: [
-        {
-          id: 'llm_CBdCg',
-          type: 'llm',
-          meta: {
-            position: {
-              x: 180,
-              y: 0,
-            },
-          },
-          data: {
-            title: 'LLM_4',
-            inputsValues: {},
-            inputs: {
-              type: 'object',
-              required: ['modelType', 'temperature', 'prompt'],
-              properties: {
-                modelType: {
-                  type: 'string',
-                },
-                temperature: {
-                  type: 'number',
-                },
-                systemPrompt: {
-                  type: 'string',
-                },
-                prompt: {
-                  type: 'string',
-                },
-              },
-            },
-            outputs: {
-              type: 'object',
-              properties: {
-                result: {
-                  type: 'string',
-                },
-              },
-            },
-          },
-        },
-        {
-          id: 'llm_gZafu',
-          type: 'llm',
-          meta: {
-            position: {
-              x: 640,
-              y: 0,
-            },
-          },
-          data: {
-            title: 'LLM_5',
-            inputsValues: {},
-            inputs: {
-              type: 'object',
-              required: ['modelType', 'temperature', 'prompt'],
-              properties: {
-                modelType: {
-                  type: 'string',
-                },
-                temperature: {
-                  type: 'number',
-                },
-                systemPrompt: {
-                  type: 'string',
-                },
-                prompt: {
-                  type: 'string',
-                },
-              },
-            },
-            outputs: {
-              type: 'object',
-              properties: {
-                result: {
-                  type: 'string',
-                },
-              },
-            },
-          },
-        },
-      ],
-      edges: [
-        {
-          sourceNodeID: 'llm_CBdCg',
-          targetNodeID: 'llm_gZafu',
-        },
-      ],
-    },
-    {
-      id: '159623',
-      type: 'comment',
-      meta: {
-        position: {
-          x: 640,
-          y: 522.46875,
-        },
-      },
-      data: {
-        size: {
-          width: 240,
-          height: 150,
-        },
-        note: 'hi ~\n\nthis is a comment node\n\n- flowgram.ai',
-      },
-    },
-    {
-      id: 'group_V-_st',
-      type: 'group',
-      meta: {
-        position: {
-          x: 1020,
-          y: 96.25,
-        },
-      },
-      data: {
-        title: 'LLM_Group',
-        color: 'Violet',
-      },
-      blocks: [
-        {
-          id: 'llm_0',
-          type: 'llm',
-          meta: {
-            position: {
-              x: 640,
-              y: 0,
-            },
-          },
-          data: {
-            title: 'LLM_0',
-            inputsValues: {
-              modelType: 'gpt-3.5-turbo',
-              temperature: 0.5,
-              systemPrompt: 'You are an AI assistant.',
-              prompt: '',
-            },
-            inputs: {
-              type: 'object',
-              required: ['modelType', 'temperature', 'prompt'],
-              properties: {
-                modelType: {
-                  type: 'string',
-                },
-                temperature: {
-                  type: 'number',
-                },
-                systemPrompt: {
-                  type: 'string',
-                },
-                prompt: {
-                  type: 'string',
-                },
-              },
-            },
-            outputs: {
-              type: 'object',
-              properties: {
-                result: {
-                  type: 'string',
-                },
-              },
-            },
-          },
-        },
-        {
-          id: 'llm_l_TcE',
-          type: 'llm',
-          meta: {
-            position: {
-              x: 180,
-              y: 0,
-            },
-          },
-          data: {
-            title: 'LLM_1',
-            inputsValues: {},
-            inputs: {
-              type: 'object',
-              required: ['modelType', 'temperature', 'prompt'],
-              properties: {
-                modelType: {
-                  type: 'string',
-                },
-                temperature: {
-                  type: 'number',
-                },
-                systemPrompt: {
-                  type: 'string',
-                },
-                prompt: {
-                  type: 'string',
-                },
-              },
-            },
-            outputs: {
-              type: 'object',
-              properties: {
-                result: {
-                  type: 'string',
-                },
-              },
-            },
-          },
-        },
-      ],
-      edges: [
-        {
-          sourceNodeID: 'llm_l_TcE',
-          targetNodeID: 'llm_0',
-        },
-        {
-          sourceNodeID: 'llm_0',
-          targetNodeID: 'end_0',
-        },
-        {
-          sourceNodeID: 'condition_0',
-          targetNodeID: 'llm_l_TcE',
-          sourcePortID: 'if_0',
-        },
-      ],
     },
   ],
   edges: [
     {
       sourceNodeID: 'start_0',
-      targetNodeID: 'condition_0',
+      targetNodeID: 'character_0',
+      // sourcePortID and targetPortID might be needed if nodes have multiple ports
+      // Assuming default output of start connects to default input of character
     },
     {
-      sourceNodeID: 'condition_0',
-      targetNodeID: 'llm_l_TcE',
-      sourcePortID: 'if_0',
-    },
-    {
-      sourceNodeID: 'condition_0',
-      targetNodeID: 'loop_H8M3U',
-      sourcePortID: 'if_f0rOAt',
-    },
-    {
-      sourceNodeID: 'llm_0',
+      sourceNodeID: 'character_0',
       targetNodeID: 'end_0',
-    },
-    {
-      sourceNodeID: 'loop_H8M3U',
-      targetNodeID: 'end_0',
+      // Assuming default output of character connects to default input of end
     },
   ],
 };

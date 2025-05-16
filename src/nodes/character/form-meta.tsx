@@ -113,7 +113,6 @@ export const renderCharacterForm = ({ form }: FormRenderProps<CharacterNodeData>
       if (!form.getValueIn('data.title') && mergedData.name) {
          form.setValueIn('data.title', mergedData.name);
       }
-      setFormContentKey(prevKey => prevKey + 1);
     }
   }, [form]);
 
@@ -552,6 +551,8 @@ export const renderCharacterForm = ({ form }: FormRenderProps<CharacterNodeData>
     <>
       <FormHeader />
       <FormContent key={formContentKey}>
+        {/* Entire Character File section commented out */}
+        {/*
         <div style={{ marginBottom: '20px', padding: '0 10px' }}>
           <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>
             角色文件:
@@ -590,9 +591,11 @@ export const renderCharacterForm = ({ form }: FormRenderProps<CharacterNodeData>
             </p>
           )}
         </div>
+        */}
 
-        <div style={{ padding: '0 10px', marginTop: '15px', marginBottom: '10px', borderTop: '1px solid #eee', paddingTop: '15px' }}>
-            <strong style={{ fontSize: '1.1em' }}>角色详情:</strong>
+        {/* Character Details section - Title commented out, fields remain */}
+        <div style={{ padding: '0 10px', /*marginTop: '15px',*/ marginBottom: '10px', /*borderTop: '1px solid #eee', paddingTop: '15px'*/ }}>
+          {/* <strong style={{ fontSize: '1.1em' }}>角色详情:</strong> */}
         </div>
 
         {/* Name Field */}
@@ -631,12 +634,13 @@ export const renderCharacterForm = ({ form }: FormRenderProps<CharacterNodeData>
           />
         </div>
 
-        {/* Background Section Title */}
+        {/* Background Section Title - Title commented out, fields remain */}
         <div style={{ padding: '0 10px', marginTop: '15px', marginBottom: '5px' }}>
-            <strong style={{ fontSize: '1.05em' }}>背景:</strong>
+            {/* <strong style={{ fontSize: '1.05em' }}>背景:</strong> */}
         </div>
 
-        {/* Background Origin Field */}
+        {/* Background Origin Field - Commented out */}
+        {/*
         <div style={fieldContainerStyle}>
           <label style={commonLabelStyle}>出身:</label>
           <input
@@ -654,8 +658,10 @@ export const renderCharacterForm = ({ form }: FormRenderProps<CharacterNodeData>
             }}
           />
         </div>
+        */}
 
-        {/* Background Occupation Field */}
+        {/* Background Occupation Field - Commented out */}
+        {/*
         <div style={fieldContainerStyle}>
           <label style={commonLabelStyle}>职业:</label>
           <input
@@ -673,8 +679,10 @@ export const renderCharacterForm = ({ form }: FormRenderProps<CharacterNodeData>
             }}
           />
         </div>
+        */}
 
-        {/* Background History Field */}
+        {/* Background History Field - Commented out */}
+        {/*
         <div style={fieldContainerStyle}>
           <label style={commonLabelStyle}>经历:</label>
           <textarea
@@ -691,8 +699,9 @@ export const renderCharacterForm = ({ form }: FormRenderProps<CharacterNodeData>
             }}
           />
         </div>
+        */}
 
-        {/* Other Properties Dynamically Rendered */}
+        {/* Other Properties Dynamically Rendered - THIS SECTION MUST BE UNCOMMENTED AND ACTIVE */}
         <div style={{ padding: '0 10px', marginTop: '20px', marginBottom: '10px', borderTop: '2px solid #ccc', paddingTop: '15px' }}>
             <strong style={{ fontSize: '1.15em' }}>其他主要属性:</strong>
         </div>

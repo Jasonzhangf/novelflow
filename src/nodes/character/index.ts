@@ -5,6 +5,7 @@ import { FlowNodeRegistry, FlowNodeMeta } from '../../typings';
 import iconCharacterPlaceholder from '../../assets/icon-llm.jpg'; // Using icon-llm.jpg as a temporary placeholder
 
 import { renderCharacterForm } from './form-meta';
+import { CharacterNodeCanvas } from './CharacterNodeCanvas'; // Import the new canvas renderer
 
 // Helper function to deep clone (assuming it's available or defined elsewhere)
 // If not, a simple JSON.parse(JSON.stringify(obj)) can be used for basic cases.
@@ -31,6 +32,7 @@ function deepClone<T>(obj: T): T {
     if (Object.prototype.hasOwnProperty.call(obj, key)) {
       clonedObj[key] = deepClone(obj[key]);
     }
+
   }
   return clonedObj;
 }
@@ -146,11 +148,12 @@ export const CharacterNodeRegistry: FlowNodeRegistry = {
     description: 'Represents and manages character data from a JSON source. / 代表并管理来自JSON源的角色数据。',
   },
   meta: {
-    size: { // Default size, can be adjusted
-      width: 280,
-      height: 120,
+    size: { 
+      width: 200, // Adjusted size for a more compact canvas view
+      height: 80,
     },
   },
+  render: CharacterNodeCanvas, // Assign the custom canvas renderer here
   formMeta: {
     render: renderCharacterForm,
   },
