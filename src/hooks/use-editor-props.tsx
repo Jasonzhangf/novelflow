@@ -19,6 +19,7 @@ import { defaultFormMeta } from '../nodes/default-form-meta';
 import { WorkflowNodeType } from '../nodes';
 import { SelectorBoxPopover } from '../components/selector-box-popover';
 import { BaseNode, CommentRender, GroupNodeRender, LineAddButton, NodePanel } from '../components';
+import { CharacterNodeCanvas } from '../nodes/character/CharacterNodeCanvas';
 
 export function useEditorProps(
   initialData: FlowDocumentJSON,
@@ -108,6 +109,7 @@ export function useEditorProps(
         renderDefaultNode: BaseNode,
         renderNodes: {
           [WorkflowNodeType.Comment]: CommentRender,
+          CharacterNodeCanvasKey: CharacterNodeCanvas,
         },
       },
       /**

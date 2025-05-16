@@ -1,5 +1,7 @@
+import { NodeRenderProps, useNodeRender } from '@flowgram.ai/free-layout-editor';
 import React from 'react';
-import { NodeRenderProps } from '@flowgram.ai/free-layout-editor';
+import { NodeWrapper } from '../../components/base-node/node-wrapper';
+import { NodeRenderContext } from '../../context';
 
 // Define the expected structure of characterJSON for the canvas view.
 interface CharacterDetailsFromTemplate {
@@ -9,8 +11,9 @@ interface CharacterDetailsFromTemplate {
 
 // Define the structure of the 'properties' object within node.data
 interface CanvasNodeProperties {
+  characterName?: string; // Added to explicitly include characterName
   characterJSON: CharacterDetailsFromTemplate;
-  // other properties like characterName, characterFilePath might also be here
+  // other properties like characterFilePath might also be here
   // but CharacterNodeCanvas only needs characterJSON for name.
 }
 
@@ -21,58 +24,27 @@ interface CanvasNodeData {
 }
 
 export const CharacterNodeCanvas: React.FC<NodeRenderProps> = ({ node }) => {
-  // node.data is expected to conform to CanvasNodeData
-  // We access node.data.properties.characterJSON
-  const properties = (node as any).data?.properties as CanvasNodeProperties | undefined;
-  const characterData = properties?.characterJSON;
+  const nodeRender = useNodeRender(); // Use the hook
 
-  const displayName = characterData?.name || '角色'; // Default to "角色" (Character)
-  const displayAge = characterData?.age; // Re-added age
+  // Access data using nodeRender.form.values, which represents node.data
+  const nodeData = nodeRender.form?.values as CanvasNodeData | undefined;
+
+  // Correctly access characterName and characterJSON from nodeData.properties
+  const characterName = nodeData?.properties?.characterName;
+  const characterJSON = nodeData?.properties?.characterJSON;
+
+  const displayName = String(characterName || 'Unknown Character / 未知角色');
+  // Access age from the retrieved characterJSON object
+  const displayAge = String(characterJSON?.age || '??');
 
   return (
-    <div style={{
-      width: '100%',
-      height: '100%',
-      padding: '10px', // Adjusted padding back for two lines
-      border: '1px solid #666',
-      borderRadius: '8px',
-      boxSizing: 'border-box',
-      display: 'flex',
-      flexDirection: 'column',
-      justifyContent: 'center',
-      alignItems: 'center',
-      backgroundColor: '#f0f0f0',
-      fontFamily: 'Arial, sans-serif',
-      overflow: 'hidden',
-      textAlign: 'center',
-    }}>
-      <div style={{
-        fontWeight: 'bold',
-        fontSize: '16px',
-        color: '#333',
-        marginBottom: displayAge !== undefined ? '8px' : '0px', // Add margin only if age is displayed
-      }}>
-        {displayName}
-      </div>
-      {displayAge !== undefined && (
-        <div style={{
-          fontSize: '12px',
-          color: '#555'
-        }}>
-          年龄: {displayAge}
+    <NodeRenderContext.Provider value={nodeRender}>
+      <NodeWrapper>
+        <div style={{ padding: '10px', border: '1px solid #ccc', borderRadius: '5px', background: '#f9f9f9', width: '100%', height: '100%', boxSizing: 'border-box' }}>
+          <div><strong>{displayName}</strong></div>
+          <div>Age / 年龄: {displayAge}</div>
         </div>
-      )}
-       {/* Optional: Display a placeholder if age is not set and you want one */}
-       {/* We removed this before, can be added back if desired 
-       displayAge === undefined && (
-        <div style={{
-          fontSize: '10px',
-          fontStyle: 'italic',
-          color: '#888'
-        }}>
-          (年龄未设置)
-        </div>
-       )*/}
-    </div>
+      </NodeWrapper>
+    </NodeRenderContext.Provider>
   );
 }; 

@@ -7,6 +7,7 @@ import { WorkflowNodeType } from './constants';
 import { ConditionNodeRegistry } from './condition';
 import { CommentNodeRegistry } from './comment';
 import { CharacterNodeRegistry } from './character';
+import { JsonViewerNodeRegistry } from './jsonViewer';
 export { WorkflowNodeType } from './constants';
 
 export const nodeRegistries: FlowNodeRegistry[] = [
@@ -17,6 +18,7 @@ export const nodeRegistries: FlowNodeRegistry[] = [
   LoopNodeRegistry,
   CommentNodeRegistry,
   CharacterNodeRegistry,
+  JsonViewerNodeRegistry,
 ];
 
 export const visibleNodeRegistries = nodeRegistries.filter(

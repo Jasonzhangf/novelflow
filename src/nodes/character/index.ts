@@ -152,9 +152,9 @@ export const CharacterNodeRegistry: FlowNodeRegistry = {
       width: 200, // Adjusted size for a more compact canvas view
       height: 80,
     },
+    renderKey: 'CharacterNodeCanvasKey', // Using renderKey now
   },
-  render: CharacterNodeCanvas, // Assign the custom canvas renderer here
-  formMeta: {
+  formMeta: {  // <--- This should now be correctly used for the form only
     render: renderCharacterForm,
   },
   onAdd() {

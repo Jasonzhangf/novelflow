@@ -6,4 +6,5 @@ export enum WorkflowNodeType {
   Loop = 'loop',
   Comment = 'comment',
   CHARACTER = 'character',
+  JSON_VIEWER = 'json_viewer',
 }

@@ -551,8 +551,7 @@ export const renderCharacterForm = ({ form }: FormRenderProps<CharacterNodeData>
     <>
       <FormHeader />
       <FormContent key={formContentKey}>
-        {/* Entire Character File section commented out */}
-        {/*
+        {/* Entire Character File section WAS commented out, NOW UNCOMMENTED */}
         <div style={{ marginBottom: '20px', padding: '0 10px' }}>
           <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>
             角色文件:
@@ -591,7 +590,6 @@ export const renderCharacterForm = ({ form }: FormRenderProps<CharacterNodeData>
             </p>
           )}
         </div>
-        */}
 
         {/* Character Details section - Title commented out, fields remain */}
         <div style={{ padding: '0 10px', /*marginTop: '15px',*/ marginBottom: '10px', /*borderTop: '1px solid #eee', paddingTop: '15px'*/ }}>
@@ -630,6 +628,7 @@ export const renderCharacterForm = ({ form }: FormRenderProps<CharacterNodeData>
                 ...currentJson, 
                 age: isNaN(parsedAge) ? undefined : parsedAge 
               });
+              setFormContentKey(prevKey => prevKey + 1);
             }}
           />
         </div>
