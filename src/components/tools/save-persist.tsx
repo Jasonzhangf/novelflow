@@ -42,15 +42,16 @@ export function SavePersist(props: { disabled: boolean }) {
     }
   }, [clientContext, props.disabled]);
 
-  return React.createElement(
-    Button,
-    {
-      disabled: props.disabled,
-      onClick: onSave,
-      style: { marginRight: 10 },
-      type: props.disabled ? undefined : 'primary',
-    },
-    '本地保存 (Persist)'
+  return (
+    <Button
+      disabled={props.disabled}
+      onClick={onSave}
+      style={{ marginRight: 10 }}
+      type={props.disabled ? undefined : 'primary'}
+      icon={<IconSave />}
+    >
+      本地保存 (Persist)
+    </Button>
   );
 }
 

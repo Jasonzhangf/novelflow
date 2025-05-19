@@ -220,6 +220,19 @@ export const CharacterNodeRegistry: FlowNodeRegistry = {
         title: characterName,
         // ... 其他 meta
       },
+      outputs: {
+        type: 'object',
+        properties: {
+          jsonDataOut: {
+            type: 'object',
+            title: 'Character JSON / 角色JSON',
+            description: 'The full character JSON object / 完整角色JSON对象',
+          },
+        },
+      },
+      outputsValues: {
+        jsonDataOut: emptyCharacterTemplate,
+      },
     };
   },
 };

@@ -9,7 +9,7 @@ import {
   FlowNodeEntity,
 } from '@flowgram.ai/free-layout-editor';
 
-import { FormHeader, FormContent } from '../../form-components';
+import { FormHeader } from '../../form-components';
 import defaultCharacterTemplateJson from '../../../Templates/default-character-template.json';
 
 // Define an interface for the character template structure
@@ -275,6 +275,7 @@ export const renderCharacterForm = ({ form, t }: CustomFormRenderProps) => {
         currentJsonInEffect || {}
       );
       form.setValueIn(characterJSONPath, currentJsonInEffect);
+      form.setValueIn('outputsValues.jsonDataOut', currentJsonInEffect);
       changed = true;
     }
 
@@ -288,13 +289,9 @@ export const renderCharacterForm = ({ form, t }: CustomFormRenderProps) => {
         changed = true;
       }
     }
-
-    // if (changed && formContentKey === 0) { // Only trigger if truly initial setup, or manage key more carefully
-    //   setFormContentKey(prev => prev + 1);
-    // }
-
+    form.setValueIn('outputsValues.jsonDataOut', currentJsonInEffect);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Run once on mount to initialize
+  }, []);
 
   useEffect(() => {
     const currentPathInForm = form.getValueIn<string>('data.properties.characterFilePath') || '';
@@ -352,6 +349,7 @@ export const renderCharacterForm = ({ form, t }: CustomFormRenderProps) => {
         if (mergedJsonData.name) {
           form.setValueIn('data.title', mergedJsonData.name);
         }
+        form.setValueIn('outputsValues.jsonDataOut', mergedJsonData);
         // console.log('Character data loaded from file, merged with defaults, and form updated.');
         // setFormContentKey(prevKey => prevKey + 1); // Temporarily commented out
       } catch (error: any) {
@@ -393,6 +391,7 @@ export const renderCharacterForm = ({ form, t }: CustomFormRenderProps) => {
       return;
     }
     triggerDownload(JSON.stringify(characterJSON, null, 2), currentFilePath);
+    form.setValueIn('outputsValues.jsonDataOut', characterJSON);
   };
 
   const handleExport = () => {
@@ -407,11 +406,10 @@ export const renderCharacterForm = ({ form, t }: CustomFormRenderProps) => {
       'character';
     const fileName = `${characterName.replace(/[^a-z0-9_\-\s\u4e00-\u9fa5]/gi, '_')}.json`;
     triggerDownload(JSON.stringify(characterJSON, null, 2), fileName);
-    // Update displayedFileName and characterFilePath in form if this is the first save/export
     if (!form.getValueIn('data.properties.characterFilePath')) {
       form.setValueIn('data.properties.characterFilePath', fileName);
-      // setDisplayedFileName(fileName); // Not needed, will sync from form
     }
+    form.setValueIn('outputsValues.jsonDataOut', characterJSON);
   };
 
   const baseInputStyle: React.CSSProperties = {
@@ -525,11 +523,13 @@ export const renderCharacterForm = ({ form, t }: CustomFormRenderProps) => {
         ...(Object.keys(updatedRemaining).length > 0 ? updatedRemaining : {}),
       };
       form.setValueIn('data.properties.characterJSON', newFullJson);
+      form.setValueIn('outputsValues.jsonDataOut', newFullJson);
       // setFormContentKey(prevKey => prevKey + 1); // Temporarily commented out
     };
 
     const currentIndent = depth * 15;
 
+    // 1. 特殊结构（Value/Caption/Unit）
     if (
       typeof propValue === 'object' &&
       propValue !== null &&
@@ -563,6 +563,7 @@ export const renderCharacterForm = ({ form, t }: CustomFormRenderProps) => {
       );
     }
 
+    // 2. personality 子分组
     const parentPath = currentPath.substring(0, currentPath.lastIndexOf('.'));
     const isPersonalitySubGroup =
       parentPath === 'personality' &&
@@ -613,7 +614,7 @@ export const renderCharacterForm = ({ form, t }: CustomFormRenderProps) => {
                             marginTop: 0,
                             width: '100%',
                             marginBottom: 0,
-                          }} // Override default margins of ManagedInput
+                          }}
                         />
                       </td>
                     </tr>
@@ -625,92 +626,97 @@ export const renderCharacterForm = ({ form, t }: CustomFormRenderProps) => {
           </table>
         </div>
       );
-    } else if (Array.isArray(propValue)) {
-      if (currentPath === 'relationships') {
-        return (
-          <div
-            key={currentPath}
-            style={{ marginBottom: '10px', marginLeft: `${currentIndent}px`, paddingLeft: '0px' }}
-          >
-            {propValue.map((item: any, index: number) => (
-              <div
-                key={`${currentPath}.${index}`}
-                style={{
-                  border: '1px solid #ddd',
-                  padding: '10px',
-                  margin: '10px 0',
-                  backgroundColor: '#fdfdfd',
-                  borderRadius: '4px',
-                }}
-              >
-                <div
-                  style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    marginBottom: '10px',
-                  }}
-                >
-                  <strong style={{ fontSize: '0.95em' }}>关系 #{index + 1}</strong>
-                  <button
-                    onClick={() => {
-                      const newRelationships = [...propValue];
-                      newRelationships.splice(index, 1);
-                      handleInputChange(newRelationships);
-                    }}
-                    style={{
-                      padding: '3px 8px',
-                      fontSize: '0.85em',
-                      backgroundColor: '#f44336',
-                      color: 'white',
-                      border: 'none',
-                      borderRadius: '3px',
-                      cursor: 'pointer',
-                    }}
-                  >
-                    删除
-                  </button>
-                </div>
-                {(Object.keys(item || {}) as Array<keyof typeof item>).map((itemKey) => (
-                  <ManagedInput
-                    key={`${currentPath}.${index}.${String(itemKey)}`}
-                    label={`${getChineseGroupName(String(itemKey))} (${String(itemKey)})`}
-                    initialValue={item[itemKey] || ''}
-                    type="text"
-                    multiline={
-                      String(itemKey).toLowerCase().includes('description') ||
-                      String(itemKey).toLowerCase().includes('history')
-                    }
-                    onCommit={(committedValue) => {
-                      const newItem = { ...item, [itemKey]: committedValue };
-                      const newRelationships = [...propValue];
-                      newRelationships[index] = newItem;
-                      handleInputChange(newRelationships);
-                    }}
-                  />
-                ))}
-              </div>
-            ))}
-            <button
-              onClick={() => {
-                const newRelationship = { character: '', type: '', description: '' };
-                handleInputChange([...propValue, newRelationship]);
-              }}
+    }
+
+    // 3. relationships 列表
+    if (currentPath === 'relationships') {
+      return (
+        <div
+          key={currentPath}
+          style={{ marginBottom: '10px', marginLeft: `${currentIndent}px`, paddingLeft: '0px' }}
+        >
+          {propValue.map((item: any, index: number) => (
+            <div
+              key={`${currentPath}.${index}`}
               style={{
-                marginTop: '10px',
-                padding: '8px 12px',
-                backgroundColor: '#4CAF50',
-                color: 'white',
-                border: 'none',
+                border: '1px solid #ddd',
+                padding: '10px',
+                margin: '10px 0',
+                backgroundColor: '#fdfdfd',
                 borderRadius: '4px',
-                cursor: 'pointer',
               }}
             >
-              添加关系
-            </button>
-          </div>
-        );
-      }
+              <div
+                style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  marginBottom: '10px',
+                }}
+              >
+                <strong style={{ fontSize: '0.95em' }}>关系 #{index + 1}</strong>
+                <button
+                  onClick={() => {
+                    const newRelationships = [...propValue];
+                    newRelationships.splice(index, 1);
+                    handleInputChange(newRelationships);
+                  }}
+                  style={{
+                    padding: '3px 8px',
+                    fontSize: '0.85em',
+                    backgroundColor: '#f44336',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '3px',
+                    cursor: 'pointer',
+                  }}
+                >
+                  删除
+                </button>
+              </div>
+              {(Object.keys(item || {}) as Array<keyof typeof item>).map((itemKey) => (
+                <ManagedInput
+                  key={`${currentPath}.${index}.${String(itemKey)}`}
+                  label={`${getChineseGroupName(String(itemKey))} (${String(itemKey)})`}
+                  initialValue={item[itemKey] || ''}
+                  type="text"
+                  multiline={
+                    String(itemKey).toLowerCase().includes('description') ||
+                    String(itemKey).toLowerCase().includes('history')
+                  }
+                  onCommit={(committedValue) => {
+                    const newItem = { ...item, [itemKey]: committedValue };
+                    const newRelationships = [...propValue];
+                    newRelationships[index] = newItem;
+                    handleInputChange(newRelationships);
+                  }}
+                />
+              ))}
+            </div>
+          ))}
+          <button
+            onClick={() => {
+              const newRelationship = { character: '', type: '', description: '' };
+              handleInputChange([...propValue, newRelationship]);
+            }}
+            style={{
+              marginTop: '10px',
+              padding: '8px 12px',
+              backgroundColor: '#4CAF50',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer',
+            }}
+          >
+            添加关系
+          </button>
+        </div>
+      );
+    }
+
+    // 4. 普通数组
+    if (Array.isArray(propValue)) {
       return (
         <div
           key={currentPath}
@@ -729,7 +735,7 @@ export const renderCharacterForm = ({ form, t }: CustomFormRenderProps) => {
           {propValue.length > 0 &&
           propValue.every((item) => typeof item !== 'object' && !Array.isArray(item)) ? (
             <ManagedInput
-              label={undefined} // No separate label, textarea acts as its own field.
+              label={undefined}
               initialValue={propValue.join('\n')}
               multiline
               onCommit={(committedValue) => {
@@ -771,7 +777,10 @@ export const renderCharacterForm = ({ form, t }: CustomFormRenderProps) => {
           )}
         </div>
       );
-    } else if (typeof propValue === 'object' && propValue !== null) {
+    }
+
+    // 5. 嵌套对象
+    if (typeof propValue === 'object' && propValue !== null) {
       return (
         <div
           key={currentPath}
@@ -797,64 +806,59 @@ export const renderCharacterForm = ({ form, t }: CustomFormRenderProps) => {
               currentPath={`${currentPath}.${subKey}`}
               form={form}
               depth={depth + 1}
-              // isInsidePersonalityGroup={parentPath === 'personality'}
             />
           ))}
         </div>
       );
-    } else {
-      // Generic input for simple properties (string, number, boolean)
-      // This will render any property not handled by the more specific types above.
-      return (
-        <div
-          style={{
-            ...baseFieldContainerStyle,
-            marginLeft: `${currentIndent}px`,
-            paddingLeft: '0px',
-          }}
-          key={currentPath}
-        >
-          <ManagedInput
-            id={`${currentPath.replace(/\./g, '-')}`}
-            label={getChineseGroupName(propKey)}
-            // For booleans, ManagedInput will use a text input internally; onCommit will handle conversion.
-            type={typeof propValue === 'number' ? 'number' : 'text'}
-            initialValue={
-              propValue === null || propValue === undefined
-                ? ''
-                : typeof propValue === 'boolean'
-                ? String(propValue) // Convert boolean to string "true" or "false"
-                : String(propValue) // Ensure other types are also strings or empty string for null/undefined
-            }
-            onCommit={(committedValue) => {
-              let finalValue: string | number | boolean | null = committedValue;
-              if (
-                typeof propValue === 'number' ||
-                (propValue === null &&
-                  typeof committedValue === 'string' &&
-                  committedValue.match(/^\d*\.?\d+$/))
-              ) {
-                if (committedValue === null || String(committedValue).trim() === '') {
-                  finalValue = null;
-                } else {
-                  const num = parseFloat(String(committedValue));
-                  finalValue = isNaN(num) ? null : num;
-                }
-              } else if (typeof propValue === 'boolean') {
-                // Convert string back to boolean for actual data update
-                finalValue = String(committedValue).toLowerCase() === 'true';
-              } else {
-                // Ensure strings are committed as strings, even if empty
-                finalValue = String(committedValue || '');
-              }
-              handleInputChange(finalValue);
-            }}
-            placeholder={`${getChineseGroupName(propKey)}`}
-            // If propValue is boolean, input will show "true"/"false". User edits the string.
-          />
-        </div>
-      );
     }
+
+    // 6. 基础类型
+    // Generic input for simple properties (string, number, boolean)
+    return (
+      <div
+        style={{
+          ...baseFieldContainerStyle,
+          marginLeft: `${currentIndent}px`,
+          paddingLeft: '0px',
+        }}
+        key={currentPath}
+      >
+        <ManagedInput
+          id={`${currentPath.replace(/\./g, '-')}`}
+          label={getChineseGroupName(propKey)}
+          type={typeof propValue === 'number' ? 'number' : 'text'}
+          initialValue={
+            propValue === null || propValue === undefined
+              ? ''
+              : typeof propValue === 'boolean'
+              ? String(propValue)
+              : String(propValue)
+          }
+          onCommit={(committedValue) => {
+            let finalValue: string | number | boolean | null = committedValue;
+            if (
+              typeof propValue === 'number' ||
+              (propValue === null &&
+                typeof committedValue === 'string' &&
+                committedValue.match(/^\d*\.?\d+$/))
+            ) {
+              if (committedValue === null || String(committedValue).trim() === '') {
+                finalValue = null;
+              } else {
+                const num = parseFloat(String(committedValue));
+                finalValue = isNaN(num) ? null : num;
+              }
+            } else if (typeof propValue === 'boolean') {
+              finalValue = String(committedValue).toLowerCase() === 'true';
+            } else {
+              finalValue = String(committedValue || '');
+            }
+            handleInputChange(finalValue);
+          }}
+          placeholder={`${getChineseGroupName(propKey)}`}
+        />
+      </div>
+    );
   };
 
   console.log(
@@ -864,7 +868,7 @@ export const renderCharacterForm = ({ form, t }: CustomFormRenderProps) => {
   );
 
   return (
-    <FormContent key={formContentKey}>
+    <div key={formContentKey} style={{padding: 16, background: '#fff'}}>
       <FormHeader />
 
       <div style={{ padding: '0 10px', marginBottom: '20px', marginTop: '10px' }}>
@@ -880,12 +884,13 @@ export const renderCharacterForm = ({ form, t }: CustomFormRenderProps) => {
         <ManagedInput
           id="characterNameInput"
           type="text"
-          initialValue={form.getValueIn('data.name')}
+          initialValue={effectiveInitialName}
           onCommit={(value) => {
             form.setValueIn('data.name', value);
             // Sync to characterJSON
             const json = form.getValueIn('data.properties.characterJSON') || {};
             form.setValueIn('data.properties.characterJSON', { ...json, name: value });
+            form.setValueIn('outputsValues.jsonDataOut', { ...json, name: value });
           }}
           placeholder={tSafe('characterNode.form.placeholders.name', {
             ns: 'novelWriter',
@@ -908,13 +913,14 @@ export const renderCharacterForm = ({ form, t }: CustomFormRenderProps) => {
         <ManagedInput
           id="characterAgeInput"
           type="number"
-          initialValue={form.getValueIn('data.age')}
+          initialValue={effectiveInitialAge}
           onCommit={(value) => {
             const ageValue = value === '' ? null : Number(value);
             form.setValueIn('data.age', ageValue);
             // Sync to characterJSON
             const json = form.getValueIn('data.properties.characterJSON') || {};
             form.setValueIn('data.properties.characterJSON', { ...json, age: ageValue });
+            form.setValueIn('outputsValues.jsonDataOut', { ...json, age: ageValue });
           }}
           placeholder={tSafe('characterNode.form.placeholders.age', {
             ns: 'novelWriter',
@@ -1016,6 +1022,6 @@ export const renderCharacterForm = ({ form, t }: CustomFormRenderProps) => {
           </div>
         )
       )}
-    </FormContent>
+    </div>
   );
 };
