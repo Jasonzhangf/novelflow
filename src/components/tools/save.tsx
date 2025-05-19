@@ -28,11 +28,11 @@ export function Save(props: { disabled: boolean }) {
     const allForms = allNodeEntities.map((node) => getNodeForm(node));
     let allValid = true;
     try {
-      const validationResults = await Promise.all(allForms.map(form => form?.validate()));
+      const validationResults = await Promise.all(allForms.map((form) => form?.validate()));
       // A form?.validate() might return true/false or throw an error.
       // Assuming it returns a boolean or resolves if valid, and rejects/returns false if invalid.
       // Simplified check: if any result is explicitly false.
-      if (validationResults.some(res => res === false)) {
+      if (validationResults.some((res) => res === false)) {
         allValid = false;
       }
     } catch (error) {
@@ -55,13 +55,16 @@ import { WorkflowNodeType } from './nodes';
 
 export const initialData: FlowDocumentJSON = ${flowDocumentString};
 `;
-      
-      console.log('>>> Full fileContent to write:', fileContent);
-      console.log('MCP Tool Call (Conceptual): default_api.mcp_filesystem_write_file({ path: "src/initial-data.ts", content: fileContent });');
-      Toast.success('工作流数据已准备好保存！请复制控制台中 ">>> Full fileContent to write:" 后面的内容并提供给助理。');
-      
-      // Actual tool call will be done by the assistant later using the 'fileContent' derived from 'flowDocument'
 
+      console.log('>>> Full fileContent to write:', fileContent);
+      console.log(
+        'MCP Tool Call (Conceptual): default_api.mcp_filesystem_write_file({ path: "src/initial-data.ts", content: fileContent });'
+      );
+      Toast.success(
+        '工作流数据已准备好保存！请复制控制台中 ">>> Full fileContent to write:" 后面的内容并提供给助理。'
+      );
+
+      // Actual tool call will be done by the assistant later using the 'fileContent' derived from 'flowDocument'
     } catch (error: any) {
       console.error('保存数据准备阶段出错 (Error preparing data for saving):', error);
       Toast.error(`准备数据出错 (Error preparing data): ${error.message}`);
@@ -103,11 +106,7 @@ export const initialData: FlowDocumentJSON = ${flowDocumentString};
   }
   return (
     <Badge count={errorCount} position="rightTop" type="danger">
-      <Button
-        type="danger"
-        disabled={props.disabled}
-        onClick={onSave}
-      >
+      <Button type="danger" disabled={props.disabled} onClick={onSave}>
         保存 (Save)
       </Button>
     </Badge>

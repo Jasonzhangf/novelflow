@@ -1,4 +1,5 @@
 import React from 'react';
+
 import { FormRenderProps, FlowNodeJSON } from '@flowgram.ai/free-layout-editor'; // Using types from the layout editor
 
 /**
@@ -59,10 +60,10 @@ export const renderJsonViewerForm = (props: FormRenderProps<FlowNodeJSON>): JSX.
       <pre id="json-display" style={preStyle}>
         {displayJson}
       </pre>
-      {/* 
-        * @en This node is for display only. 
-        * @cn 此节点仅用于显示。
-        */}
+      {/*
+       * @en This node is for display only.
+       * @cn 此节点仅用于显示。
+       */}
     </div>
   );
-}; 
+};

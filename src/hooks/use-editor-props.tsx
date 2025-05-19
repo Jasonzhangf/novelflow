@@ -16,10 +16,10 @@ import { shortcuts } from '../shortcuts';
 import { CustomService, RunningService } from '../services';
 import { createSyncVariablePlugin } from '../plugins';
 import { defaultFormMeta } from '../nodes/default-form-meta';
+import { CharacterNodeCanvas } from '../nodes/character/CharacterNodeCanvas';
 import { WorkflowNodeType } from '../nodes';
 import { SelectorBoxPopover } from '../components/selector-box-popover';
 import { BaseNode, CommentRender, GroupNodeRender, LineAddButton, NodePanel } from '../components';
-import { CharacterNodeCanvas } from '../nodes/character/CharacterNodeCanvas';
 
 export function useEditorProps(
   initialData: FlowDocumentJSON,
