@@ -1,10 +1,12 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
   Field,
   FormRenderProps,
+  FieldRenderProps,
   FlowNodeJSON,
+  FormModelV2,
+  FlowNodeEntity 
 } from '@flowgram.ai/free-layout-editor'; 
-import { FlowNodeEntity, FlowNodeFormData, FormModelV2 } from '@flowgram.ai/free-layout-editor';
 import defaultCharacterTemplateJson from '../../../Templates/default-character-template.json';
 
 import { FormHeader, FormContent } from '../../form-components'; 
@@ -32,6 +34,7 @@ interface CharacterNodeDataProperties {
   characterFilePath: string;
   characterJSON: Record<string, any>;
   loadError?: string; 
+  outputVariableName?: string; // Added for completeness from ManagedInput usage
 }
 
 interface CharacterNodeData extends FlowNodeJSON {
@@ -72,49 +75,192 @@ const deepMerge = <T extends Record<string, any>>(target: T, ...sources: Partial
   return deepMerge(target, ...sources);
 };
 
-export const renderCharacterForm = ({ form }: FormRenderProps<CharacterNodeData>) => {
+// 受控输入组件，用于处理本地输入状态，并在失焦或回车时提交
+// ManagedInput component to handle local input state and commit on blur or Enter
+interface ManagedInputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement | HTMLTextAreaElement>, 'onChange' | 'value' | 'onBlur' | 'onKeyDown'> {
+  initialValue: string | number | null | undefined;
+  onCommit: (value: string | number | null) => void;
+  label?: string;
+  multiline?: boolean;
+  id?: string; // Ensure id is part of the props for logging
+}
+
+const ManagedInput: React.FC<ManagedInputProps> = ({ initialValue, onCommit, label, multiline, id, ...rest }) => {
+  // console.log(`[ManagedInput ${id || 'NO_ID'}] Initializing. initialValue:`, initialValue, 'Props:', { initialValue, onCommit, label, multiline, id, ...rest });
+
+  const [currentValue, setCurrentValue] = useState(() => {
+    const val = initialValue !== undefined && initialValue !== null ? String(initialValue) : '';
+    // console.log(`[ManagedInput ${id || 'NO_ID'}] useState initializer. initialValue:`, initialValue, `Setting currentValue to: '${val}'`);
+    return val;
+  });
+  const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    const newInitialValueString = initialValue !== undefined && initialValue !== null ? String(initialValue) : '';
+    // console.log(`[ManagedInput ${id || 'NO_ID'}] useEffect for initialValue. Current initialValue:`, initialValue, `Current 'currentValue' state: '${currentValue}'`);
+
+    if (newInitialValueString !== currentValue) {
+      // console.log(`[ManagedInput ${id || 'NO_ID'}] useEffect: initialValue ('${newInitialValueString}') differs from currentValue ('${currentValue}'). Updating currentValue.`);
+      setCurrentValue(newInitialValueString);
+    }
+    // else {
+      // console.log(`[ManagedInput ${id || 'NO_ID'}] useEffect: initialValue ('${newInitialValueString}') is same as currentValue ('${currentValue}'). No update.`);
+    // }
+  }, [initialValue]); // Rerun effect if initialValue prop changes // 如果 initialValue prop 改变，则重新运行 effect
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    // console.log(`[ManagedInput ${id || 'NO_ID'}] handleChange. New target value: '${e.target.value}'`);
+    setCurrentValue(e.target.value);
+  };
+
+  const handleCommit = () => {
+    // console.log(`[ManagedInput ${id || 'NO_ID'}] handleCommit. Current 'currentValue': '${currentValue}', Original 'initialValue' prop:`, initialValue);
+    const originalInitialValueString = initialValue !== undefined && initialValue !== null ? String(initialValue) : '';
+
+    if (currentValue !== originalInitialValueString) {
+      let valToCommit: string | number | null = currentValue;
+      if (rest.type === 'number') {
+        if (currentValue.trim() === '') {
+          // console.log(`[ManagedInput ${id || 'NO_ID'}] Committing null for number type (empty string).`);
+          valToCommit = null; // Or some other representation for clearing a number
+        } else {
+          const parsedNum = parseFloat(currentValue);
+          valToCommit = isNaN(parsedNum) ? null : parsedNum;
+          // console.log(`[ManagedInput ${id || 'NO_ID'}] Committing parsed number:`, valToCommit, `(from '${currentValue}')`);
+        }
+      } else {
+        // console.log(`[ManagedInput ${id || 'NO_ID'}] Committing string value: '${valToCommit}'`);
+      }
+      onCommit(valToCommit);
+    }
+    // else {
+      // console.log(`[ManagedInput ${id || 'NO_ID'}] No change from original initialValue. Not committing.`);
+    // }
+  };
+
+  const handleBlur = () => {
+    // console.log(`[ManagedInput ${id || 'NO_ID'}] handleBlur`);
+    handleCommit();
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    if (e.key === 'Enter' && !multiline) {
+      // console.log(`[ManagedInput ${id || 'NO_ID'}] handleKeyDown: Enter pressed.`);
+      handleCommit();
+      e.preventDefault(); // Prevent form submission or newline in single-line inputs // 阻止表单提交或在单行输入中换行
+    }
+  };
+  
+  const InputComponent = multiline ? 'textarea' : 'input';
+  // console.log(`[ManagedInput ${id || 'NO_ID'}] Rendering. currentValue for input value prop: '${currentValue}'`);
+
+  return (
+    <div style={{ marginBottom: '15px' }}>
+      {label && <label style={{ display: 'block', marginBottom: '3px', fontWeight: '500' }} htmlFor={id || rest.name}>{label}</label>}
+      <InputComponent
+        id={id}
+        {...rest}
+        ref={inputRef as any}
+        style={{ width: '100%', padding: '8px', marginBottom: '5px', border: '1px solid #ccc', borderRadius: '4px', boxSizing: 'border-box' }}
+        value={currentValue}
+        onChange={handleChange}
+        onBlur={handleBlur}
+        onKeyDown={handleKeyDown}
+      />
+    </div>
+  );
+};
+
+// Interface for our FormRenderProps, extending the one from the library
+// to include the 't' function for translations.
+interface CustomFormRenderProps extends FormRenderProps<CharacterNodeData> {
+  t: (key: string, options?: any) => string; // Define 't' function signature
+}
+
+export const renderCharacterForm = ({ form, t }: CustomFormRenderProps) => {
+  // Defensive t function to prevent crashes if not provided, and provide default values.
+  const tSafe = (key: string, options?: any) => {
+    if (typeof t === 'function') {
+      return t(key, options);
+    }
+    // Fallback logic if t is not a function
+    if (options?.defaultValue) {
+      return options.defaultValue;
+    }
+    // Return key if no t and no defaultValue, common for i18n libraries during development
+    const keyParts = key.split('.');
+    return keyParts[keyParts.length -1];
+  };
+
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [displayedFileName, setDisplayedFileName] = useState<string>(() => {
     return form.getValueIn<string>('data.properties.characterFilePath') || '';
   });
   const [formContentKey, setFormContentKey] = useState(0);
 
-  useEffect(() => {
-    const currentPathInForm = form.getValueIn<string>('data.properties.characterFilePath') || '';
-    setDisplayedFileName(currentPathInForm);
-  }, [form]);
+  const characterJSONPath = 'data.properties.characterJSON';
+  const characterNamePath = 'data.properties.characterName';
+  const titlePath = 'data.title';
 
-  // Effect to initialize characterJSON with defaults
+  const initialCharacterJSON = form.getValueIn<CharacterFullTemplate>(characterJSONPath) || {};
+  const initialNameFromJSON = initialCharacterJSON.name;
+  const initialAgeFromJSON = initialCharacterJSON.age;
+  const characterNameProp = form.getValueIn<string>(characterNamePath);
+  const currentTitleValue = form.getValueIn<string>(titlePath); // Read current title for fallback
+
+  // Effective initial name for the input field
+  const effectiveInitialName = initialNameFromJSON || characterNameProp || currentTitleValue || '';
+  const effectiveInitialAge = initialAgeFromJSON;
+
+  console.log(`[renderCharacterForm] FINAL VALUES BEFORE RENDER. Name: '${effectiveInitialName}', Age:`, effectiveInitialAge, `Type of Age: ${typeof effectiveInitialAge}`);
+
+  // useEffect for initialization and syncing name/title
   useEffect(() => {
-    const currentJson = form.getValueIn<Record<string, any>>('data.properties.characterJSON');
-    if (!currentJson || Object.keys(currentJson).length === 0 || !currentJson.personality) {
-      console.log("Initializing characterJSON with default template.");
+    let currentJsonInEffect = form.getValueIn<Record<string, any>>(characterJSONPath);
+    let characterNameInEffect = form.getValueIn<string>(characterNamePath);
+    let titleInEffect = form.getValueIn<string>(titlePath);
+    let changed = false;
+
+    if (!currentJsonInEffect || Object.keys(currentJsonInEffect).length === 0 || !currentJsonInEffect.personality) {
       const templateCopy = JSON.parse(JSON.stringify(defaultCharacterTemplate)) as CharacterFullTemplate;
       const initialCharacterData: CharacterFullTemplate = {
         name: templateCopy.name || "新角色",
         age: templateCopy.age !== undefined ? templateCopy.age : null,
-        background: templateCopy.background ? { ...templateCopy.background } : {
-            origin: "",
-            occupation: "",
-            history: ""
-        },
-        // Spread other properties from the template (personality, relationships, etc.)
+        background: templateCopy.background ? { ...templateCopy.background } : { origin: "", occupation: "", history: "" },
         personality: templateCopy.personality ? { ...templateCopy.personality } : {},
         relationships: templateCopy.relationships ? [ ...templateCopy.relationships ] : [],
         language: templateCopy.language || "chinese",
       };
-      
-      const mergedData = deepMerge({} as CharacterFullTemplate, initialCharacterData, currentJson || {});
-      form.setValueIn('data.properties.characterJSON', mergedData);
-      
-      if (!form.getValueIn('data.properties.characterName') && mergedData.name) {
-        form.setValueIn('data.properties.characterName', mergedData.name);
+      currentJsonInEffect = deepMerge({} as CharacterFullTemplate, initialCharacterData, currentJsonInEffect || {});
+      form.setValueIn(characterJSONPath, currentJsonInEffect);
+      changed = true;
+    }
+
+    if (currentJsonInEffect && currentJsonInEffect.name) {
+      if (characterNameInEffect !== currentJsonInEffect.name) {
+        form.setValueIn(characterNamePath, currentJsonInEffect.name);
+        changed = true;
       }
-      if (!form.getValueIn('data.title') && mergedData.name) {
-         form.setValueIn('data.title', mergedData.name);
+      if (titleInEffect !== currentJsonInEffect.name) {
+         form.setValueIn(titlePath, currentJsonInEffect.name);
+         changed = true;
       }
     }
-  }, [form]);
+    
+    // if (changed && formContentKey === 0) { // Only trigger if truly initial setup, or manage key more carefully
+    //   setFormContentKey(prev => prev + 1); 
+    // }
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Run once on mount to initialize
+
+  useEffect(() => {
+    const currentPathInForm = form.getValueIn<string>('data.properties.characterFilePath') || '';
+    if (currentPathInForm !== displayedFileName) {
+      setDisplayedFileName(currentPathInForm);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [form.getValueIn('data.properties.characterFilePath')]); 
 
   const handleBrowseClick = () => {
     fileInputRef.current?.click();
@@ -124,20 +270,16 @@ export const renderCharacterForm = ({ form }: FormRenderProps<CharacterNodeData>
     const files = event.target.files;
     if (files && files.length > 0) {
       const file = files[0];
-      setDisplayedFileName(file.name);
       form.setValueIn('data.properties.characterFilePath', file.name);
 
-      console.log(`Attempting to load character data from selected file: ${file.name}`);
+      // console.log(`Attempting to load character data from selected file: ${file.name}`);
       try {
         const fileContentString = await file.text();
-        const jsonDataFromFile = JSON.parse(fileContentString) as Partial<CharacterFullTemplate>; // Cast loaded data
+        const jsonDataFromFile = JSON.parse(fileContentString) as Partial<CharacterFullTemplate>; 
 
         const templateCopy = JSON.parse(JSON.stringify(defaultCharacterTemplate)) as CharacterFullTemplate;
-        
-        // Start with a full structure from the template copy
         let baseStructure = JSON.parse(JSON.stringify(templateCopy)) as CharacterFullTemplate;
 
-        // Explicitly set name, age, background from file or defaults if not in file
         baseStructure.name = jsonDataFromFile.name || templateCopy.name || "新角色";
         baseStructure.age = jsonDataFromFile.age !== undefined ? jsonDataFromFile.age : (templateCopy.age !== undefined ? templateCopy.age : null);
         baseStructure.background = deepMerge(
@@ -145,7 +287,6 @@ export const renderCharacterForm = ({ form }: FormRenderProps<CharacterNodeData>
             templateCopy.background || { origin: "", occupation: "", history: "" }, 
             jsonDataFromFile.background || {}
         );
-        // Ensure other parts from template are present if not in file (deepMerge handles this further down)
 
         const mergedJsonData = deepMerge(baseStructure, jsonDataFromFile);
 
@@ -156,14 +297,14 @@ export const renderCharacterForm = ({ form }: FormRenderProps<CharacterNodeData>
         if (mergedJsonData.name) {
           form.setValueIn('data.title', mergedJsonData.name);
         }
-        console.log('Character data loaded from file, merged with defaults, and form updated.');
-        setFormContentKey(prevKey => prevKey + 1);
+        // console.log('Character data loaded from file, merged with defaults, and form updated.');
+        // setFormContentKey(prevKey => prevKey + 1); // Temporarily commented out
       } catch (error: any) {
         console.error('Failed to load or parse character JSON from file:', error);
         form.setValueIn('data.properties.loadError', error.message || 'Failed to load data.');
         form.setValueIn('data.properties.characterJSON', {}); 
         form.setValueIn('data.properties.characterName', '');
-        setFormContentKey(prevKey => prevKey + 1);
+        // setFormContentKey(prevKey => prevKey + 1); // Temporarily commented out
       }
     }
     if (fileInputRef.current) {
@@ -184,32 +325,36 @@ export const renderCharacterForm = ({ form }: FormRenderProps<CharacterNodeData>
   };
 
   const handleSave = () => {
-    if (!displayedFileName) {
-      alert("没有加载文件，无法保存。请先使用 '导出' 或加载文件。");
+    const currentFilePath = form.getValueIn<string>('data.properties.characterFilePath');
+    if (!currentFilePath) {
+      alert("没有文件路径，请先使用 '导出' 功能命名文件或加载一个现有文件。\nNo file path. Please use 'Export' to name the file or load an existing file first.");
       return;
     }
     const characterJSON = form.getValueIn('data.properties.characterJSON');
     if (!characterJSON) {
-      alert("没有数据可保存。");
+      alert("没有数据可保存。/ No data to save.");
       return;
     }
-    triggerDownload(JSON.stringify(characterJSON, null, 2), displayedFileName);
+    triggerDownload(JSON.stringify(characterJSON, null, 2), currentFilePath);
   };
 
   const handleExport = () => {
     const characterJSON = form.getValueIn('data.properties.characterJSON');
     if (!characterJSON || Object.keys(characterJSON).length === 0) {
-      alert("没有数据可导出。");
-      // Or trigger download with empty JSON object
-      // triggerDownload(JSON.stringify({}, null, 2), 'empty-character.json');
+      alert("没有数据可导出。/ No data to export.");
       return;
     }
-    const characterName = form.getValueIn<string>('data.properties.characterName');
-    const fileName = characterName ? `${characterName.replace(/[^a-z0-9_\-\s\u4e00-\u9fa5]/gi, '_')}.json` : 'character-export.json';
+    const characterName = form.getValueIn<string>('data.properties.characterJSON.name') || form.getValueIn<string>('data.properties.characterName') || 'character';
+    const fileName = `${characterName.replace(/[^a-z0-9_\-\s\u4e00-\u9fa5]/gi, '_')}.json`;
     triggerDownload(JSON.stringify(characterJSON, null, 2), fileName);
+    // Update displayedFileName and characterFilePath in form if this is the first save/export
+    if (!form.getValueIn('data.properties.characterFilePath')) {
+        form.setValueIn('data.properties.characterFilePath', fileName);
+        // setDisplayedFileName(fileName); // Not needed, will sync from form
+    }
   };
 
-  const commonInputStyle: React.CSSProperties = {
+  const baseInputStyle: React.CSSProperties = { // Renamed from commonInputStyle to avoid conflict in this scope
     width: '100%',
     padding: '8px',
     border: '1px solid #ccc',
@@ -218,44 +363,52 @@ export const renderCharacterForm = ({ form }: FormRenderProps<CharacterNodeData>
     marginTop: '5px',
   };
 
-  const commonLabelStyle: React.CSSProperties = {
+  const baseLabelStyle: React.CSSProperties = { // Renamed from commonLabelStyle
     display: 'block',
-    marginBottom: '2px', // Reduced margin for tighter spacing with input
-    fontWeight: 'normal', // Changed from bold to normal for sub-properties
-    fontSize: '0.95em', // Slightly smaller for sub-labels
+    marginBottom: '2px',
+    fontWeight: 'normal', 
+    fontSize: '0.95em', 
   };
   
-  const fieldContainerStyle: React.CSSProperties = {
-    marginBottom: '15px', // Increased margin for more separation between fields
+  const baseFieldContainerStyle: React.CSSProperties = { // Renamed from fieldContainerStyle
+    marginBottom: '15px', 
     padding: '0 10px',
   };
 
   const getRemainingJson = (fullJson: Record<string, any> | undefined): Record<string, any> => {
     if (!fullJson) return {};
-    const { name, age, background, ...remaining } = fullJson;
+    const { name, age, background, language, ...remaining } = fullJson; // Exclude language as well if it has special handling
     return remaining;
   };
 
-  // Helper function to get Chinese names for known group keys
   const getChineseGroupName = (key: string): string => {
     const map: Record<string, string> = {
       personality: "性格",
       relationships: "关系",
-      language: "语言",
-      // Add more mappings as needed from your JSON structure
       coretemperament: "核心气质",
       internalvalues: "内在价值观",
       thinkingstyle: "思维风格",
       internalmotivation: "内在动机",
       selfperception: "自我认知",
+      skills_abilities: "技能与能力",
+      possessions_inventory: "物品与装备",
+      settings_affiliations: "场景与阵营",
+      plot_points: "情节要点",
+      custom_fields: "自定义字段",
+      appearance_details: "外貌细节",
+      occupation_role: "职业/角色",
+      notes_comments: "备注",
+      description: "描述",
+      personality_description: "性格描述",
+      background_story: "背景故事",
+      goals_motivations: "目标与动机",
     };
-    return map[key.toLowerCase()] || key.charAt(0).toUpperCase() + key.slice(1); // Fallback to capitalized key
+    return map[key.toLowerCase().replace(/\s+/g, '')] || key.charAt(0).toUpperCase() + key.slice(1);
   };
 
-  // Helper function to update nested properties using a dot-separated path
   const updatePropertyByPath = (obj: Record<string, any>, path: string, value: any): Record<string, any> => {
     const pathParts = path.split('.');
-    const newObj = JSON.parse(JSON.stringify(obj)); // Deep clone the object it's supposed to modify
+    const newObj = JSON.parse(JSON.stringify(obj)); 
 
     let currentLevel = newObj;
     for (let i = 0; i < pathParts.length - 1; i++) {
@@ -267,15 +420,9 @@ export const renderCharacterForm = ({ form }: FormRenderProps<CharacterNodeData>
     }
     
     const lastPart = pathParts[pathParts.length - 1];
-    if (value === undefined || value === null || value === '') { // Allow unsetting or setting to empty
-      // Check if parent is an array or object to decide on delete vs set to null/empty
-      // For simplicity here, we'll set to undefined which might remove the key upon stringification if it's standard JSON behavior
-      // or set to null if that's preferred. Let's use undefined to effectively delete.
-      // However, directly deleting might be better: delete currentLevel[lastPart];
-      // For form consistency, often setting to null or empty string is better than deleting.
-      // Let's choose null for objects/numbers that become empty, and empty string for strings.
+    if (value === undefined || value === null || value === '') { 
       if (typeof currentLevel[lastPart] === 'string') currentLevel[lastPart] = '';
-      else if (typeof currentLevel[lastPart] === 'number') currentLevel[lastPart] = null; // Or undefined if you want to remove the key
+      else if (typeof currentLevel[lastPart] === 'number') currentLevel[lastPart] = null; 
       else currentLevel[lastPart] = null; 
     } else {
       currentLevel[lastPart] = value;
@@ -283,22 +430,18 @@ export const renderCharacterForm = ({ form }: FormRenderProps<CharacterNodeData>
     return newObj;
   };
 
-  // Recursive component to render individual properties or nested structures
   const RenderPropertyField: React.FC<{
-    propKey: string; // The key of the current property/object/array
+    propKey: string; 
     propValue: any;
-    currentPath: string; // Dot-separated path from the root of remainingJson, e.g., "personality.CoreTemperament.OptimismLevel"
+    currentPath: string; 
     form: FormRenderProps<CharacterNodeData>['form'];
-    commonInputStyle: React.CSSProperties;
-    commonLabelStyle: React.CSSProperties;
-    fieldContainerStyle: React.CSSProperties;
-    depth?: number; // For indentation
-    isInsidePersonalityGroup?: boolean; // Flag to indicate if we are rendering items within a personality subgroup
-  }> = ({ propKey, propValue, currentPath, form, commonInputStyle, commonLabelStyle, fieldContainerStyle, depth = 0, isInsidePersonalityGroup = false }) => {
+    depth?: number; 
+    // isInsidePersonalityGroup?: boolean; // This prop seems to be causing confusion and might not be needed if logic is self-contained.
+  }> = ({ propKey, propValue, currentPath, form, depth = 0 }) => {
 
-    const handleChange = (newValue: any, valuePathSuffix?: string) => {
+    const handleInputChange = (newValue: any, valuePathSuffix?: string) => {
       const fullCharacterJson = form.getValueIn<Record<string, any>>('data.properties.characterJSON') || {};
-      const { name, age, background, ...currentRemaining } = fullCharacterJson;
+      const { name, age, background, language, ...currentRemaining } = fullCharacterJson;
       
       const pathToUpdate = valuePathSuffix ? `${currentPath}.${valuePathSuffix}` : currentPath;
       const updatedRemaining = updatePropertyByPath(currentRemaining, pathToUpdate, newValue);
@@ -307,65 +450,60 @@ export const renderCharacterForm = ({ form }: FormRenderProps<CharacterNodeData>
         name,
         age,
         background,
+        language,
         ...(Object.keys(updatedRemaining).length > 0 ? updatedRemaining : {}),
       };
       form.setValueIn('data.properties.characterJSON', newFullJson);
-      setFormContentKey(prevKey => prevKey + 1);
+      // setFormContentKey(prevKey => prevKey + 1); // Temporarily commented out
     };
 
-    const currentIndent = depth * 15; // Indentation in pixels
+    const currentIndent = depth * 15; 
 
-    // Case 1: Object with "Value" and "Caption"
-    if (typeof propValue === 'object' && propValue !== null && 'Value' in propValue && 'Caption' in propValue && Object.keys(propValue).length <= 3) {
+    if (typeof propValue === 'object' && propValue !== null && 'Value' in propValue && 'Caption' in propValue && Object.keys(propValue).length <= 3 /* Allow for an optional Unit key */) {
       return (
-        <div style={{ ...fieldContainerStyle, marginLeft: `${currentIndent}px` }} key={currentPath}>
-          <label style={commonLabelStyle}>{propValue.Caption || propKey}:</label>
-          <input
+        <div style={{ ...baseFieldContainerStyle, marginLeft: `${currentIndent}px`, paddingLeft: '0px' }} key={currentPath}> 
+          <ManagedInput
+            label={(propValue.Caption || propKey) + (propValue.Unit ? ` (${propValue.Unit})` : '')}
+            initialValue={propValue.Value}
             type={typeof propValue.Value === 'number' ? 'number' : 'text'}
-            style={commonInputStyle}
-            value={propValue.Value ?? ''}
-            onChange={(e) => {
-              const rawValue = e.target.value;
-              let newSubValue: string | number | undefined = rawValue;
+            onCommit={(committedValue) => {
+              let finalValue = committedValue;
               if (typeof propValue.Value === 'number') {
-                newSubValue = parseInt(rawValue, 10);
-                if (isNaN(newSubValue as number)) newSubValue = undefined;
+                const num = parseFloat(committedValue as string);
+                finalValue = isNaN(num) ? null : num;
               }
-              handleChange({ ...propValue, Value: newSubValue });
+              handleInputChange({ ...propValue, Value: finalValue });
             }}
           />
         </div>
       );
     }
 
-    // Case 1.5: Object representing a personality subgroup (e.g., CoreTemperament)
-    // This will render its children (the actual traits) in a table.
     const parentPath = currentPath.substring(0, currentPath.lastIndexOf('.'));
     const isPersonalitySubGroup = parentPath === 'personality' && typeof propValue === 'object' && propValue !== null && !Array.isArray(propValue) && Object.values(propValue).every(v => isObject(v) && 'Value' in v && 'Caption' in v);
 
     if (isPersonalitySubGroup) {
       return (
-        <div key={currentPath} style={{ ...fieldContainerStyle, marginLeft: `${depth * 15}px`, marginBottom: '15px' }}>
+        <div key={currentPath} style={{ ...baseFieldContainerStyle, marginLeft: `${depth * 15}px`, marginBottom: '15px', paddingLeft: '0px' }}>
           <h5 style={{ marginTop: '10px', marginBottom: '10px', fontSize: '1em', fontWeight: 'bold' }}>{getChineseGroupName(propKey)}:</h5>
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <tbody>
               {Object.entries(propValue).map(([traitKey, traitObject]) => {
                 if (isObject(traitObject) && 'Value' in traitObject && 'Caption' in traitObject) {
-                  const valuePath = `${traitKey}.Value`; // Path relative to the current subgroup
+                  const valuePathForTable = `${traitKey}.Value`; 
                   return (
                     <tr key={traitKey} style={{ borderBottom: '1px solid #eee' }}>
-                      <td style={{ padding: '8px 4px', textAlign: 'left', minWidth: '100px' }}>{(traitObject as any).Caption}:</td>
+                      <td style={{ padding: '8px 4px', textAlign: 'left', minWidth: '100px' }}>{((traitObject as any).Caption || traitKey) + ((traitObject as any).Unit ? ` (${(traitObject as any).Unit})` : '')}:</td>
                       <td style={{ padding: '8px 4px' }}>
-                        <input
+                        <ManagedInput
+                          initialValue={(traitObject as any).Value}
                           type="number"
-                          style={{ ...commonInputStyle, marginTop: 0, width: '100%' }} // Adjusted width and margin
-                          value={(traitObject as any).Value ?? ''}
-                          onChange={(e) => {
-                            const rawValue = e.target.value;
-                            let numValue: number | null = parseInt(rawValue, 10);
-                            if (isNaN(numValue)) numValue = null; // Allow clearing or invalid to be null
-                            handleChange(numValue, valuePath); // Pass numValue and the path to the Value field
+                          onCommit={(committedValue) => {
+                            let numValue: number | null = parseFloat(committedValue as string);
+                            if (isNaN(numValue)) numValue = null; 
+                            handleInputChange(numValue, valuePathForTable); 
                           }}
+                          style={{...baseInputStyle, marginTop: 0, width: '100%', marginBottom: 0}} // Override default margins of ManagedInput
                         />
                       </td>
                     </tr>
@@ -378,14 +516,10 @@ export const renderCharacterForm = ({ form }: FormRenderProps<CharacterNodeData>
         </div>
       );
     }
-
-    // Case 2: Array
     else if (Array.isArray(propValue)) {
-      // Special handling for the 'relationships' array
       if (currentPath === 'relationships') {
         return (
-          <div key={currentPath} style={{ marginBottom: '10px', marginLeft: `${currentIndent}px` }}>
-            {/* Title for relationships is handled by the parent RenderPropertyField call for the group */}
+          <div key={currentPath} style={{ marginBottom: '10px', marginLeft: `${currentIndent}px`, paddingLeft: '0px' }}>
             {propValue.map((item: any, index: number) => (
               <div key={`${currentPath}.${index}`} style={{ border: '1px solid #ddd', padding: '10px', margin: '10px 0', backgroundColor: '#fdfdfd', borderRadius: '4px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
@@ -394,7 +528,7 @@ export const renderCharacterForm = ({ form }: FormRenderProps<CharacterNodeData>
                     onClick={() => {
                       const newRelationships = [...propValue];
                       newRelationships.splice(index, 1);
-                      handleChange(newRelationships);
+                      handleInputChange(newRelationships);
                     }} 
                     style={{ padding: '3px 8px', fontSize: '0.85em', backgroundColor: '#f44336', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer' }}
                   >
@@ -402,27 +536,26 @@ export const renderCharacterForm = ({ form }: FormRenderProps<CharacterNodeData>
                   </button>
                 </div>
                 {(Object.keys(item || {}) as Array<keyof typeof item>).map(itemKey => (
-                  <div style={{ ...fieldContainerStyle, marginLeft: '0px', marginBottom: '8px' }} key={`${currentPath}.${index}.${String(itemKey)}`}>
-                    <label style={{...commonLabelStyle, textTransform: 'capitalize'}}>{getChineseGroupName(String(itemKey))} ({String(itemKey)}):</label>
-                    <input
-                      type="text"
-                      style={commonInputStyle}
-                      value={item[itemKey] || ''}
-                      onChange={(e) => {
-                        const newItem = { ...item, [itemKey]: e.target.value };
-                        const newRelationships = [...propValue];
-                        newRelationships[index] = newItem;
-                        handleChange(newRelationships);
-                      }}
-                    />
-                  </div>
+                  <ManagedInput
+                    key={`${currentPath}.${index}.${String(itemKey)}`}
+                    label={`${getChineseGroupName(String(itemKey))} (${String(itemKey)})`}
+                    initialValue={item[itemKey] || ''}
+                    type="text"
+                    multiline={String(itemKey).toLowerCase().includes('description') || String(itemKey).toLowerCase().includes('history')}
+                    onCommit={(committedValue) => {
+                      const newItem = { ...item, [itemKey]: committedValue };
+                      const newRelationships = [...propValue];
+                      newRelationships[index] = newItem;
+                      handleInputChange(newRelationships);
+                    }}
+                  />
                 ))}
               </div>
             ))}
             <button 
               onClick={() => {
-                const newRelationship = { character: "", type: "", description: "" }; // Default new relationship
-                handleChange([...propValue, newRelationship]);
+                const newRelationship = { character: "", type: "", description: "" }; 
+                handleInputChange([...propValue, newRelationship]);
               }}
               style={{ marginTop: '10px', padding: '8px 12px', backgroundColor: '#4CAF50', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
             >
@@ -431,71 +564,46 @@ export const renderCharacterForm = ({ form }: FormRenderProps<CharacterNodeData>
           </div>
         );
       }
-      // Generic array rendering (for arrays other than relationships)
       return (
         <div key={currentPath} style={{ marginBottom: '10px', marginLeft: `${currentIndent}px`, borderLeft: depth > 0 ? '2px solid #f0f0f0' : 'none', paddingLeft: depth > 0 ? '10px' : '0' }}>
-          <strong style={{ ...commonLabelStyle, marginTop: '10px', display: 'block', fontSize: '1em' }}>{getChineseGroupName(propKey)} ({propKey} - 列表):</strong>
+          <strong style={{ ...baseLabelStyle, marginTop: '10px', display: 'block', fontSize: '1em' }}>{getChineseGroupName(propKey)} ({propKey} - 列表):</strong>
           {propValue.length > 0 && propValue.every(item => typeof item !== 'object' && !Array.isArray(item)) ? (
-             <textarea // Simple array of strings/numbers
-              style={{ ...commonInputStyle, minHeight: '60px', fontFamily: 'inherit', fontSize: '0.95em' }}
-              value={propValue.join('\n')}
-              onChange={(e) => {
-                handleChange(e.target.value.split('\n'));
-              }}
-              placeholder="每行一个项目 / One item per line"
-            />
+             <ManagedInput
+                label={undefined} // No separate label, textarea acts as its own field.
+                initialValue={propValue.join('\n')}
+                multiline
+                onCommit={(committedValue) => {
+                    handleInputChange((committedValue as string).split('\n'));
+                }}
+                placeholder="每行一个项目 / One item per line"
+                style={{ ...baseInputStyle, minHeight: '60px', fontFamily: 'inherit', fontSize: '0.95em' }}
+             />
           ) : (
-            <>
-              {propValue.map((item, index) => (
-                <div key={`${currentPath}[${index}]`} style={{ border: '1px dashed #e0e0e0', padding: '8px', margin: '8px 0', backgroundColor: '#fff' }}>
-                  <em style={{display: 'block', marginBottom: '5px', color: '#555'}}>第 {index + 1} 项:</em>
-                  {typeof item === 'object' && item !== null ? (
-                    Object.entries(item).map(([itemKey, itemValue]) => (
-                      <RenderPropertyField
-                        key={itemKey}
-                        propKey={itemKey}
-                        propValue={itemValue}
-                        currentPath={`${currentPath}[${index}].${itemKey}`} // Placeholder path, direct editing of complex array items not fully supported by updatePropertyByPath yet
-                        form={form}
-                        commonInputStyle={commonInputStyle}
-                        commonLabelStyle={commonLabelStyle}
-                        fieldContainerStyle={fieldContainerStyle}
-                        depth={depth + 1} // Corrected depth for properties of objects within arrays
-                        isInsidePersonalityGroup={parentPath === 'personality'} // Pass the flag down
-                      />
-                    ))
-                  ) : (
-                     <input
-                        type="text"
-                        style={commonInputStyle}
-                        value={item ?? ''}
-                        readOnly // For now, simple array items displayed read-only, edit via JSON
-                     />
-                  )}
-                </div>
-              ))}
-              <div style={{ ...fieldContainerStyle, marginTop: '10px' }}>
-                  <label style={{...commonLabelStyle, fontSize: '0.9em' }}>编辑整个列表 (JSON格式):</label>
-                  <textarea
-                    style={{ ...commonInputStyle, minHeight: '100px', fontFamily: 'monospace', fontSize: '0.9em' }}
-                    value={JSON.stringify(propValue, null, 2)}
-                    onChange={(e) => {
+            <div style={{ ...baseFieldContainerStyle, marginTop: '10px', paddingLeft: '0px' }}>
+                <label style={{...baseLabelStyle, fontSize: '0.9em' }}>编辑整个列表 (JSON格式):</label>
+                <ManagedInput 
+                  label={undefined}
+                  initialValue={JSON.stringify(propValue, null, 2)}
+                  multiline
+                  onCommit={(committedValue) => {
                       try {
-                        handleChange(JSON.parse(e.target.value));
-                      } catch (err) { console.warn(`Invalid JSON for ${propKey}:`, err); }
-                    }}
-                  />
-              </div>
-            </>
+                          handleInputChange(JSON.parse(committedValue as string));
+                      } catch (err) { 
+                          console.warn(`Invalid JSON for ${propKey}:`, err);
+                          alert(`无效的JSON格式: ${propKey}\nInvalid JSON for ${propKey}`);
+                      }
+                  }}
+                  style={{ ...baseInputStyle, minHeight: '100px', fontFamily: 'monospace', fontSize: '0.9em' }}
+                />
+            </div>
           )}
         </div>
       );
     }
-    // Case 3: Nested Object (not "Value/Caption" type)
     else if (typeof propValue === 'object' && propValue !== null) {
       return (
         <div key={currentPath} style={{ marginLeft: `${currentIndent}px`, borderLeft: depth > 0 ? '2px solid #f0f0f0' : 'none', paddingLeft: depth > 0 ? '10px' : '0', marginBottom: '10px' }}>
-          { depth > 0 && <strong style={{ ...commonLabelStyle, marginTop: '10px', display: 'block', fontSize: '1em' }}>{getChineseGroupName(propKey)} ({propKey}):</strong> }
+          { depth > 0 && <strong style={{ ...baseLabelStyle, marginTop: '10px', display: 'block', fontSize: '1em' }}>{getChineseGroupName(propKey)} ({propKey}):</strong> }
           {Object.entries(propValue).map(([subKey, subValue]) => (
             <RenderPropertyField
               key={subKey}
@@ -503,209 +611,152 @@ export const renderCharacterForm = ({ form }: FormRenderProps<CharacterNodeData>
               propValue={subValue}
               currentPath={`${currentPath}.${subKey}`}
               form={form}
-              commonInputStyle={commonInputStyle}
-              commonLabelStyle={commonLabelStyle}
-              fieldContainerStyle={fieldContainerStyle}
               depth={depth + 1}
-              isInsidePersonalityGroup={parentPath === 'personality'} // Pass the flag down
+              // isInsidePersonalityGroup={parentPath === 'personality'} 
             />
           ))}
         </div>
       );
     }
-    // Case 4: Simple value (string, number, boolean, null)
     else {
-      // If this simple value is directly under a personality group (e.g. personality.someDirectValue), don't render it.
-      // The table rendering for personality subgroups handles its children.
-      if (isInsidePersonalityGroup) {
-        return null;
-      }
+      // Generic input for simple properties (string, number, boolean)
+      // This will render any property not handled by the more specific types above.
       return (
-        <div style={{ ...fieldContainerStyle, marginLeft: `${currentIndent}px` }} key={currentPath}>
-          <label style={commonLabelStyle}>{getChineseGroupName(propKey)} ({propKey}):</label>
-          <input
-            type={typeof propValue === 'number' ? 'number' : (typeof propValue === 'boolean' ? 'checkbox' : 'text')}
-            style={typeof propValue === 'boolean' ? { marginRight: '10px', verticalAlign: 'middle'} : commonInputStyle}
-            value={typeof propValue === 'boolean' ? undefined : (propValue ?? '')}
-            checked={typeof propValue === 'boolean' ? propValue : undefined}
-            onChange={(e) => {
-              let newValue: any;
-              if (typeof propValue === 'boolean') {
-                newValue = e.target.checked;
-              } else if (typeof propValue === 'number') {
-                newValue = parseFloat(e.target.value); // Use parseFloat for decimals
-                if (isNaN(newValue)) newValue = null; // Set to null if not a valid number
+        <div style={{ ...baseFieldContainerStyle, marginLeft: `${currentIndent}px`, paddingLeft: '0px' }} key={currentPath}>
+          <ManagedInput
+            id={`${currentPath.replace(/\./g, '-')}`}
+            label={getChineseGroupName(propKey)}
+            // For booleans, ManagedInput will use a text input internally; onCommit will handle conversion.
+            type={typeof propValue === 'number' ? 'number' : 'text'} 
+            initialValue={
+              propValue === null || propValue === undefined ? '' :
+              typeof propValue === 'boolean' ? String(propValue) : // Convert boolean to string "true" or "false"
+              String(propValue) // Ensure other types are also strings or empty string for null/undefined
+            }
+            onCommit={(committedValue) => {
+              let finalValue: string | number | boolean | null = committedValue;
+              if (typeof propValue === 'number' || (propValue === null && typeof committedValue === 'string' && committedValue.match(/^\d*\.?\d+$/))) {
+                if (committedValue === null || String(committedValue).trim() === '') {
+                  finalValue = null;
+                } else {
+                  const num = parseFloat(String(committedValue));
+                  finalValue = isNaN(num) ? null : num;
+                }
+              } else if (typeof propValue === 'boolean') {
+                // Convert string back to boolean for actual data update
+                finalValue = String(committedValue).toLowerCase() === 'true';
               } else {
-                newValue = e.target.value;
+                // Ensure strings are committed as strings, even if empty
+                finalValue = String(committedValue || '');
               }
-              handleChange(newValue);
+              handleInputChange(finalValue);
             }}
+            placeholder={`${getChineseGroupName(propKey)}`}
+            // If propValue is boolean, input will show "true"/"false". User edits the string.
           />
-          {typeof propValue === 'boolean' && <span style={{verticalAlign: 'middle'}}>{propValue ? '是' : '否'}</span>}
         </div>
       );
     }
   };
 
+  console.log(`[renderCharacterForm] CHECKING BEFORE RETURN. Name: '${effectiveInitialName}', Age:`, effectiveInitialAge, `Typeof Age: ${typeof effectiveInitialAge}`);
+
   return (
-    <>
+    <FormContent key={formContentKey}> 
       <FormHeader />
-      <FormContent key={formContentKey}>
-        {/* Entire Character File section WAS commented out, NOW UNCOMMENTED */}
-        <div style={{ marginBottom: '20px', padding: '0 10px' }}>
-          <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>
-            角色文件:
-          </label>
-          <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
-            <input
-              type="file"
-              accept=".json"
-              ref={fileInputRef}
-              onChange={handleFileSelected}
-              style={{ display: 'none' }}
-            />
-            <button onClick={handleBrowseClick} style={{ padding: '8px 12px' }}>
-              浏览...
-            </button>
-            <button onClick={handleSave} disabled={!displayedFileName} style={{ padding: '8px 12px' }}>
-              保存
-            </button>
-            <button onClick={handleExport} style={{ padding: '8px 12px' }}>
-              导出
-            </button>
-          </div>
-          {displayedFileName && (
-            <span style={{ fontStyle: 'italic', display: 'block', marginTop: '8px', color: '#555' }}>
-              已加载: {displayedFileName}
-            </span>
-          )}
-          {!displayedFileName && (
-             <span style={{ fontStyle: 'italic', display: 'block', marginTop: '8px', color: '#777' }}>
-                未选择文件
-             </span>
-          )}
-          {form.getValueIn<string>('data.properties.loadError') && (
-            <p style={{ color: 'red', marginTop: '8px', fontSize: '0.9em' }}>
-              错误: {form.getValueIn<string>('data.properties.loadError')}
-            </p>
-          )}
-        </div>
 
-        {/* Character Details section - Title commented out, fields remain */}
-        <div style={{ padding: '0 10px', /*marginTop: '15px',*/ marginBottom: '10px', /*borderTop: '1px solid #eee', paddingTop: '15px'*/ }}>
-          {/* <strong style={{ fontSize: '1.1em' }}>角色详情:</strong> */}
-        </div>
+      <div style={{ padding: '0 10px', marginBottom: '20px', marginTop: '10px' }}>
+        <label htmlFor="characterNameInput" style={{ ...baseLabelStyle, fontWeight: 'bold', display: 'block', marginBottom: '5px' }}>
+          {tSafe('characterNode.form.labels.name', { ns: 'novelWriter', defaultValue: 'Name / 名称' })}
+        </label>        
+        <ManagedInput
+          id="characterNameInput"
+          type="text"
+          initialValue={effectiveInitialName}
+          onCommit={(committedValue) => {
+            const nameStr = String(committedValue || '');
+            const currentCharacterJson = form.getValueIn(characterJSONPath) || {};
+            const updatedCharacterJson = { ...currentCharacterJson, name: nameStr };
+            form.setValueIn(characterJSONPath, updatedCharacterJson);
+            form.setValueIn(characterNamePath, nameStr); 
+            form.setValueIn(titlePath, nameStr); 
+          }}
+          placeholder={tSafe('characterNode.form.placeholders.name', { ns: 'novelWriter', defaultValue: '输入角色名称 / Enter character name' })}
+          style={{...baseInputStyle, marginTop: '0px'}} // Adjusted marginTop
+        />
+      </div>
 
-        {/* Name Field */}
-        <div style={fieldContainerStyle}>
-          <label style={commonLabelStyle}>名称:</label>
+      {/* 年龄输入框，紧跟姓名输入框，显式渲染 Age input, directly below Name input */}
+      <div style={{ padding: '0 10px', marginBottom: '20px' }}>
+        <label htmlFor="characterAgeInput" style={{ ...baseLabelStyle, fontWeight: 'bold', display: 'block', marginBottom: '5px' }}>
+          {tSafe('characterNode.form.labels.age', { ns: 'novelWriter', defaultValue: 'Age / 年龄' })}
+        </label>
+        <ManagedInput
+          id="characterAgeInput"
+          type="number"
+          initialValue={effectiveInitialAge}
+          onCommit={(committedValue) => {
+            // 处理年龄输入，允许清空 Handle age input, allow clearing
+            const ageVal = (committedValue === null || committedValue === '' || isNaN(Number(committedValue)))
+              ? null
+              : Number(committedValue);
+            const currentCharacterJson = form.getValueIn(characterJSONPath) || {};
+            const updatedCharacterJson = { ...currentCharacterJson, age: ageVal };
+            form.setValueIn(characterJSONPath, updatedCharacterJson);
+          }}
+          placeholder={tSafe('characterNode.form.placeholders.age', { ns: 'novelWriter', defaultValue: '输入角色年龄 / Enter character age' })}
+          style={{...baseInputStyle, marginTop: '0px'}}
+        />
+      </div>
+
+      <div style={{ marginBottom: '20px', padding: '0 10px' }}>
+        <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>
+          角色文件 / Character File:
+        </label>
+        <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
           <input
-            type="text"
-            style={commonInputStyle}
-            value={form.getValueIn<string>('data.properties.characterJSON.name') || ''}
-            onChange={(e) => {
-              const newValue = e.target.value;
-              const currentJson = form.getValueIn<Record<string, any>>('data.properties.characterJSON') || {};
-              form.setValueIn('data.properties.characterJSON', { ...currentJson, name: newValue });
-              form.setValueIn('data.properties.characterName', newValue);
-              form.setValueIn('data.title', newValue);
-            }}
+            type="file"
+            accept=".json"
+            ref={fileInputRef}
+            onChange={handleFileSelected}
+            style={{ display: 'none' }}
           />
+          <button onClick={handleBrowseClick} style={{ padding: '8px 12px' }}>
+            浏览 / Browse...
+          </button>
+          <button onClick={handleSave} disabled={!displayedFileName} style={{ padding: '8px 12px' }}>
+            保存 / Save
+          </button>
+          <button onClick={handleExport} style={{ padding: '8px 12px' }}>
+            导出 / Export
+          </button>
         </div>
+        {displayedFileName && (
+          <span style={{ fontStyle: 'italic', display: 'block', marginTop: '8px', color: '#555' }}>
+            已加载 / Loaded: {displayedFileName}
+          </span>
+        )}
+        {!displayedFileName && (
+           <span style={{ fontStyle: 'italic', display: 'block', marginTop: '8px', color: '#777' }}>
+              未选择文件 / No file selected
+           </span>
+        )}
+        {form.getValueIn<string>('data.properties.loadError') && (
+          <p style={{ color: 'red', marginTop: '8px', fontSize: '0.9em' }}>
+            错误 / Error: {form.getValueIn<string>('data.properties.loadError')}
+          </p>
+        )}
+      </div>
 
-        {/* Age Field */}
-        <div style={fieldContainerStyle}>
-          <label style={commonLabelStyle}>年龄:</label>
-          <input
-            type="number"
-            style={commonInputStyle}
-            value={form.getValueIn<any>('data.properties.characterJSON.age') ?? ''}
-            onChange={(e) => {
-              const newValue = e.target.value;
-              const currentJson = form.getValueIn<Record<string, any>>('data.properties.characterJSON') || {};
-              const parsedAge = parseInt(newValue, 10);
-              form.setValueIn('data.properties.characterJSON', { 
-                ...currentJson, 
-                age: isNaN(parsedAge) ? undefined : parsedAge 
-              });
-              setFormContentKey(prevKey => prevKey + 1);
-            }}
-          />
-        </div>
+      <div style={{ padding: '0 10px', marginBottom: '10px' }}>
+      </div>
 
-        {/* Background Section Title - Title commented out, fields remain */}
-        <div style={{ padding: '0 10px', marginTop: '15px', marginBottom: '5px' }}>
-            {/* <strong style={{ fontSize: '1.05em' }}>背景:</strong> */}
-        </div>
+      <div style={{ padding: '0 10px', marginTop: '20px', marginBottom: '10px', borderTop: '2px solid #ccc', paddingTop: '15px' }}>
+          <strong style={{ fontSize: '1.15em' }}>其他主要属性 / Other Main Attributes:</strong>
+      </div>
 
-        {/* Background Origin Field - Commented out */}
-        {/*
-        <div style={fieldContainerStyle}>
-          <label style={commonLabelStyle}>出身:</label>
-          <input
-            type="text"
-            style={commonInputStyle}
-            value={(form.getValueIn<Record<string, any>>('data.properties.characterJSON.background') || {}).origin || ''}
-            onChange={(e) => {
-              const newValue = e.target.value;
-              const charJson = form.getValueIn<Record<string, any>>('data.properties.characterJSON') || {};
-              const background = charJson.background || {};
-              form.setValueIn('data.properties.characterJSON', {
-                ...charJson,
-                background: { ...background, origin: newValue },
-              });
-            }}
-          />
-        </div>
-        */}
-
-        {/* Background Occupation Field - Commented out */}
-        {/*
-        <div style={fieldContainerStyle}>
-          <label style={commonLabelStyle}>职业:</label>
-          <input
-            type="text"
-            style={commonInputStyle}
-            value={(form.getValueIn<Record<string, any>>('data.properties.characterJSON.background') || {}).occupation || ''}
-            onChange={(e) => {
-              const newValue = e.target.value;
-              const charJson = form.getValueIn<Record<string, any>>('data.properties.characterJSON') || {};
-              const background = charJson.background || {};
-              form.setValueIn('data.properties.characterJSON', {
-                ...charJson,
-                background: { ...background, occupation: newValue },
-              });
-            }}
-          />
-        </div>
-        */}
-
-        {/* Background History Field - Commented out */}
-        {/*
-        <div style={fieldContainerStyle}>
-          <label style={commonLabelStyle}>经历:</label>
-          <textarea
-            style={{ ...commonInputStyle, minHeight: '100px', fontFamily: 'inherit', fontSize: 'inherit' }}
-            value={(form.getValueIn<Record<string, any>>('data.properties.characterJSON.background') || {}).history || ''}
-            onChange={(e) => {
-              const newValue = e.target.value;
-              const charJson = form.getValueIn<Record<string, any>>('data.properties.characterJSON') || {};
-              const background = charJson.background || {};
-              form.setValueIn('data.properties.characterJSON', {
-                ...charJson,
-                background: { ...background, history: newValue },
-              });
-            }}
-          />
-        </div>
-        */}
-
-        {/* Other Properties Dynamically Rendered - THIS SECTION MUST BE UNCOMMENTED AND ACTIVE */}
-        <div style={{ padding: '0 10px', marginTop: '20px', marginBottom: '10px', borderTop: '2px solid #ccc', paddingTop: '15px' }}>
-            <strong style={{ fontSize: '1.15em' }}>其他主要属性:</strong>
-        </div>
-
-        {Object.entries(getRemainingJson(form.getValueIn('data.properties.characterJSON'))).map(([groupKey, groupData]) => (
+      {Object.entries(getRemainingJson(form.getValueIn('data.properties.characterJSON'))).map(([groupKey, groupData]) => {
+        return (
           <div key={groupKey} style={{ 
             border: '1px solid #e0e0e0', 
             borderRadius: '4px', 
@@ -719,17 +770,14 @@ export const renderCharacterForm = ({ form }: FormRenderProps<CharacterNodeData>
             <RenderPropertyField
               propKey={groupKey}
               propValue={groupData}
-              currentPath={groupKey} // Path is the groupKey itself from remainingJson root
+              currentPath={groupKey} 
               form={form}
-              commonInputStyle={commonInputStyle}
-              commonLabelStyle={commonLabelStyle}
-              fieldContainerStyle={fieldContainerStyle}
-              depth={0} // Initial depth for top-level groups
-              isInsidePersonalityGroup={groupKey === 'personality'} // Set flag if this is the personality group itself
+              depth={0} 
+            // isInsidePersonalityGroup={groupKey === 'personality'} // Removed, as RenderPropertyField logic revised
             />
           </div>
-        ))}
-      </FormContent>
-    </>
+        );
+      })}
+    </FormContent>
   );
 }; 
