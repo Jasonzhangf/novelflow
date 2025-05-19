@@ -10,6 +10,7 @@ import { ZoomSelect } from './zoom-select';
 import { SwitchLine } from './switch-line';
 import { ToolContainer, ToolSection } from './styles';
 import { Save } from './save';
+import { SavePersist } from './save-persist';
 import { Run } from './run';
 import { Readonly } from './readonly';
 import { MinimapSwitch } from './minimap-switch';
@@ -71,7 +72,7 @@ export const DemoTools = () => {
         <Divider layout="vertical" style={{ height: '16px' }} margin={3} />
         <AddNode disabled={playground.config.readonly} />
         <Divider layout="vertical" style={{ height: '16px' }} margin={3} />
-        <Save disabled={playground.config.readonly} />
+        <SavePersist disabled={playground.config.readonly} />
         <Run />
       </ToolSection>
     </ToolContainer>

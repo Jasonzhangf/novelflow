@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 import { NodeRenderProps, useNodeRender } from '@flowgram.ai/free-layout-editor';
 
@@ -47,11 +47,28 @@ export const CharacterNodeCanvas: React.FC<
     return keyParts[keyParts.length - 1];
   };
 
-  // 只显示顶层 data.name、data.age、data.title
-  // Only display top-level data.name, data.age, data.title
+  // 本地可编辑状态 Local editable state
+  const [editName, setEditName] = useState(data.name || data.title || values.title || '');
+  const [editAge, setEditAge] = useState(
+    data.age !== undefined && data.age !== null ? data.age : ''
+  );
+  const [saveMsg, setSaveMsg] = useState('');
+
+  // 保存到节点数据 Save to node data
+  const handleSave = () => {
+    if (nodeRender.form && nodeRender.form.setValueIn) {
+      nodeRender.form.setValueIn('data.name', editName);
+      nodeRender.form.setValueIn('data.age', editAge === '' ? null : Number(editAge));
+      // fireChange is not needed; setValueIn is sufficient to persist node data in Flowgram
+      setSaveMsg('已保存 (Saved)');
+      setTimeout(() => setSaveMsg(''), 1200);
+    }
+  };
+
+  // 只显示顶层 data.name、data.age
+  // Only display top-level data.name, data.age
   const characterName = data.name || data.title || values.title || '未命名';
   const characterAge = data.age !== undefined && data.age !== null ? data.age : '未知';
-  // const characterTitle = data.title || values.title || '';
 
   return (
     <NodeRenderContext.Provider value={nodeRender}>
@@ -71,7 +88,6 @@ export const CharacterNodeCanvas: React.FC<
           <div style={{ color: '#888', fontSize: 14, marginBottom: 8 }}>
             年龄: {characterAge}
           </div>
-          {/* Title removed as per user request */}
         </div>
       </NodeWrapper>
     </NodeRenderContext.Provider>

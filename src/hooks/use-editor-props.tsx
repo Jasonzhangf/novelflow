@@ -25,6 +25,17 @@ export function useEditorProps(
   initialData: FlowDocumentJSON,
   nodeRegistries: FlowNodeRegistry[]
 ): FreeLayoutProps {
+  // 尝试从 localStorage 恢复持久化数据
+  let persistedData: FlowDocumentJSON | undefined = undefined;
+  try {
+    const persisted = localStorage.getItem('flowgram_workflow');
+    if (persisted) {
+      persistedData = JSON.parse(persisted);
+    }
+  } catch (e) {
+    // ignore
+  }
+  const dataToUse = persistedData || initialData;
   return useMemo<FreeLayoutProps>(
     () => ({
       /**
@@ -39,7 +50,7 @@ export function useEditorProps(
        * Initial data
        * 初始化数据
        */
-      initialData,
+      initialData: dataToUse,
       /**
        * Node registries
        * 节点注册
