@@ -17,10 +17,6 @@ export const initialData: FlowDocumentJSON = {
         outputs: {
           type: 'object',
           properties: {
-            query: {
-              type: 'string',
-              default: '',
-            },
           },
         },
       },
