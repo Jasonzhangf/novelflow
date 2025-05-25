@@ -29,7 +29,6 @@ export function FormInputs() {
                   <FxExpression
                     value={field.value}
                     onChange={field.onChange}
-                    readonly={readonly}
                     hasError={Object.keys(fieldState?.errors || {}).length > 0}
                   />
                   <Feedback errors={fieldState?.errors} />

@@ -10,3 +10,6 @@ alwaysApply: true
 5. when made modifications,try to use MCP tools to run the program to verify first and if there's problem fix it and rerun.
 6. if you can do it with MPC tools, never ask user to do it manually
 7. when creating nodes, check the design under ./src/nodes on how other nodes were designed and do it the same way. if some components don't fit for the node's need, try to create a component under ./src/components . You should create them the same way the components under this directories do. 
+8. never modify anything under ./reference/
+9. naming should never contain "_"
+10. if you don't need user to choose among several options, modify code directly and actively.

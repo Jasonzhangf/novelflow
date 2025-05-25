@@ -3,7 +3,9 @@ import { FormRenderProps, FormMeta, ValidateTrigger } from '@flowgram.ai/free-la
 import { FlowNodeJSON } from '../typings';
 import { FormHeader, FormContent, FormInputs, FormOutputs } from '../form-components';
 
-export const renderForm = ({ form }: FormRenderProps<FlowNodeJSON>) => (
+export const renderForm = ({ form }: FormRenderProps<FlowNodeJSON>) => {
+  console.log('LLM Node Form - prompt value:', form.values.data?.inputsValues?.prompt);
+  return (
   <>
     <FormHeader />
     <FormContent>
@@ -12,6 +14,7 @@ export const renderForm = ({ form }: FormRenderProps<FlowNodeJSON>) => (
     </FormContent>
   </>
 );
+};
 
 export const defaultFormMeta: FormMeta<FlowNodeJSON> = {
   render: renderForm,

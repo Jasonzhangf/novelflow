@@ -1,0 +1,629 @@
+
+logo
+FlowGram.AI
+
+搜索文档
+
+⌘K
+指引
+例子
+常用 API
+API 文档
+
+logo
+FlowGram.AI
+介绍
+快速开始
+安装
+创建自由布局画布
+创建固定布局画布
+进阶
+自由布局
+加载与保存
+节点
+线条
+端口
+子画布
+固定布局
+加载与保存
+节点
+节点表单
+不使用表单
+变量
+变量基础
+输出变量
+消费变量
+历史记录
+快捷键
+缩略图
+自定义插件
+自定义 Service
+官方表单物料
+概念
+画布引擎
+节点引擎
+变量引擎
+ECS
+IOC
+对比 ReactFlow
+变量基础#
+业务背景#
+在 Workflow 编排中，节点与节点之间需要传递信息。为了实现这一点，我们使用变量来存储和管理这些信息。
+
+一个变量由三个主要部分组成：
+唯一标识符：变量的名字，用于区分不同的变量，以便在程序中可以准确地引用和使用它。如：userName 或 totalAmount。
+值：变量存储的数据。值可以是多种类型，比如数字（如 42）、字符串（如 "Hello!"）、布尔值（如 true）等。
+类型：变量可以存储的数据种类。类型决定了变量可以接受什么样的值。例如，一个变量可以是整数、浮点数、字符串或布尔值等。
+下面是一个流程编排的例子：WebSearch 节点获取到知识，通过 natural_language_desc 传递到 LLM 节点进行分析
+
+
+在该例子中：
+
+1. WebSearch 节点将信息（值）存在 natural_language_desc 为唯一标识符的变量内
+
+2. LLM 节点通过 natural_language_desc 唯一标识符获取到知识库检索的信息（值），并传入 LLM 节点进行分析
+
+3. natural_language_desc 变量的类型为字符串，代表在网络中检索到的信息内容，例如 "DeepSeek 今日有新模型发布"
+
+什么是变量引擎？#
+变量引擎是 Flowgram 提供的一个可选内置功能，可以帮助 Workflow 设计时更高效地实现变量信息编排。它可以实现以下功能：
+
+作用域约束控制
+通过变量引擎，你可以控制变量的作用域，确保变量在合适的范围内可用，避免不必要的冲突。
+
+
+图中 Start 节点的 query 变量，可被后续的 LLM 节点和 End 节点访问
+
+
+图中 LLM 节点在 Condition 分支内，End 节点在 Condition 分支外；因此 End 节点的变量选择器无法选择到 LLM 节点上的 result 变量
+
+变量信息树的维护
+变量引擎可以帮助你构建一个清晰的变量信息树，方便你查看和管理所有变量的状态和关系。
+
+
+图中展示了多个节点 + 全局配置的输出变量；其中部分变量包含了多个子变量，形成了一棵树的结构
+
+变量类型自动联动推导
+变量引擎能够根据上下文自动推导变量的类型，减少手动指定类型的工作量，提高开发效率。
+
+
+图中的 Batch 节点对 Start 节点的 arr 变量进行了批处理，当 arr 变量的类型变动时，Batch 节点批处理输出的 item 变量类型也随之变动
+
+开启变量引擎#
+> API Detail
+
+use-editor-props.ts
+// EditorProps
+{
+  variableEngine: {
+    /**
+     * 需要开启变量引擎才能使用
+     */
+    enable: true
+  }
+}
+
+
+logo
+FlowGram.AI
+
+搜索文档
+
+⌘K
+指引
+例子
+常用 API
+API 文档
+
+logo
+FlowGram.AI
+介绍
+快速开始
+安装
+创建自由布局画布
+创建固定布局画布
+进阶
+自由布局
+加载与保存
+节点
+线条
+端口
+子画布
+固定布局
+加载与保存
+节点
+节点表单
+不使用表单
+变量
+变量基础
+输出变量
+消费变量
+历史记录
+快捷键
+缩略图
+自定义插件
+自定义 Service
+官方表单物料
+概念
+画布引擎
+节点引擎
+变量引擎
+ECS
+IOC
+对比 ReactFlow
+输出变量#
+输出节点变量#
+FlowNodeVariableData 输出变量#
+Flowgram 基于 ECS (Entity-Component-System) 来实现节点信息的管理。
+
+其中 FlowNodeVariableData 是节点 FlowNodeEntity 上的一个 Component，专门用于处理节点上输出的 变量信息。
+
+下面的 Demo 展示了：如何拿到 FlowNodeVariableData, 并且通过 FlowNodeVariableData 实现在节点上输出变量
+
+sync-variable-plugin.tsx
+import {
+  FlowNodeVariableData,
+  ASTFactory,
+} from '@flowgram.ai/fixed-layout-editor';
+
+// ....
+
+flowDocument.onNodeCreate(({ node }) => {
+  const variableData = node.getData<FlowNodeVariableData>(FlowNodeVariableData);
+
+  // ....
+
+  // 1. Clear VariableData if No value
+  variableData.clearVar()
+
+  // 2. Set a String Variable as output
+  variableData.setVar(
+    ASTFactory.createVariableDeclaration({
+      meta: {
+        title: `Your Output Variable Title`,
+      },
+      key: `your_variable_global_unique_key_${node.id}`,
+      type: ASTFactory.createString(),
+    })
+  )
+
+  // 3. Set a Complicated Variable Data as output
+  variableData.setVar(
+    ASTFactory.createVariableDeclaration({
+      meta: {
+        title: `Your Output Variable Title`,
+      },
+      key: `your_variable_global_unique_key_${node.id}`,
+      type: ASTFactory.createArray({
+        items: ASTFactory.createObject({
+          properties: [
+            ASTFactory.createProperty({
+              key: 'stringType',
+              type: ASTFactory.createString(),
+            }),
+            ASTFactory.createProperty({
+              key: 'booleanType',
+              type: ASTFactory.createBoolean(),
+            }),
+            ASTFactory.createProperty({
+              key: 'numberType',
+              type: ASTFactory.createNumber(),
+            }),
+            ASTFactory.createProperty({
+              key: 'integerType',
+              type: ASTFactory.createInteger(),
+            }),
+          ],
+        }),
+      }),
+    })
+  );
+
+  // 4. Get Variable for current Node
+  console.log(variableData.getVar())
+
+  // ....
+})
+
+// ....
+
+
+详见: > Demo Detail
+
+一个节点设置多个输出变量#
+sync-variable-plugin.tsx
+import {
+  FlowNodeVariableData,
+  ASTFactory,
+} from '@flowgram.ai/fixed-layout-editor';
+
+// ....
+
+flowDocument.onNodeCreate(({ node }) => {
+  const variableData = node.getData<FlowNodeVariableData>(FlowNodeVariableData);
+
+  // ...
+  // 1. Create, Update, Read, Delete Variable in namespace_1
+  variableData.setVar(
+    'namespace_1',
+    ASTFactory.createVariableDeclaration({
+      meta: {
+        title: `Your Output Variable Title`,
+      },
+      key: `your_variable_global_unique_key_${node.id}`,
+      type: ASTFactory.createString(),
+    })
+  )
+
+  console.log(variableData.getVar('namespace_1'))
+
+  variableData.clearVar('namespace_1')
+
+  // ....
+
+  // 2. Create, Update, Read, Delete Variable in namespace_2
+  variableData.setVar(
+    'namespace_2',
+    ASTFactory.createVariableDeclaration({
+      meta: {
+        title: `Your Output Variable Title 2`,
+      },
+      key: `your_variable_global_unique_key_${node.id}_2`,
+      type: ASTFactory.createString(),
+    })
+  )
+
+  console.log(variableData.getVar('namespace_2'))
+
+  variableData.clearVar('namespace_2')
+
+  // ....
+})
+
+// ....
+
+
+更多用法，详见：Class: FlowNodeVariableData
+
+表单副作用设置输出变量#
+node-registries.ts
+import {
+  FlowNodeRegistry,
+  createEffectFromVariableProvider,
+  ASTFactory,
+  type ASTNodeJSON
+} from '@flowgram.ai/fixed-layout-editor';
+
+export function createTypeFromValue(value: string): ASTNodeJSON | undefined {
+  switch (value) {
+    case 'string':
+      return ASTFactory.createString();
+    case 'number':
+      return ASTFactory.createNumber();
+    case 'boolean':
+      return ASTFactory.createBoolean();
+    case 'integer':
+      return ASTFactory.createInteger();
+
+    default:
+      return;
+  }
+}
+
+export const nodeRegistries: FlowNodeRegistry[] = [
+  {
+    type: 'start',
+    formMeta: {
+      effect: {
+        // Create first variable
+        // = variableData.setVar('path.to.value', ASTFactory.createVariableDeclaration(parse(v)))
+        'path.to.value': createEffectFromVariableProvider({
+          // parse form value to variable
+          parse(v: string) {
+            return {
+              meta: {
+                title: `Your Output Variable Title`,
+              },
+              key: `your_variable_global_unique_key_${node.id}`,
+              type: createTypeFromValue(v)
+            }
+          }
+        }),
+        // Create second variable
+        // = variableData.setVar('path.to.value2', ASTFactory.createVariableDeclaration(parse(v)))
+        'path.to.value2': createEffectFromVariableProvider({
+          // parse form value to variable
+          parse(v: string) {
+            return {
+              meta: {
+                title: `Your Output Variable Title 2`,
+              },
+              key: `your_variable_global_unique_key_${node.id}_2`,
+              type: createTypeFromValue(v)
+            }
+          }
+        }),
+      },
+      render: () => (
+       // ...
+      )
+    },
+  }
+]
+
+
+输出全局变量#
+获取全局变量作用域#
+全局作用域可以在 Plugin 中通过 ctx 获取：
+
+sync-variable-plugin.tsx
+import {
+  GlobalScope,
+  definePluginCreator,
+  PluginCreator
+} from '@flowgram.ai/fixed-layout-editor';
+
+
+export const createSyncVariablePlugin: PluginCreator<SyncVariablePluginOptions> =
+  definePluginCreator<SyncVariablePluginOptions, FixedLayoutPluginContext>({
+    onInit(ctx, options) {
+      const globalScope = ctx.get(GlobalScope)
+
+      globalScope.setVar(
+         ASTFactory.createVariableDeclaration({
+          meta: {
+            title: `Your Output Variable Title`,
+          },
+          key: `your_variable_global_unique_key`,
+          type: ASTFactory.createString(),
+        })
+      )
+    }
+  })
+
+
+也可以在画布中的 React 组件内，通过 useService 获取全局作用域：
+
+global-variable-component.tsx
+import {
+  GlobalScope,
+  useService,
+} from '@flowgram.ai/fixed-layout-editor';
+
+function GlobalVariableComponent() {
+
+  const globalScope = useService(GlobalScope)
+
+  // ...
+
+  const handleChange = (v: string) => {
+    globalScope.setVar(
+      ASTFactory.createVariableDeclaration({
+        meta: {
+          title: `Your Output Variable Title`,
+        },
+        key: `your_variable_global_unique_key_${v}`,
+        type: ASTFactory.createString(),
+      })
+    )
+  }
+
+  return <Input onChange={handleChange}/>
+}
+
+
+全局作用域输出变量#
+GlobalScope 输出变量的 API 和 FlowNodeVariableData 类似:
+
+sync-variable-plugin.tsx
+import {
+  GlobalScope,
+} from '@flowgram.ai/fixed-layout-editor';
+
+// ...
+
+onInit(ctx, options) {
+  const globalScope = ctx.get(GlobalScope);
+
+  // 1. Create, Update, Read, Delete Variable in GlobalScope
+  globalScope.setVar(
+    ASTFactory.createVariableDeclaration({
+      meta: {
+        title: `Your Output Variable Title`,
+      },
+      key: `your_variable_global_unique_key`,
+      type: ASTFactory.createString(),
+    })
+  )
+
+  console.log(globalScope.getVar())
+
+  globalScope.clearVar()
+
+
+  // 2.  Create, Update, Read, Delete Variable in GlobalScope's namespace: 'namespace_1'
+    globalScope.setVar(
+      'namespace_1',
+      ASTFactory.createVariableDeclaration({
+        meta: {
+          title: `Your Output Variable Title 2`,
+        },
+        key: `your_variable_global_unique_key_2`,
+        type: ASTFactory.createString(),
+      })
+  )
+
+  console.log(globalScope.getVar('namespace_1'))
+
+  globalScope.clearVar('namespace_1')
+
+  // ...
+}
+
+
+详见：Class: GlobalScope
+
+Last Updated: 2025/5/13 06:16:00
+
+Previous Page
+变量基础
+Next Page
+消费变量
+大纲
+输出节点变量
+FlowNodeVariableData 输出变量
+一个节点设置多个输出变量
+表单副作用设置输出变量
+输出全局变量
+获取全局变量作用域
+全局作用域输出变量
+
+
+
+logo
+FlowGram.AI
+
+搜索文档
+
+⌘K
+指引
+例子
+常用 API
+API 文档
+
+logo
+FlowGram.AI
+介绍
+快速开始
+安装
+创建自由布局画布
+创建固定布局画布
+进阶
+自由布局
+加载与保存
+节点
+线条
+端口
+子画布
+固定布局
+加载与保存
+节点
+节点表单
+不使用表单
+变量
+变量基础
+输出变量
+消费变量
+历史记录
+快捷键
+缩略图
+自定义插件
+自定义 Service
+官方表单物料
+概念
+画布引擎
+节点引擎
+变量引擎
+ECS
+IOC
+对比 ReactFlow
+消费变量#
+在节点内获取变量树#
+获取变量列表#
+use-variable-tree.tsx
+import {
+  type BaseVariableField,
+  useScopeAvailable,
+} from '@flowgram.ai/fixed-layout-editor';
+
+// .... Inside react hooks or component
+
+const available = useScopeAvailable()
+
+const renderVariable = (variable: BaseVariableField) => {
+  // ....
+}
+
+return available.variables.map(renderVariable)
+
+// ....
+
+
+获取 Object 类型变量的下钻#
+use-variable-tree.tsx
+import {
+  type BaseVariableField,
+  ASTMatch,
+} from '@flowgram.ai/fixed-layout-editor';
+
+// ....
+
+const renderVariable = (variable: BaseVariableField) => ({
+  title: variable.meta?.title,
+  key: variable.key,
+  // Only Object Type can drilldown
+  children: ASTMatch.isObject(type) ? type.properties.map(renderVariable) : [],
+});
+
+// ....
+
+
+获取 Array 类型变量的下钻#
+use-variable-tree.tsx
+import {
+  type BaseVariableField,
+  type BaseType,
+  ASTMatch,
+} from '@flowgram.ai/fixed-layout-editor';
+
+// ....
+
+const getTypeChildren = (type?: BaseType): BaseVariableField[] => {
+  if (!type) return [];
+
+  // get properties of Object
+  if (ASTMatch.isObject(type)) return type.properties;
+
+  // get items type of Array
+  if (ASTMatch.isArray(type)) return getTypeChildren(type.items);
+};
+
+const renderVariable = (variable: BaseVariableField) => ({
+  title: variable.meta?.title,
+  key: variable.key,
+  // Only Object Type can drilldown
+  children: getTypeChildren(variable.type).map(renderVariable),
+});
+
+// ....
+
+
+直接使用 VariableSelector 官方物料#
+详见: 官方表单物料
+
+
+VariableSelector 组件用于选择单个变量
+
+通过包引用使用：
+
+import { VariableSelector } from '@flowgram.ai/materials'
+
+
+通过 CLI 复制源代码使用：
+
+npx @flowgram.ai/materials components/variable-selector
+
+
+Last Updated: 2025/5/13 10:12:35
+
+Previous Page
+输出变量
+Next Page
+历史记录
+大纲
+在节点内获取变量树
+获取变量列表
+获取 Object 类型变量的下钻
+获取 Array 类型变量的下钻
+直接使用 VariableSelector 官方物料
+

@@ -13,6 +13,18 @@ export const EndNodeRegistry: FlowNodeRegistry = {
       width: 360,
       height: 211,
     },
+    inputs: {
+      type: 'object',
+      properties: {
+        input: { type: 'object' },
+      },
+    },
+    outputs: {
+      type: 'object',
+      properties: {
+        output: { type: 'object' },
+      },
+    },
   },
   info: {
     icon: iconEnd,

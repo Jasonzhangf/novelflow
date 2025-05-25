@@ -45,18 +45,25 @@ export const createSyncVariablePlugin: PluginCreator<SyncVariablePluginOptions> 
             // Use the node's title or its ID as the title for the variable
             const title = form?.getValueIn('title') || node.id;
 
+            // Get actual values from node.data.outputsValues if available
+            const outputsValues = form?.getValueIn('outputsValues') || {};
+            
+            console.log(`SyncVariablePlugin - Node ${node.id} - outputsValues:`, outputsValues);
+
             // Set the variable in the variable engine
             variableData.setVar(
               ASTFactory.createVariableDeclaration({
+                key: `${node.id}.outputs`,
+                type: typeAST,
                 meta: {
                   title: `${title}`,
                   icon: node.getNodeRegistry()?.info?.icon,
-                  // NOTICE: You can add more metadata here as needed
-                },
-                key: `${node.id}.outputs`,
-                type: typeAST,
+                  // Remove outputValues from meta, aligning with demo
+                }
               })
             );
+            
+            console.log(`SyncVariablePlugin - Variable schema declared for node ${node.id}.`);
           } else {
             // If the AST cannot be created, clear the variable
             variableData.clearVar();
@@ -70,6 +77,8 @@ export const createSyncVariablePlugin: PluginCreator<SyncVariablePluginOptions> 
           // Listen for changes in the form values and re-synchronize when outputs change
           form.onFormValuesChange((props) => {
             if (props.name.match(/^outputs/) || props.name.match(/^title/)) {
+              // Re-sync when outputs schema or outputsValues change
+              console.log(`SyncVariablePlugin - Form value changed: ${props.name}`, props.values);
               syncOutputs(form.getValueIn('outputs'));
             }
           });

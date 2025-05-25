@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
-import { FormRenderProps, FlowNodeJSON } from '@flowgram.ai/free-layout-editor'; // Using types from the layout editor
+import { FormRenderProps, FlowNodeJSON, useScopeAvailable, useNodeRender } from '@flowgram.ai/free-layout-editor'; // Keep useScopeAvailable, Add useNodeRender
 
 /**
  * @en Renders the form for the JSON Viewer node's settings panel.
@@ -10,22 +10,48 @@ import { FormRenderProps, FlowNodeJSON } from '@flowgram.ai/free-layout-editor';
  */
 export const renderJsonViewerForm = (props: FormRenderProps<FlowNodeJSON>): JSX.Element => {
   const { form } = props; // Destructure form from props
+  const { node: currentNode } = useNodeRender(); // Get current node instance
 
-  // Access the jsonData from the input port named 'jsonDataIn'
-  // The workflow engine should place the output of the connected node here.
-  const receivedJson = form.getValueIn('data.inputsValues.jsonDataIn');
-  let displayJson = '';
+  // Add state to force re-render when data changes
+  const [displayJson, setDisplayJson] = useState('');
 
-  if (receivedJson !== undefined && receivedJson !== null) {
-    try {
-      displayJson = JSON.stringify(receivedJson, null, 2); // Pretty print the JSON
-    } catch (error) {
-      displayJson = 'Error formatting JSON / JSON格式化错误';
-      console.error('Error formatting JSON for display:', error);
+  // Get available variables using the hook (can be kept for other purposes or logging if needed)
+  const availableVariables = useScopeAvailable();
+
+  console.log("JSON Viewer available variables:", availableVariables); // Log available variables object
+  console.log("JSON Viewer available variables list:", availableVariables.variables); // Log the list of variables
+
+  // Use effect to update displayJson when currentNode data changes
+  useEffect(() => {
+    console.log("useEffect triggered in JSON Viewer form-meta (triggered by currentNode data change)");
+    
+    let dataToDisplay = undefined;
+    if (currentNode && (currentNode as any).data && (currentNode as any).data.inputsValues) {
+      dataToDisplay = (currentNode as any).data.inputsValues.jsonDataIn;
+      console.log("JSON Viewer form: Reading data directly from currentNode.data.inputsValues.jsonDataIn:", dataToDisplay);
+    } else {
+      console.log("JSON Viewer form: currentNode, data, or inputsValues not available, or jsonDataIn is not set.");
     }
-  } else {
-    displayJson = 'No JSON data received or input not connected / 未收到JSON数据或输入未连接';
-  }
+
+    let formattedJson = '';
+    if (dataToDisplay !== undefined && dataToDisplay !== null) {
+      try {
+        // If it's a string, display as is. Otherwise, stringify.
+        if (typeof dataToDisplay === 'string') {
+          formattedJson = dataToDisplay;
+        } else {
+          formattedJson = JSON.stringify(dataToDisplay, null, 2); // Pretty print the JSON
+        }
+      } catch (error) {
+        formattedJson = 'Error formatting JSON / JSON格式化错误';
+        console.error('Error formatting JSON for display:', error);
+      }
+    } else {
+      formattedJson = 'No JSON data received or input value not found / 未收到JSON数据或未找到输入值';
+    }
+    setDisplayJson(formattedJson);
+
+  }, [currentNode, (currentNode as any)?.data?.inputsValues?.jsonDataIn]); // Depend on currentNode and the specific data path
 
   // Styling for the JSON display area
   const preStyle: React.CSSProperties = {

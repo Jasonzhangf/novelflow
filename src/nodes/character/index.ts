@@ -198,27 +198,23 @@ export const CharacterNodeRegistry: FlowNodeRegistry = {
     index++;
 
     // Create an empty template based on the defaultCharacterJSON structure
-    const emptyCharacterTemplate = createEmptyTemplate(defaultCharacterJSON);
-
-    // Set default values for essential fields to ensure they're editable
-    // This guarantees the form has a clear structure even before importing
-    const characterName = '';
-    const characterAge = null;
-    const characterTitle = '';
+    const initialCharacterJSON = createEmptyTemplate(defaultCharacterJSON);
 
     return {
       id: characterId,
       type: WorkflowNodeType.CHARACTER,
       data: {
-        name: characterName, // 顶层 name
-        age: characterAge,   // 顶层 age
-        title: characterTitle, // 顶层 title
-        characterJSON: emptyCharacterTemplate, // 其他复杂属性可放这里
-        // ... 其他属性
+        title: `角色 ${index} / Character ${index}`,
+        characterJSON: initialCharacterJSON, // Initialize with empty template
+        outputs: {
+          type: 'object',
+          properties: {
+            jsonDataOut: { type: 'object' }, // Define the jsonDataOut output port as an object
+          },
+        },
       },
       meta: {
-        title: characterName,
-        // ... 其他 meta
+        title: `角色 ${index} / Character ${index}`,
       },
       outputs: {
         type: 'object',
@@ -231,7 +227,7 @@ export const CharacterNodeRegistry: FlowNodeRegistry = {
         },
       },
       outputsValues: {
-        jsonDataOut: emptyCharacterTemplate,
+        jsonDataOut: initialCharacterJSON,
       },
     };
   },

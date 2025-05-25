@@ -17,6 +17,7 @@ import { CustomService, RunningService } from '../services';
 import { createSyncVariablePlugin } from '../plugins';
 import { defaultFormMeta } from '../nodes/default-form-meta';
 import { CharacterNodeCanvas } from '../nodes/character/CharacterNodeCanvas';
+import { JsonViewerNodeCanvas } from '../nodes/jsonViewer/JsonViewerNodeCanvas';
 import { WorkflowNodeType } from '../nodes';
 import { SelectorBoxPopover } from '../components/selector-box-popover';
 import { BaseNode, CommentRender, GroupNodeRender, LineAddButton, NodePanel } from '../components';
@@ -25,6 +26,46 @@ export function useEditorProps(
   initialData: FlowDocumentJSON,
   nodeRegistries: FlowNodeRegistry[]
 ): FreeLayoutProps {
+  // Debug log to inspect incoming nodeRegistries
+  console.log('%c[useEditorProps DEBUG] Inspecting incoming nodeRegistries argument:', 'color: blue; font-weight: bold;', nodeRegistries);
+  nodeRegistries.forEach(reg => {
+    // Simplified type display for logging
+    const typeDisplay = String(reg.type); 
+    const canvasExists = !!reg.canvas;
+    const canvasName = reg.canvas ? ((reg.canvas as any).displayName || (reg.canvas as any).name || 'UnknownComponent') : 'N/A';
+    console.log(`%c[useEditorProps DEBUG] Registry: type='${typeDisplay}', hasCanvas=${canvasExists}, canvasName='${canvasName}'`, 'color: blue;');
+    if (reg.type === WorkflowNodeType.JSONVIEWER || reg.type === 'jsonviewer') {
+      console.log(`%c[useEditorProps DEBUG] Found 'jsonviewer' registry in argument:`, 'color: green; font-weight: bold;', JSON.stringify(reg, (key, value) => key === 'canvas' && value ? `[ReactComponent: ${(value as any).displayName || (value as any).name || 'Unknown'}]` : value, 2));
+      if (reg.canvas) {
+        console.log(`%c[useEditorProps DEBUG] 'jsonviewer' reg.canvas.name: ${(reg.canvas as any).displayName || (reg.canvas as any).name}`, 'color: green;');
+      } else {
+        console.warn(`%c[useEditorProps DEBUG] 'jsonviewer' reg.canvas is MISSING or falsy.`, 'color: orange;');
+      }
+    }
+  });
+
+  let actualJsonViewerCanvasForComparison = undefined;
+  try {
+    actualJsonViewerCanvasForComparison = JsonViewerNodeCanvas;
+     console.log('%c[useEditorProps DEBUG] Imported JsonViewerNodeCanvas for comparison:', 'color: blue;', actualJsonViewerCanvasForComparison ? 'Exists' : 'Does NOT exist');
+  } catch (e) {
+    console.error('[useEditorProps DEBUG] Could not import JsonViewerNodeCanvas for comparison', e);
+  }
+
+  if (actualJsonViewerCanvasForComparison) {
+      const jsonViewerRegFromArg = nodeRegistries.find(reg => reg.type === WorkflowNodeType.JSONVIEWER || reg.type === 'jsonviewer');
+      if (jsonViewerRegFromArg) {
+          const isMatch = jsonViewerRegFromArg.canvas === actualJsonViewerCanvasForComparison;
+          console.log(`%c[useEditorProps DEBUG] Comparison: (jsonViewerRegFromArg.canvas === imported JsonViewerNodeCanvas): ${isMatch}`, isMatch ? 'color: green;' : 'color: red; font-weight: bold;');
+          if (!isMatch) {
+            console.warn(`[useEditorProps DEBUG] Canvas mismatch details:`, { argCanvas: jsonViewerRegFromArg.canvas, importedCanvas: actualJsonViewerCanvasForComparison });
+          }
+      } else {
+        console.warn('%c[useEditorProps DEBUG] No jsonviewer registry found in arguments for direct comparison.', 'color: orange;');
+      }
+  }
+  // End of debug log
+
   // 尝试从 localStorage 恢复持久化数据
   let persistedData: FlowDocumentJSON | undefined = undefined;
   try {
@@ -61,6 +102,16 @@ export function useEditorProps(
        * 提供默认的节点注册，这个会和 nodeRegistries 做合并
        */
       getNodeDefaultRegistry(type) {
+        console.log(`[useEditorProps] getNodeDefaultRegistry CALLED FOR TYPE: ${type}`);
+        // Add a specific check here
+        if (type === 'jsonviewer' || type === WorkflowNodeType.JSONVIEWER) {
+            const foundInPassedRegistries = nodeRegistries.find(r => (r.type === type || r.type === WorkflowNodeType.JSONVIEWER) && r.canvas);
+            if (foundInPassedRegistries) {
+                console.error(`%c[useEditorProps ERROR] getNodeDefaultRegistry called for '${type}' BUT it seems to exist in nodeRegistries with a canvas component! problematicRegistryExists=true`, 'color: red; font-weight: bold; background-color: yellow;', foundInPassedRegistries);
+            } else {
+                console.warn(`%c[useEditorProps WARN] getNodeDefaultRegistry called for '${type}', and it was NOT found in nodeRegistries with a canvas component, or had no canvas. problematicRegistryExists=false`, 'color: orange;');
+            }
+        }
         return {
           type,
           meta: {
@@ -120,7 +171,8 @@ export function useEditorProps(
         renderDefaultNode: BaseNode,
         renderNodes: {
           [WorkflowNodeType.Comment]: CommentRender,
-          CharacterNodeCanvasKey: CharacterNodeCanvas,
+          // CharacterNodeCanvasKey: CharacterNodeCanvas, // Keep this commented for now, or ensure its key is unique if uncommented
+          'JsonViewerNodeCanvasKey': JsonViewerNodeCanvas, // Added mapping for JsonViewerNodeCanvasKey
         },
       },
       /**
@@ -166,8 +218,9 @@ export function useEditorProps(
       /**
        * Playground init
        */
-      onInit() {
+      onInit(ctx) {
         console.log('--- Playground init ---');
+        ctx.get(RunningService);
       },
       /**
        * Playground render
@@ -249,6 +302,6 @@ export function useEditorProps(
         }),
       ],
     }),
-    []
+    [dataToUse, nodeRegistries]
   );
 }
