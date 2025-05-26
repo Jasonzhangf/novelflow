@@ -12,6 +12,7 @@ import {
   // WorkflowEdgeEntity, // Comment out or remove if problematic
 } from '@flowgram.ai/free-layout-editor';
 import { nodeRegistries } from '../nodes';
+import { defaultCharacterSourceForTemplate } from '../nodes/character';
 
 const RUNNING_INTERVAL = 1000;
 
@@ -26,6 +27,10 @@ interface NodeData {
   inputsValues?: Record<string, any>;
   outputsValues?: Record<string, any>;
   [key: string]: any;
+}
+
+function deepClone(obj) {
+  return JSON.parse(JSON.stringify(obj));
 }
 
 @injectable()
@@ -87,12 +92,14 @@ export class RunningService {
         const targetPort = connection.targetPortID;
         console.log(`[RunningService] addRunningNode(${node.id} -> ${nextNode.id}): Processing connection from port ${sourcePort} to ${targetPort}.`);
         
-        const sourceNodeData = (node as any).data as NodeData;
+        const sourceNodeData = (node as any).data as NodeData; // Keep for other potential uses or fallback logging
 
-        if (sourcePort && targetPort && sourceNodeData?.outputsValues?.[sourcePort]) {
-          console.log(`[RunningService] addRunningNode(${node.id} -> ${nextNode.id}): Condition met for data transfer.`);
+        const effectiveSourceOutputs = this.nodeOutputs.get(node.id); // Get outputs from RunningService's internal store
+
+        if (sourcePort && targetPort && effectiveSourceOutputs?.[sourcePort]) {
+          console.log(`[RunningService] addRunningNode(${node.id} -> ${nextNode.id}): Condition met for data transfer (using this.nodeOutputs).`);
           
-          const valueToPass = sourceNodeData.outputsValues[sourcePort];
+          const valueToPass = effectiveSourceOutputs[sourcePort];
           
           let operationSuccessful = false;
 
@@ -109,25 +116,24 @@ export class RunningService {
                 [targetPort]: valueToPass, // Usually targetPort is 'nameIn' or 'jsonDataIn'
               };
 
-              // Directly update characterJSON and outputsValues.jsonDataOut
-              let currentCharacterJSON = characterNodeData.characterJSON || {};
-              // If nameIn is the target, update name. If jsonDataIn and value is string, also update name (legacy check)
-              if (targetPort === 'nameIn' || (targetPort === 'jsonDataIn' && typeof valueToPass === 'string')) {
-                currentCharacterJSON.name = valueToPass;
+              // 始终以完整模板为基础，合并已有数据和输入，保证输出完整角色对象
+              // Always use the full template as base, merge existing data and input, ensure output is a complete character object
+              let baseCharacter = deepClone(defaultCharacterSourceForTemplate);
+              if (characterNodeData.characterJSON && typeof characterNodeData.characterJSON === 'object') {
+                baseCharacter = { ...baseCharacter, ...characterNodeData.characterJSON };
               }
-              // If a full JSON object is passed to jsonDataIn, it should overwrite characterJSON
-              // This part might need refinement based on exact port meanings for CharacterNode
+              if (targetPort === 'nameIn' && typeof valueToPass === 'string') {
+                baseCharacter.name = valueToPass;
+              }
               if (targetPort === 'jsonDataIn' && typeof valueToPass === 'object' && valueToPass !== null) {
-                currentCharacterJSON = valueToPass; // Overwrite with the full JSON
+                baseCharacter = { ...baseCharacter, ...valueToPass };
               }
-              
-              characterNodeData.characterJSON = currentCharacterJSON;
+              characterNodeData.characterJSON = baseCharacter;
               characterNodeData.outputsValues = {
-                ...(characterNodeData.outputsValues || {}),
-                jsonDataOut: characterNodeData.characterJSON, // Output the whole modified characterJSON
+                jsonDataOut: baseCharacter,
               };
-              if (characterNodeData.characterJSON.name) {
-                characterNodeData.title = characterNodeData.characterJSON.name;
+              if (baseCharacter.name) {
+                characterNodeData.title = baseCharacter.name;
               }
 
               (nextNode as any).data = characterNodeData;
@@ -224,7 +230,10 @@ export class RunningService {
             }
           }
         } else {
-          console.log(`[RunningService] addRunningNode(${node.id} -> ${nextNode.id}): Condition NOT met for data transfer. sourcePort: ${sourcePort}, targetPort: ${targetPort}, outputsValueExists: ${!!sourceNodeData?.outputsValues?.[sourcePort]}`);
+          console.log(`[RunningService] addRunningNode(${node.id} -> ${nextNode.id}): Condition NOT met for data transfer (using this.nodeOutputs). sourcePort: ${sourcePort}, targetPort: ${targetPort}, outputsValueExists: ${!!effectiveSourceOutputs?.[sourcePort]}`);
+          // Fallback to check sourceNodeData.outputsValues just in case, for comparison or if nodeOutputs isn't populated for some reason
+          const outputsValueExistsInNodeData = !!(sourceNodeData?.outputsValues?.[sourcePort]);
+          console.log(`[RunningService] Comparative check: outputsValueExists in sourceNode.data.outputsValues: ${outputsValueExistsInNodeData}`);
         }
       });
     }

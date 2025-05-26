@@ -136,7 +136,7 @@ function createEmptyTemplate(source: Record<string, any>): CharacterFullTemplate
 }
 
 // Default character data (from 李观一.json) - This can be used as the source for createEmptyTemplate
-const defaultCharacterSourceForTemplate: CharacterFullTemplate = {
+export const defaultCharacterSourceForTemplate: CharacterFullTemplate = {
   name: 'Li Guanyi / 李观一',
   age: 13,
   background: {
