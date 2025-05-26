@@ -171,8 +171,8 @@ export function useEditorProps(
         renderDefaultNode: BaseNode,
         renderNodes: {
           [WorkflowNodeType.Comment]: CommentRender,
-          // CharacterNodeCanvasKey: CharacterNodeCanvas, // Keep this commented for now, or ensure its key is unique if uncommented
-          'JsonViewerNodeCanvasKey': JsonViewerNodeCanvas, // Added mapping for JsonViewerNodeCanvasKey
+          'CharacterNodeCanvasKey': CharacterNodeCanvas,
+          'JsonViewerNodeCanvasKey': JsonViewerNodeCanvas,
         },
       },
       /**

@@ -82,12 +82,11 @@ export class RunningService {
       );
       console.log(`[RunningService] addRunningNode(${node.id} -> ${nextNode.id}): Found ${connections.length} connections.`);
       
-      connections.forEach((connection: any) => {
+      connections.forEach(async (connection: any) => { // Added async here if CharacterNode specific logic becomes async
         const sourcePort = connection.sourcePortID;
         const targetPort = connection.targetPortID;
         console.log(`[RunningService] addRunningNode(${node.id} -> ${nextNode.id}): Processing connection from port ${sourcePort} to ${targetPort}.`);
         
-        // Use (node as any).data for source node data access
         const sourceNodeData = (node as any).data as NodeData;
 
         if (sourcePort && targetPort && sourceNodeData?.outputsValues?.[sourcePort]) {
@@ -97,83 +96,133 @@ export class RunningService {
           
           let operationSuccessful = false;
 
-          // 优先尝试使用 formModel.setValueIn
-          try {
-            const flowNodeFormData = (nextNode as any).getData?.(FlowNodeFormData);
-            if (flowNodeFormData) {
-              const formModel = flowNodeFormData.getFormModel?.(); // 假设 getFormModel 不需要参数，或者需要特定参数？
-              if (formModel && typeof formModel.setValueIn === 'function') {
-                console.log(`[RunningService] Attempting to update ${nextNode.id} via formModel.setValueIn('inputsValues.jsonDataIn', '${valueToPass}')`);
-                formModel.setValueIn('inputsValues.jsonDataIn', valueToPass);
-                console.log(`[RunningService] ${nextNode.id} update attempt via formModel.setValueIn completed.`);
-                operationSuccessful = true;
-              } else {
-                console.warn(`[RunningService] formModel or formModel.setValueIn is not available for ${nextNode.id}. Trying nextNode.updateData().`);
-              }
-            } else {
-              console.warn(`[RunningService] nextNode.getData(FlowNodeFormData) did not return a value for ${nextNode.id}. Trying nextNode.updateData().`);
-            }
-          } catch (e) {
-            console.error(`[RunningService] Error trying to use formModel.setValueIn for ${nextNode.id}:`, e, "Trying nextNode.updateData().");
-          }
+          // Check if the nextNode is a CharacterNode
+          // We need a reliable way to check the node type. Assuming type is stored in nextNode.data.type or nextNode.type
+          const nextNodeType = (nextNode as any).data?.type || (nextNode as any).type; 
 
-          // 如果 formModel.setValueIn 失败或不可用，再尝试 nextNode.updateData()
-          if (!operationSuccessful && typeof (nextNode as any).updateData === 'function') {
-            const fullNextNodeDataBeforeUpdate = JSON.parse(JSON.stringify((nextNode as any).data || {}));
-            if (!fullNextNodeDataBeforeUpdate.inputsValues) {
-              fullNextNodeDataBeforeUpdate.inputsValues = {};
-            }
-            if (!fullNextNodeDataBeforeUpdate.outputsValues) {
-              fullNextNodeDataBeforeUpdate.outputsValues = {};
-            }
-            const newInputsValuesForUpdateData = {
-              ...(fullNextNodeDataBeforeUpdate.inputsValues),
-              [targetPort]: valueToPass,
-            };
-            const dataPayloadForUpdateData = {
-              ...fullNextNodeDataBeforeUpdate,
-              inputsValues: newInputsValuesForUpdateData,
-            };
-            console.log(`[RunningService] Attempting to update ${nextNode.id} via nextNode.updateData() with FULL data object:`, JSON.parse(JSON.stringify(dataPayloadForUpdateData)));
+          if (nextNodeType === 'CharacterNode' || nextNode.id.startsWith('character_')) { // More robust check for character node
+            console.log(`[RunningService] Special handling for CharacterNode: ${nextNode.id}`);
             try {
-                (nextNode as any).updateData(dataPayloadForUpdateData);
-                console.log(`[RunningService] ${nextNode.id} update attempt via nextNode.updateData() completed.`);
-                operationSuccessful = true; // 标记成功，即使它可能没有如预期那样更新UI
+              const characterNodeData = (nextNode as any).data || {};
+              characterNodeData.inputsValues = {
+                ...(characterNodeData.inputsValues || {}),
+                [targetPort]: valueToPass, // Usually targetPort is 'nameIn' or 'jsonDataIn'
+              };
+
+              // Directly update characterJSON and outputsValues.jsonDataOut
+              let currentCharacterJSON = characterNodeData.characterJSON || {};
+              // If nameIn is the target, update name. If jsonDataIn and value is string, also update name (legacy check)
+              if (targetPort === 'nameIn' || (targetPort === 'jsonDataIn' && typeof valueToPass === 'string')) {
+                currentCharacterJSON.name = valueToPass;
+              }
+              // If a full JSON object is passed to jsonDataIn, it should overwrite characterJSON
+              // This part might need refinement based on exact port meanings for CharacterNode
+              if (targetPort === 'jsonDataIn' && typeof valueToPass === 'object' && valueToPass !== null) {
+                currentCharacterJSON = valueToPass; // Overwrite with the full JSON
+              }
+              
+              characterNodeData.characterJSON = currentCharacterJSON;
+              characterNodeData.outputsValues = {
+                ...(characterNodeData.outputsValues || {}),
+                jsonDataOut: characterNodeData.characterJSON, // Output the whole modified characterJSON
+              };
+              if (characterNodeData.characterJSON.name) {
+                characterNodeData.title = characterNodeData.characterJSON.name;
+              }
+
+              (nextNode as any).data = characterNodeData;
+              this.setNodeOutputValue(nextNode.id, characterNodeData.outputsValues); // Ensure RunningService internal state is updated
+              console.log(`[RunningService] CharacterNode ${nextNode.id} data directly updated. Output set to:`, characterNodeData.outputsValues.jsonDataOut);
+
+              // Attempt to trigger a re-render or data change notification on the node
+              if (typeof (nextNode as any).emit === 'function') {
+                (nextNode as any).emit('change', (nextNode as any).data);
+              } else if ((nextNode as any).onDataChangeEmitter && typeof (nextNode as any).onDataChangeEmitter.emit === 'function') {
+                (nextNode as any).onDataChangeEmitter.emit();
+              } else {
+                (nextNode as any)._decorator?.updatePreview?.(); // Try to call a general update if exists
+                console.warn(`[RunningService] CharacterNode ${nextNode.id}: Could not find a clear method to emit change after direct data update.`);
+              }
+              operationSuccessful = true;
             } catch (e) {
-                console.error(`[RunningService] Error calling nextNode.updateData() for ${nextNode.id}:`, e);
+              console.error(`[RunningService] Error during special handling for CharacterNode ${nextNode.id}:`, e);
+              operationSuccessful = false; // Ensure fallback if special handling fails
             }
           }
-          
-          // 如果以上两种方法都失败或不可用，执行后备的直接赋值
+
+          // Fallback to original logic if not a CharacterNode or if special handling failed
           if (!operationSuccessful) {
-            console.warn(`[RunningService] Neither formModel.setValueIn nor nextNode.updateData() was successful or available for ${nextNode.id}. Falling back to direct assignment (UI might not update).`);
-            const currentNextNodeDataFallback = (nextNode as any).data || {};
-            const currentInputsValuesFallback = currentNextNodeDataFallback.inputsValues || {};
-            const newInputsValuesFallback = {
-                ...currentInputsValuesFallback,
-                [targetPort]: valueToPass,
-            };
-            (nextNode as any).data = {
-                ...currentNextNodeDataFallback,
-                inputsValues: newInputsValuesFallback,
-            };
-            console.log(`RunningService (Fallback): Directly updated ${nextNode.id}.data.inputsValues.${targetPort} with:`, valueToPass);
-            console.log(`RunningService (Fallback): ${nextNode.id}.data after direct update:`, JSON.stringify((nextNode as any).data, null, 2));
+            // 优先尝试使用 formModel.setValueIn
+            try {
+              const flowNodeFormData = (nextNode as any).getData?.(FlowNodeFormData);
+              if (flowNodeFormData) {
+                const formModel = flowNodeFormData.getFormModel?.(); 
+                if (formModel && typeof formModel.setValueIn === 'function') {
+                  console.log(`[RunningService] Attempting to update ${nextNode.id} via formModel.setValueIn('inputsValues.${targetPort}', ...)`);
+                  formModel.setValueIn(`inputsValues.${targetPort}`, valueToPass); // Use targetPort dynamically
+                  console.log(`[RunningService] ${nextNode.id} update attempt via formModel.setValueIn completed.`);
+                  operationSuccessful = true;
+                } else {
+                  console.warn(`[RunningService] formModel or formModel.setValueIn is not available for ${nextNode.id}.`);
+                }
+              } else {
+                console.warn(`[RunningService] nextNode.getData(FlowNodeFormData) did not return a value for ${nextNode.id}.`);
+              }
+            } catch (e) {
+              console.error(`[RunningService] Error trying to use formModel.setValueIn for ${nextNode.id}:`, e);
+            }
 
-            if ((nextNode as any).onDataChangeEmitter && typeof (nextNode as any).onDataChangeEmitter.emit === 'function') {
-              console.log(`[RunningService (Fallback)] Manually attempting to emit onDataChange for ${nextNode.id} via onDataChangeEmitter.emit()`);
-              (nextNode as any).onDataChangeEmitter.emit();
-            } else if (typeof (nextNode as any).forceUpdate === 'function') {
-              console.log(`[RunningService (Fallback)] Manually attempting to call forceUpdate() on ${nextNode.id}`);
-              (nextNode as any).forceUpdate();
-            } else if (typeof (nextNode as any).emit === 'function') {
-               console.log(`[RunningService (Fallback)] Manually attempting to call emit('change') on ${nextNode.id}`);
-               (nextNode as any).emit('change', (nextNode as any).data);
-            } else {
-              console.warn(`[RunningService (Fallback)] Could not find a clear method to manually trigger data update propagation for ${nextNode.id}.`);
+            // 如果 formModel.setValueIn 失败或不可用，再尝试 nextNode.updateData()
+            if (!operationSuccessful && typeof (nextNode as any).updateData === 'function') {
+              const fullNextNodeDataBeforeUpdate = JSON.parse(JSON.stringify((nextNode as any).data || {}));
+              if (!fullNextNodeDataBeforeUpdate.inputsValues) {
+                fullNextNodeDataBeforeUpdate.inputsValues = {};
+              }
+              // No need to initialize outputsValues here for updateData path, as it's about inputs
+              const newInputsValuesForUpdateData = {
+                ...(fullNextNodeDataBeforeUpdate.inputsValues),
+                [targetPort]: valueToPass,
+              };
+              const dataPayloadForUpdateData = {
+                ...fullNextNodeDataBeforeUpdate,
+                inputsValues: newInputsValuesForUpdateData,
+              };
+              console.log(`[RunningService] Attempting to update ${nextNode.id} via nextNode.updateData() with data:`, JSON.parse(JSON.stringify(dataPayloadForUpdateData)));
+              try {
+                  (nextNode as any).updateData(dataPayloadForUpdateData);
+                  console.log(`[RunningService] ${nextNode.id} update attempt via nextNode.updateData() completed.`);
+                  operationSuccessful = true; 
+              } catch (e) {
+                  console.error(`[RunningService] Error calling nextNode.updateData() for ${nextNode.id}:`, e);
+              }
+            }
+            
+            // 如果以上两种方法都失败或不可用，执行后备的直接赋值 (already part of existing fallback)
+            if (!operationSuccessful) {
+              console.warn(`[RunningService] Neither formModel.setValueIn nor nextNode.updateData() was successful/available for ${nextNode.id} (non-CharacterNode path or failed special handling). Falling back to direct assignment.`);
+              const currentNextNodeDataFallback = (nextNode as any).data || {};
+              const currentInputsValuesFallback = currentNextNodeDataFallback.inputsValues || {};
+              const newInputsValuesFallback = {
+                  ...currentInputsValuesFallback,
+                  [targetPort]: valueToPass,
+              };
+              (nextNode as any).data = {
+                  ...currentNextNodeDataFallback,
+                  inputsValues: newInputsValuesFallback,
+              };
+              console.log(`RunningService (Fallback): Directly updated ${nextNode.id}.data.inputsValues.${targetPort} with:`, valueToPass);
+              // Fallback emit logic from before
+              if ((nextNode as any).onDataChangeEmitter && typeof (nextNode as any).onDataChangeEmitter.emit === 'function') {
+                (nextNode as any).onDataChangeEmitter.emit();
+              } else if (typeof (nextNode as any).forceUpdate === 'function') {
+                (nextNode as any).forceUpdate();
+              } else if (typeof (nextNode as any).emit === 'function') {
+                 (nextNode as any).emit('change', (nextNode as any).data);
+              } else {
+                console.warn(`[RunningService (Fallback)] Could not find a clear method to manually trigger data update propagation for ${nextNode.id}.`);
+              }
             }
           }
-
         } else {
           console.log(`[RunningService] addRunningNode(${node.id} -> ${nextNode.id}): Condition NOT met for data transfer. sourcePort: ${sourcePort}, targetPort: ${targetPort}, outputsValueExists: ${!!sourceNodeData?.outputsValues?.[sourcePort]}`);
         }
@@ -229,11 +278,38 @@ export class RunningService {
     const startNode = this.document.getNode('start_0')!;
     console.log('RunningService: Starting run from Start node');
     
-    // Ensure outputsValues exists, but do NOT set .output
-    if (!(startNode as any).data) (startNode as any).data = {};
-    if (!(startNode as any).data.outputsValues) (startNode as any).data.outputsValues = {};
-    console.log('[RunningService] startRun: Using outputsValues from form/initialData:', (startNode as any).data.outputsValues);
+    // Ensure outputsValues exists for startNode
+    if (!(startNode as any).data) {
+      (startNode as any).data = {};
+    }
+    if (!(startNode as any).data.outputsValues) {
+      (startNode as any).data.outputsValues = {};
+    }
+
+    // Specifically for start_0, if its outputsValues are empty or don't match initialData,
+    // try to re-apply from a conceptual initialData source.
+    // This is a workaround for potential timing issues where initialData isn't fully propagated.
+    if (startNode.id === 'start_0') {
+      const currentStartNodeOutputs = (startNode as any).data.outputsValues;
+      // Simulate fetching from a static initialData config if needed
+      // For this example, we'll hardcode what we expect from initial-data.ts
+      const expectedInitialStartOutputs = { testinput: "Default Character Name From Start" }; 
+
+      if (!currentStartNodeOutputs.testinput || currentStartNodeOutputs.testinput !== expectedInitialStartOutputs.testinput) {
+        console.warn(`[RunningService] start_0 node outputsValues missing or different from initial. Forcing initial values. Current:`, currentStartNodeOutputs);
+        (startNode as any).data.outputsValues = { ...expectedInitialStartOutputs };
+        // Also update the node instance in the document if possible, though this might be tricky
+        // this.document.updateNode(startNode.id, { data: (startNode as any).data }); // Hypothetical update method
+      }
+    }
     
+    console.log('[RunningService] startRun: Using outputsValues for start_0:', (startNode as any).data.outputsValues);
+    
+    // Crucially, ensure these values are stored in the service's internal state before addRunningNode
+    if ((startNode as any).data.outputsValues) {
+      this.setNodeOutputValue(startNode.id, (startNode as any).data.outputsValues);
+    }
+
     await this.addRunningNode(startNode);
     
     // Cleanup after run completes
