@@ -29,7 +29,7 @@ interface NodeData {
   [key: string]: any;
 }
 
-function deepClone(obj) {
+function deepClone(obj: any) {
   return JSON.parse(JSON.stringify(obj));
 }
 
@@ -111,22 +111,10 @@ export class RunningService {
             console.log(`[RunningService] Special handling for CharacterNode: ${nextNode.id}`);
             try {
               const characterNodeData = (nextNode as any).data || {};
-              characterNodeData.inputsValues = {
-                ...(characterNodeData.inputsValues || {}),
-                [targetPort]: valueToPass, // Usually targetPort is 'nameIn' or 'jsonDataIn'
-              };
-
-              // 始终以完整模板为基础，合并已有数据和输入，保证输出完整角色对象
-              // Always use the full template as base, merge existing data and input, ensure output is a complete character object
+              // 只用节点自身的 characterJSON，不合并任何输入
               let baseCharacter = deepClone(defaultCharacterSourceForTemplate);
               if (characterNodeData.characterJSON && typeof characterNodeData.characterJSON === 'object') {
                 baseCharacter = { ...baseCharacter, ...characterNodeData.characterJSON };
-              }
-              if (targetPort === 'nameIn' && typeof valueToPass === 'string') {
-                baseCharacter.name = valueToPass;
-              }
-              if (targetPort === 'jsonDataIn' && typeof valueToPass === 'object' && valueToPass !== null) {
-                baseCharacter = { ...baseCharacter, ...valueToPass };
               }
               characterNodeData.characterJSON = baseCharacter;
               characterNodeData.outputsValues = {
@@ -135,9 +123,8 @@ export class RunningService {
               if (baseCharacter.name) {
                 characterNodeData.title = baseCharacter.name;
               }
-
               (nextNode as any).data = characterNodeData;
-              this.setNodeOutputValue(nextNode.id, characterNodeData.outputsValues); // Ensure RunningService internal state is updated
+              this.setNodeOutputValue(nextNode.id, characterNodeData.outputsValues);
               console.log(`[RunningService] CharacterNode ${nextNode.id} data directly updated. Output set to:`, characterNodeData.outputsValues.jsonDataOut);
 
               // Attempt to trigger a re-render or data change notification on the node
