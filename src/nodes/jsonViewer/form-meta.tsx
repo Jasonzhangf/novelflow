@@ -9,8 +9,8 @@ import { FormRenderProps, FlowNodeJSON, useScopeAvailable, useNodeRender } from 
  * @returns {JSX.Element}
  */
 export const renderJsonViewerForm = (props: FormRenderProps<FlowNodeJSON>): JSX.Element => {
-  const { form } = props; // Destructure form from props
-  const { node: currentNode } = useNodeRender(); // Get current node instance
+  // const { form } = props; // Form is also in props, but useNodeRender is consistent with canvas
+  const { form: formInstance, node: currentNode } = useNodeRender(); // Use form from useNodeRender
 
   // Add state to force re-render when data changes
   const [displayJson, setDisplayJson] = useState('');
@@ -18,40 +18,66 @@ export const renderJsonViewerForm = (props: FormRenderProps<FlowNodeJSON>): JSX.
   // Get available variables using the hook (can be kept for other purposes or logging if needed)
   const availableVariables = useScopeAvailable();
 
-  console.log("JSON Viewer available variables:", availableVariables); // Log available variables object
-  console.log("JSON Viewer available variables list:", availableVariables.variables); // Log the list of variables
+  // console.log("JSON Viewer form: props", props);
+  // console.log("JSON Viewer form: currentNode from useNodeRender()", currentNode);
+  // console.log("JSON Viewer form: formInstance from useNodeRender()", formInstance);
+  // console.log("JSON Viewer available variables:", availableVariables); // Log available variables object
+  // console.log("JSON Viewer available variables list:", availableVariables.variables); // Log the list of variables
 
-  // Use effect to update displayJson when currentNode data changes
+  // Use effect to update displayJson when formInstance values change
   useEffect(() => {
-    console.log("useEffect triggered in JSON Viewer form-meta (triggered by currentNode data change)");
-    
-    let dataToDisplay = undefined;
-    if (currentNode && (currentNode as any).data && (currentNode as any).data.inputsValues) {
-      dataToDisplay = (currentNode as any).data.inputsValues.jsonDataIn;
-      console.log("JSON Viewer form: Reading data directly from currentNode.data.inputsValues.jsonDataIn:", dataToDisplay);
-    } else {
-      console.log("JSON Viewer form: currentNode, data, or inputsValues not available, or jsonDataIn is not set.");
+    if (!formInstance) {
+      console.log("JSON Viewer form: formInstance is not available yet.");
+      setDisplayJson('Form not available / 表单不可用');
+      return;
     }
 
-    let formattedJson = '';
-    if (dataToDisplay !== undefined && dataToDisplay !== null) {
-      try {
-        // If it's a string, display as is. Otherwise, stringify.
-        if (typeof dataToDisplay === 'string') {
-          formattedJson = dataToDisplay;
-        } else {
-          formattedJson = JSON.stringify(dataToDisplay, null, 2); // Pretty print the JSON
+    const updateAndFormatDisplayJson = () => {
+      // console.log("JSON Viewer form: Attempting to read formInstance.values", formInstance.values);
+      // const dataToDisplay = formInstance.values?.inputsValues?.jsonDataIn; // Direct access
+      const dataToDisplay = formInstance.getValueIn('inputsValues.jsonDataIn'); // Using getValueIn
+
+      console.log("JSON Viewer form: Reading data via formInstance.getValueIn('inputsValues.jsonDataIn'):", dataToDisplay, "(Type: " + typeof dataToDisplay + ")");
+
+      let formattedJson = '';
+      if (dataToDisplay !== undefined && dataToDisplay !== null) {
+        try {
+          // If it's a string, display as is. Otherwise, stringify.
+          if (typeof dataToDisplay === 'string') {
+            // Attempt to parse if it looks like a JSON string, otherwise display as is
+            try {
+              JSON.parse(dataToDisplay); // Check if it's a valid JSON string
+              formattedJson = JSON.stringify(JSON.parse(dataToDisplay), null, 2); // Re-stringify to pretty print
+            } catch (e) {
+              formattedJson = dataToDisplay; // Not a JSON string, display as is
+            }
+          } else {
+            formattedJson = JSON.stringify(dataToDisplay, null, 2); // Pretty print the JSON object
+          }
+        } catch (error) {
+          formattedJson = 'Error formatting JSON / JSON格式化错误';
+          console.error('JSON Viewer form: Error formatting JSON for display:', error);
         }
-      } catch (error) {
-        formattedJson = 'Error formatting JSON / JSON格式化错误';
-        console.error('Error formatting JSON for display:', error);
+      } else {
+        formattedJson = 'No JSON data received or input value not found / 未收到JSON数据或未找到输入值';
       }
-    } else {
-      formattedJson = 'No JSON data received or input value not found / 未收到JSON数据或未找到输入值';
-    }
-    setDisplayJson(formattedJson);
+      setDisplayJson(formattedJson);
+    };
 
-  }, [currentNode, (currentNode as any)?.data?.inputsValues?.jsonDataIn]); // Depend on currentNode and the specific data path
+    updateAndFormatDisplayJson(); // Initial update
+
+    // Subscribe to form value changes
+    console.log("JSON Viewer form: Subscribing to formInstance.onFormValuesChange");
+    const dispose = formInstance.onFormValuesChange(() => {
+      console.log("JSON Viewer form: formInstance.onFormValuesChange triggered!");
+      updateAndFormatDisplayJson();
+    });
+
+    return () => {
+      console.log("JSON Viewer form: Unsubscribing from formInstance.onFormValuesChange");
+      dispose.dispose();
+    };
+  }, [formInstance]); // Depend on formInstance
 
   // Styling for the JSON display area
   const preStyle: React.CSSProperties = {

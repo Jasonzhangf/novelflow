@@ -6,6 +6,10 @@ import React, { useEffect } from 'react';
 
 import { NodeRenderProps, useNodeRender, useRefresh, WorkflowNodeLinesData } from '@flowgram.ai/free-layout-editor';
 
+// Import NodeWrapper and NodeRenderContext
+import { NodeRenderContext } from '../../context';
+import { NodeWrapper } from '../../components/base-node/node-wrapper';
+
 // import iconJsonViewerPlaceholder from '../../assets/icon-default.png'; // Placeholder
 import iconJsonViewerPlaceholder from '../../assets/icon-llm.jpg'; // Using a common placeholder icon
 
@@ -46,11 +50,12 @@ export const JsonViewerNodeCanvas: React.FC<NodeRenderProps> = ({ node }) => {
   const nodeId = node.id;
 
   const refresh = useRefresh();
-  const { form: nodeForm, node: renderNodeInstance } = useNodeRender();
+  const nodeRender = useNodeRender(); // Changed from: const { form: nodeForm, node: renderNodeInstance } = useNodeRender();
+  const { form: nodeForm } = nodeRender; // Extract nodeForm from nodeRender
 
   console.log(`[JsonViewerNodeCanvas ${nodeId}] Using props.node:`, node);
-  console.log(`[JsonViewerNodeCanvas ${nodeId}] renderNodeInstance from useNodeRender():`, renderNodeInstance);
-  console.log(`[JsonViewerNodeCanvas ${nodeId}] nodeForm from useNodeRender():`, nodeForm);
+  console.log(`[JsonViewerNodeCanvas ${nodeId}] nodeRender from useNodeRender():`, nodeRender); // Updated log
+  console.log(`[JsonViewerNodeCanvas ${nodeId}] nodeForm from nodeRender:`, nodeForm); // Updated log
 
   useEffect(() => {
     console.log(`[JsonViewerNodeCanvas ${nodeId}] Subscribing to props.node.onDataChange. Node ID: ${node.id}`);
@@ -180,12 +185,16 @@ export const JsonViewerNodeCanvas: React.FC<NodeRenderProps> = ({ node }) => {
   console.log(`[JsonViewerNodeCanvas ${nodeId}] Type of jsonDataIn (from ${dataSourceForDisplay}):`, typeof finalJsonDataToDisplay);
 
   return (
-    <div style={{ padding: 10, fontFamily: 'monospace', fontSize: 13 }}>
-      <div style={{ fontWeight: 'bold', marginBottom: 4 }}>{title} (ID: {nodeId})</div>
-      <div style={{ fontWeight: 'bold', marginBottom: 4 }}>Received JSON Data / 接收到的JSON数据 (from input 'jsonDataIn'):</div>
-      <pre style={{ background: '#f5f5f5', border: '1px solid #ddd', borderRadius: 4, padding: 8, minHeight: 40, whiteSpace: 'pre-wrap', wordBreak: 'break-all' }}>
-        {typeof finalJsonDataToDisplay === 'string' ? finalJsonDataToDisplay : (finalJsonDataToDisplay !== undefined && finalJsonDataToDisplay !== null ? JSON.stringify(finalJsonDataToDisplay, null, 2) : 'No JSON data received or input value not found / 未收到JSON数据或未找到输入值')}
-      </pre>
-    </div>
+    <NodeRenderContext.Provider value={nodeRender}>
+      <NodeWrapper>
+        <div style={{ padding: 10, fontFamily: 'monospace', fontSize: 13, width: '100%', height: '100%', boxSizing: 'border-box', background: '#fff' }}>
+          <div style={{ fontWeight: 'bold', marginBottom: 4 }}>{title} (ID: {nodeId})</div>
+          <div style={{ fontWeight: 'bold', marginBottom: 4 }}>Received JSON Data / 接收到的JSON数据 (from input 'jsonDataIn'):</div>
+          <pre style={{ background: '#f5f5f5', border: '1px solid #ddd', borderRadius: 4, padding: 8, minHeight: 40, whiteSpace: 'pre-wrap', wordBreak: 'break-all', maxHeight: 'calc(100% - 70px)', overflowY: 'auto' }}>
+            {typeof finalJsonDataToDisplay === 'string' ? finalJsonDataToDisplay : (finalJsonDataToDisplay !== undefined && finalJsonDataToDisplay !== null ? JSON.stringify(finalJsonDataToDisplay, null, 2) : 'No JSON data received or input value not found / 未收到JSON数据或未找到输入值')}
+          </pre>
+        </div>
+      </NodeWrapper>
+    </NodeRenderContext.Provider>
   );
 };
