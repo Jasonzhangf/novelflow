@@ -30,27 +30,27 @@ export const initialData = {
       }
     },
     {
-      id: 'jsonviewer_2',
-      type: 'jsonviewer',
+      id: 'jsonmerger_2',
+      type: 'jsonmerger',
       meta: { position: { x: 550, y: 200 } },
       data: {
-        type: 'jsonviewer',
-        title: 'JSON Viewer / JSON 查看器',
+        type: 'jsonmerger',
+        title: 'JSON Merger / JSON 分拣器',
         inputs: {
           type: 'object',
           properties: {
-            jsonDataIn: { type: 'object', title: 'Received Character JSON' }
+            jsonInput1: { type: 'object', title: 'Received Character JSON' }
           }
         },
         outputs: {
           type: 'object',
           properties: {
-            jsonDataOut: { type: 'object', title: 'Processed Data Out' }
+            mergedJsonData: { type: 'object', title: 'Processed Data Out' }
           }
         },
         inputsValues: {},
         outputsValues: {
-          jsonDataOut: {}
+          mergedJsonData: {}
         }
       }
     },
@@ -80,14 +80,14 @@ export const initialData = {
     },
     {
       sourceNodeID: 'character_1',
-      targetNodeID: 'jsonviewer_2',
+      targetNodeID: 'jsonmerger_2',
       sourcePortID: 'jsonDataOut',
-      targetPortID: 'jsonDataIn'
+      targetPortID: 'jsonInput1'
     },
     {
-      sourceNodeID: 'jsonviewer_2',
+      sourceNodeID: 'jsonmerger_2',
       targetNodeID: 'end_3',
-      sourcePortID: 'jsonDataOut',
+      sourcePortID: 'mergedJsonData',
       targetPortID: 'dataIn'
     }
   ]

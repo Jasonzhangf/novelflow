@@ -8,6 +8,7 @@ import { WorkflowNodeType } from './constants';
 import { ConditionNodeRegistry } from './condition';
 import { CommentNodeRegistry } from './comment';
 import { CharacterNodeRegistry } from './character';
+import { jsonMergerNodeDefinition } from './jsonMerger/jsonMergerNode';
 export { WorkflowNodeType } from './constants';
 
 export const nodeRegistries: FlowNodeRegistry[] = [
@@ -19,6 +20,7 @@ export const nodeRegistries: FlowNodeRegistry[] = [
   CommentNodeRegistry,
   CharacterNodeRegistry,
   JsonViewerNodeRegistry,
+  jsonMergerNodeDefinition,
 ];
 
 export const visibleNodeRegistries = nodeRegistries.filter(

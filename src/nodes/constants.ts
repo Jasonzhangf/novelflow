@@ -7,4 +7,5 @@ export enum WorkflowNodeType {
   Comment = 'comment',
   CHARACTER = 'character',
   JSONVIEWER = 'jsonviewer',
+  JSONMERGER = 'jsonmerger',
 }
