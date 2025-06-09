@@ -19,6 +19,14 @@ import SceneNode from '../CustomNodes/SceneNode';
 import LLMNode from '../CustomNodes/LLMNode';
 import { FlowContext } from './FlowContext';
 
+const nodeTypes = {
+  character: CharacterNode,
+  world: WorldNode,
+  environment: EnvironmentNode,
+  scene: SceneNode,
+  llm: LLMNode,
+};
+
 const initialNodes: ReactFlowNode[] = [
   {
     id: 'character_1',
@@ -121,6 +129,7 @@ function Sidebar() {
 const Editor = () => {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+  const { screenToFlowPosition } = useReactFlow();
 
   const addCharacterNode = useCallback(() => {
     const characterCount = nodes.filter(n => n.type === 'character').length;
@@ -143,16 +152,8 @@ const Editor = () => {
     };
 
     setNodes((nds) => nds.concat(newCharacterNode));
-    setEdges((eds) => eds.concat(newEdge));
-  }, [nodes, setNodes, setEdges]);
-
-  const nodeTypes = useMemo(() => ({
-    character: CharacterNode,
-    world: WorldNode,
-    environment: EnvironmentNode,
-    scene: SceneNode,
-    llm: LLMNode,
-  }), []);
+    setEdges((eds) => addEdge(newEdge, eds));
+  }, [nodes, edges, setNodes, setEdges]);
 
   const onConnect = useCallback(
     (params: Edge | Connection) => setEdges((els) => addEdge(params, els)),
@@ -169,7 +170,7 @@ const Editor = () => {
   };
 
   return (
-    <FlowContext.Provider value={flowContextValue}>
+    <FlowContext.Provider value={{...flowContextValue, addCharacterNode}}>
       <div style={{ height: '100vh', width: '100vw' }}>
         <ReactFlow
           nodes={nodes}

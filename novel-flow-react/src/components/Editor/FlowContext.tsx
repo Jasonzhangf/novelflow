@@ -4,9 +4,6 @@ import type { Node as ReactFlowNode, Edge, OnNodesChange, OnEdgesChange, OnConne
 interface FlowContextType {
   nodes: ReactFlowNode[];
   edges: Edge[];
-  onNodesChange: OnNodesChange;
-  onEdgesChange: OnEdgesChange;
-  onConnect: OnConnect;
   addCharacterNode: () => void;
 }
 
