@@ -95,11 +95,25 @@ function Sidebar() {
   const importProject = useCallback((file: File) => {
     const reader = new FileReader();
     reader.onload = (event) => {
-      const flow = JSON.parse(event.target?.result as string);
-      if (flow) {
-        setNodes(flow.nodes || []);
-        setEdges(flow.edges || []);
+      try { // Add try-catch for project import parsing
+        const flow = JSON.parse(event.target?.result as string);
+        if (flow && typeof flow === 'object' && Array.isArray(flow.nodes) && Array.isArray(flow.edges)) {
+           // Basic validation passed
+           setNodes(flow.nodes || []);
+           setEdges(flow.edges || []);
+           console.log('[Sidebar] Project imported successfully.');
+        } else {
+            console.error('[Sidebar] Invalid project JSON file format.');
+            alert('Error: Invalid project JSON file format. Ensure it has "nodes" and "edges" arrays.');
+        }
+      } catch (error) {
+          console.error('[Sidebar] Error parsing project JSON file:', error);
+          alert(`Error parsing project JSON file: ${error instanceof Error ? error.message : 'Unknown error'}`);
       }
+    };
+    reader.onerror = (e) => {
+        console.error('[Sidebar] Error reading project file:', e);
+        alert('Error reading project file.');
     };
     reader.readAsText(file);
   }, [setNodes, setEdges]);
@@ -112,6 +126,7 @@ function Sidebar() {
     const file = event.target.files?.[0];
     if (file) {
       importProject(file);
+      event.target.value = ''; // Clear input value
     }
   };
 
@@ -165,8 +180,6 @@ const Editor = () => {
     }, 100); // Small delay remains useful
     return () => clearTimeout(timer);
   }, [fitView, getViewport, setViewport]); // Add getViewport and setViewport to dependencies
-
-  // Removed duplicate definition of handleNodeSelect
 
   // Wrap onNodesChange to reset selected node on delete
   const onNodesChange: OnNodesChange = useCallback(
@@ -232,41 +245,44 @@ const Editor = () => {
   }, [nodes, setNodes, setEdges, screenToFlowPosition, handleNodeSelect]); // Added handleNodeSelect dependency
 
 
-  // Remove the unused onNodeClick definition
-  // const onNodeClick = useCallback((event: React.MouseEvent, node: Node) => {
-  //   console.log('[Editor] onNodeClick triggered for node:', node); // Log when node is clicked
-  //   setSelectedNode(node);
-  // }, []);
-
   // Function to update node data from the form
+  // MODIFIED updateNodeData
   const updateNodeData = useCallback((nodeId: string, newData: any) => {
+    let updatedNodeReference: Node | null = null; // To store the updated node reference
+
     setNodes((nds) =>
       nds.map((node) => {
-        if (node.id === nodeId && node.type === 'character') { // Ensure it's a character node
-          // Extract the new character name from the imported data, if available
-          const newLabel = newData?.['基本信息']?.['姓名']?.Value || node.data.label; // Fallback to existing label
+        if (node.id === nodeId && node.type === 'character') {
+          const newLabel = newData?.['基本信息']?.['姓名']?.Value || node.data.label;
+          console.log(`[Editor] Updating node ${nodeId}. New Label: ${newLabel}`); // Log update details
 
-          // Update both characterInfo and the node's label
-          return {
+          // Create the updated node object
+          const updatedNode = {
             ...node,
             data: {
-              ...node.data, // Keep other data like version, onClick
-              label: newLabel, // Update the label
-              characterInfo: newData // Update the detailed info
+              ...node.data,
+              label: newLabel,
+              characterInfo: newData
             }
           };
+          updatedNodeReference = updatedNode; // Store the reference
+          return updatedNode; // Return the new object for this node
         }
-        return node;
+        return node; // Return unchanged nodes
       })
     );
-     // Optionally, update selectedNode state if it's the one being edited
-     if (selectedNode?.id === nodeId && selectedNode.type === 'character') {
-        const newLabel = newData?.['基本信息']?.['姓名']?.Value || selectedNode.data.label;
-        setSelectedNode((prevNode) =>
-            prevNode ? { ...prevNode, data: { ...prevNode.data, label: newLabel, characterInfo: newData } } : null
-        );
+
+     // Update selectedNode state ONLY IF it's the one being edited AND the reference was captured
+     if (selectedNode?.id === nodeId && updatedNodeReference) {
+        console.log(`[Editor] Updating selectedNode state for ${nodeId}.`);
+        // Use the captured reference directly
+        setSelectedNode(updatedNodeReference);
+        // Alternative (might still cause issues if deep comparison fails):
+        // setSelectedNode(prevNode => prevNode ? { ...prevNode, data: updatedNodeReference.data } : null);
+     } else if (selectedNode?.id === nodeId) {
+         console.warn(`[Editor] updatedNodeReference was not captured for selected node ${nodeId}. selectedNode state might not refresh correctly.`);
      }
-  }, [setNodes, selectedNode]);
+  }, [setNodes, selectedNode]); // Keep selectedNode dependency for the conditional update logic
 
 
   const onConnect = useCallback(
