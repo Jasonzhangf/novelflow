@@ -1,7 +1,5 @@
 import React, { memo, useState, useCallback } from 'react'; // Added useCallback
 import { Handle, Position, type NodeProps, useReactFlow, type Node } from 'reactflow'; // Fix type-only import for Node, Added useReactFlow
-// import { Input } from "@/components/ui/input"; // Temporarily comment out
-// import { Label } from "@/components/ui/label"; // Temporarily comment out
 
 // Define the structure for character data
 interface CharacterData {
@@ -40,25 +38,25 @@ const CharacterNode: React.FC<CharacterNodeProps> = memo(({ data, id }) => {
   }, [data, getNode, id]);
 
   return (
-    // Add onClick to the root div, calling the internal handler
+    // Apply scene-node-style for dark theme consistency and add cursor-pointer
     <div
-      className="react-flow__node-default p-4 rounded-lg shadow-md border border-gray-300 bg-gradient-to-br from-purple-50 via-pink-50 to-red-50 dark:from-gray-800 dark:via-gray-700 dark:to-gray-600 w-64 cursor-pointer" // Added cursor-pointer
+      className="scene-node-style w-64 cursor-pointer" // Use dark theme style, keep width and cursor
       onClick={handleInternalClick} // Attach the internal click handler
     >
-      {/* Node Header */}
-      <div className="flex justify-between items-center mb-3 pb-2 border-b border-gray-200 dark:border-gray-600">
-        <strong className="text-lg font-semibold text-purple-800 dark:text-purple-300">{characterName}</strong>
-        <span className="text-xs font-mono px-2 py-1 rounded bg-purple-100 text-purple-700 dark:bg-gray-600 dark:text-gray-300">{id}</span>
+      {/* Node Title Bar (Matches index.css) */}
+      <div className="node-title-bar">
+         <span className="node-id">{id}</span> {/* Apply node-id style */}
+         <strong className="node-name">{characterName}</strong> {/* Apply node-name style */}
       </div>
 
-      {/* Node Body - Placeholder for key info or actions */}
-      <div className="text-sm text-gray-700 dark:text-gray-300 mb-3">
-        {/* Displaying a snippet from characterInfo if available */}
-        <p>描述: {data?.characterInfo?.['基本信息']?.['人物小传']?.Value || '未提供'}</p> {/* Removed English */}
-        <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">(点击节点查看/编辑详细信息)</p>
-        {/* Removed English line */}
+      {/* Node Body - Apply node-content style */}
+      <div className="node-content">
+        {/* Adjust text colors for dark theme */}
+        <div className="text-sm text-stone-300 mb-3"> {/* Use text-stone-300 */}
+          <p>描述: {data?.characterInfo?.['基本信息']?.['人物小传']?.Value || '未提供'}</p>
+          <p className="mt-1 text-xs text-stone-400">(点击节点查看/编辑详细信息)</p> {/* Use text-stone-400 */}
+        </div>
       </div>
-
 
       {/* Handles */}
       {/* Output Handle (Source) for Character Info */}
@@ -66,7 +64,8 @@ const CharacterNode: React.FC<CharacterNodeProps> = memo(({ data, id }) => {
         type="source"
         position={Position.Right}
         id="character_info_output" // Unique ID for this handle
-        style={{ top: '50%', background: '#8a2be2', width: '10px', height: '10px' }} // Centered vertically, styled
+        // Update handle style for dark theme if needed, e.g., brighter color
+        style={{ top: '50%', background: '#a78bfa', width: '10px', height: '10px' }} // Brighter purple for dark bg
         className="react-flow__handle-right"
       />
 

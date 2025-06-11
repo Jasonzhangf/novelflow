@@ -44,9 +44,9 @@ function SceneNode({ id, data }: NodeProps<SceneNodeData>) {
   const outputHandleStyle = {...handleStyle};
 
   // Calculate vertical positions for handles
-  // Now only World, Env, Chars, LLM Input (no Add Character button in this calculation)
-  const totalInputHandles = 2 + characterEdges.length + 1;
-  const verticalSpacing = 100 / (totalInputHandles + 1);
+  // World, Env, Chars, LLM Input, LLM Output (Added llm_output)
+  const totalInputHandles = 2 + characterEdges.length + 2; // Increased count by 1 for llm_output
+  const verticalSpacing = 100 / (totalInputHandles + 1); // +1 for spacing at top/bottom
 
   return (
     // Base style, using the adjusted size
@@ -64,7 +64,7 @@ function SceneNode({ id, data }: NodeProps<SceneNodeData>) {
 
       {/* Port Area */}
       <div className="node-port-area" style={{ minHeight: `${totalInputHandles * 20}px` }}>
-        {/* Input Handles & Labels */}
+        {/* Input Handles & Labels - Recalculated positions */}
         <Handle type="target" id="world" position={Position.Left} style={{ ...handleStyle, top: `${1 * verticalSpacing}%` }} />
         <span className="handle-label left" style={{ top: `${1 * verticalSpacing}%` }}>世界</span> {/* Changed to Chinese */}
 
@@ -83,8 +83,14 @@ function SceneNode({ id, data }: NodeProps<SceneNodeData>) {
           </React.Fragment>
          ))}
 
+        {/* Recalculated position for llm_input */}
         <Handle type="target" id="llm_input" position={Position.Left} style={{ ...handleStyle, top: `${(3 + characterEdges.length) * verticalSpacing}%` }}/>
         <span className="handle-label left" style={{ top: `${(3 + characterEdges.length) * verticalSpacing}%` }}>LLM 输入</span> {/* Changed to Chinese */}
+
+        {/* ADDED llm_output handle and label */}
+        <Handle type="target" id="llm_output" position={Position.Left} style={{ ...handleStyle, top: `${(4 + characterEdges.length) * verticalSpacing}%` }}/>
+        <span className="handle-label left" style={{ top: `${(4 + characterEdges.length) * verticalSpacing}%` }}>LLM 输出</span> {/* Added Label */}
+
 
         {/* Output Handle & Label */}
         <Handle type="source" id="scene_data_output" position={Position.Right} style={{ ...outputHandleStyle, top: '50%' }} />

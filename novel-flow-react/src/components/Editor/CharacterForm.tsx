@@ -29,36 +29,43 @@ const CharacterForm: React.FC<CharacterFormProps> = ({
   }, [initialData]); // Depend on initialData which changes when nodeId changes due to the key prop
 
   // --- Input Change Handlers ---
-  // Handles changes for top-level simple values OR first-level nested objects with a 'Value' key
+  // Handles changes using the full path of the item being changed
   const handleValueChange = (
-    groupKey: string,
-    itemKey: string | null, // itemKey is null for direct top-level changes
+    path: string[], // Full path to the item (e.g., ['基本信息', '姓名'] or ['personality', 'CoreTemperament', '乐观度'])
     event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const newValue = event.target.value;
-    let updatedFormData = { ...formData };
+    setFormData(prevData => {
+        // Deep copy to avoid direct state mutation
+        const newData = JSON.parse(JSON.stringify(prevData));
+        let currentLevel = newData;
 
-    if (itemKey === null) {
-      // Direct top-level value change (e.g., language)
-      updatedFormData[groupKey] = newValue;
-    } else {
-      // Nested value change (assuming itemKey exists under groupKey)
-      // This handles structures like 基本信息 -> 姓名 -> { Value: ... }
-      updatedFormData = {
-        ...formData,
-        [groupKey]: {
-          ...formData[groupKey],
-          [itemKey]: {
-            // Preserve other potential properties like "Caption", "Description"
-            ...(typeof formData[groupKey]?.[itemKey] === 'object' ? formData[groupKey][itemKey] : {}),
-            Value: newValue // Only update the Value property
-          },
-        },
-      };
-    }
+        // Traverse down the path to the second-to-last level
+        for (let i = 0; i < path.length - 1; i++) {
+            const key = path[i];
+             // Create nested objects if they don't exist
+            if (typeof currentLevel[key] !== 'object' || currentLevel[key] === null) {
+                currentLevel[key] = {};
+            }
+            currentLevel = currentLevel[key];
+        }
 
-    setFormData(updatedFormData);
-    updateNodeData(nodeId, updatedFormData); // Update node data immediately
+        const finalKey = path[path.length - 1];
+
+        // Check if the target is a structure like { Value: ..., Caption: ... }
+        if (typeof currentLevel[finalKey] === 'object' && currentLevel[finalKey] !== null && 'Value' in currentLevel[finalKey]) {
+            // Update the 'Value' property within that structure
+            currentLevel[finalKey].Value = newValue;
+        } else {
+            // Otherwise, update the direct value at the final key
+            currentLevel[finalKey] = newValue;
+        }
+
+        // Update the node data in the main flow state
+        updateNodeData(nodeId, newData);
+        // Return the updated state for React
+        return newData;
+    });
   };
 
 
@@ -69,7 +76,8 @@ const CharacterForm: React.FC<CharacterFormProps> = ({
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    const characterName = formData?.['基本信息']?.['姓名']?.Value || nodeId;
+    // Use a reliable way to get a name, fallback to nodeId
+    const characterName = formData?.['基本信息']?.['姓名']?.Value || formData?.name || nodeId;
     a.download = `${characterName}.json`;
     document.body.appendChild(a);
     a.click();
@@ -91,6 +99,8 @@ const CharacterForm: React.FC<CharacterFormProps> = ({
           if (importedData && typeof importedData === 'object') {
             setFormData(importedData);
             updateNodeData(nodeId, importedData);
+            // Reset expanded state on import might be good
+            setExpandedGroups({});
           } else {
             console.error('Invalid JSON file format.');
             alert('Error: Invalid JSON file format.');
@@ -105,38 +115,40 @@ const CharacterForm: React.FC<CharacterFormProps> = ({
           alert('Error reading file.');
       };
       reader.readAsText(file);
-      event.target.value = '';
+      event.target.value = ''; // Clear input value after selection
     }
   };
 
-  // Toggle group expansion
-  const toggleGroup = (groupKey: string) => {
-    setExpandedGroups(prev => ({ ...prev, [groupKey]: !prev[groupKey] }));
+  // Toggle group expansion - Syncs React state with <details> open state
+  const handleToggle = (groupKey: string, isOpen: boolean) => {
+    setExpandedGroups(prev => ({ ...prev, [groupKey]: isOpen }));
   };
 
   // --- Recursive Rendering Function ---
   const renderFormGroup = (data: any, path: string[] = []): React.ReactNode => {
+     // Base case: If data is not an object or is null, render nothing further
     if (typeof data !== 'object' || data === null) {
-      return null; // Should not happen at top level, but good for safety
+      return null;
     }
 
+    // Render entries for the current object level
     return Object.keys(data).map((key) => {
       const currentPath = [...path, key];
       const value = data[key];
       const isValueObject = typeof value === 'object' && value !== null;
 
-      // Case 1: Leaf node with { Value: ..., Caption: ... } structure
+      // Case 1: Leaf node structured as { Value: ..., Caption: ... }
       if (isValueObject && 'Value' in value && 'Caption' in value) {
         const caption = value.Caption || key;
         const actualValue = value.Value;
         const inputType = typeof actualValue === 'number' ? 'number' : 'text';
-        // Determine if this specific field should be readOnly (e.g., deeply nested personality traits for now)
-        const isReadOnly = path.length > 1; // Example: make fields under personality->CoreTemperament readOnly
+        // ReadOnly logic (e.g., disable editing for nested personality traits)
+        const isReadOnly = path.length > 1; // Example: only allow editing top-level Value/Caption pairs
 
         return (
           <div key={currentPath.join('.')} className="flex items-center space-x-2 ml-2">
             <div className="w-2/5 flex-shrink-0">
-              <label className="block text-xs font-medium text-gray-400 truncate" title={caption}>
+              <label className="block text-xs truncate" title={caption} style={{ color: '#a1a1aa' }}>
                 {caption}
               </label>
             </div>
@@ -144,24 +156,12 @@ const CharacterForm: React.FC<CharacterFormProps> = ({
               <input
                 type={inputType}
                 value={actualValue ?? ''}
-                onChange={(e) => {
-                    if (!isReadOnly) {
-                        // Find the top-level group key and the immediate item key for handleValueChange
-                        const groupKey = currentPath[0];
-                        const itemKey = currentPath.length > 1 ? currentPath[1] : null; // Adjust if structure varies
-                        if (itemKey) { // Only call if we have a valid itemKey for the simple handler
-                           handleValueChange(groupKey, itemKey, e);
-                        } else {
-                           console.error("Cannot determine itemKey for update handler", currentPath);
-                        }
-                    } else {
-                        console.warn("Editing disabled for this nested field:", currentPath.join('.'));
-                    }
-                }}
+                onChange={(e) => { if (!isReadOnly) handleValueChange(currentPath, e); }}
                 readOnly={isReadOnly}
+                style={!isReadOnly ? { color: 'white' } : {}}
                 className={`p-1 border rounded w-full text-sm ${isReadOnly
                     ? 'border-gray-600 bg-gray-700 text-gray-400 cursor-not-allowed'
-                    : 'border-gray-500 bg-gray-800 text-gray-200 focus:border-blue-400 focus:ring-blue-400 focus:ring-opacity-50 focus:outline-none'
+                    : 'border-gray-500 bg-gray-800 focus:border-blue-400 focus:ring-blue-400 focus:ring-opacity-50 focus:outline-none'
                 }`}
                 placeholder="输入值"
               />
@@ -173,8 +173,12 @@ const CharacterForm: React.FC<CharacterFormProps> = ({
       else if (isValueObject && !Array.isArray(value)) {
         return (
           <div key={currentPath.join('.')} className="ml-2 mt-2 space-y-1 border-l border-gray-600 pl-2 py-1">
-            <label className="block text-xs font-semibold text-gray-300">{key}</label>
-            {renderFormGroup(value, currentPath)} {/* Recurse */}
+            {/* Nested object label */}
+            <label className="block text-xs font-semibold" style={{ color: 'white' }}>
+              {key}
+            </label>
+            {/* Recurse for the nested object */}
+            {renderFormGroup(value, currentPath)}
           </div>
         );
       }
@@ -182,19 +186,26 @@ const CharacterForm: React.FC<CharacterFormProps> = ({
       else if (Array.isArray(value)) {
          return <div key={currentPath.join('.')} className="text-xs text-gray-500 italic ml-2">(数组类型渲染待实现: {key})</div>;
       }
-      // Case 4: Simple key-value pair at this level (e.g., 'language: "chinese"')
+      // Case 4: Simple key-value pair (string, number, boolean)
       else {
+        const inputType = typeof value === 'number' ? 'number' : 'text';
+        // Simple values are directly editable
+        const isReadOnly = false;
         return (
           <div key={currentPath.join('.')} className="flex items-center space-x-2">
             <div className="w-2/5 flex-shrink-0">
-              <label className="block text-xs font-medium text-gray-400 truncate">{key}</label>
+              <label className="block text-xs truncate" style={{ color: '#a1a1aa' }} title={key}>
+                {key}
+              </label>
             </div>
             <div className="w-3/5 flex-grow">
               <input
-                type="text"
+                type={inputType}
                 value={value ?? ''}
-                onChange={(e) => handleValueChange(currentPath[0], null, e)} // Top-level change
-                className="p-1 border border-gray-500 rounded w-full text-sm bg-gray-800 text-gray-200 focus:border-blue-400 focus:ring-blue-400 focus:ring-opacity-50 focus:outline-none"
+                onChange={(e) => handleValueChange(currentPath, e)}
+                readOnly={isReadOnly} // Typically false for simple values
+                style={{ color: 'white' }} // Editable simple values are white
+                className="p-1 border border-gray-500 rounded w-full text-sm bg-gray-800 focus:border-blue-400 focus:ring-blue-400 focus:ring-opacity-50 focus:outline-none"
                 placeholder="输入值"
               />
             </div>
@@ -206,11 +217,12 @@ const CharacterForm: React.FC<CharacterFormProps> = ({
 
 
   return (
-    // Apply dark theme styles: bg-gray-800 text-gray-200 and add font-sans
-    <div className="p-4 space-y-4 h-full flex flex-col bg-gray-800 text-gray-200 font-sans">
+    <div className="p-4 space-y-4 h-full flex flex-col bg-gray-800 text-gray-100 font-sans">
       {/* Header */}
       <div className="flex justify-between items-center pb-2 border-b border-gray-600">
-        <h3 className="text-lg font-semibold text-gray-100">编辑角色: {nodeId}</h3>
+        <h3 className="text-lg font-semibold" style={{ color: 'white' }}>
+          编辑角色: {nodeId}
+        </h3>
         <button onClick={onClose} className="text-gray-400 hover:text-gray-100" aria-label="Close">&times;</button>
       </div>
 
@@ -223,20 +235,39 @@ const CharacterForm: React.FC<CharacterFormProps> = ({
 
       {/* Dynamic Form Area */}
       <div className="flex-grow overflow-y-auto space-y-3 pr-2">
-        {Object.keys(formData).map((groupKey) => (
-          <details key={groupKey} open={expandedGroups[groupKey] || false} className="bg-gray-700 rounded border border-gray-600">
-            <summary
-              onClick={(e) => { e.preventDefault(); toggleGroup(groupKey); }}
-              className="px-3 py-2 font-medium cursor-pointer list-none flex justify-between items-center text-gray-100 hover:bg-gray-600"
-            >
-              {groupKey}
-              <span className="text-xs">{expandedGroups[groupKey] ? '▲' : '▼'}</span>
-            </summary>
-            <div className="p-3 border-t border-gray-600 space-y-2">
-              {renderFormGroup(formData[groupKey], [groupKey])} {/* Start recursion */}
-            </div>
-          </details>
-        ))}
+        {Object.keys(formData).map((groupKey) => {
+          // Determine if the current group should be open based on state
+          const isOpen = expandedGroups[groupKey] || false;
+          const groupData = formData[groupKey];
+
+          return (
+            <details
+               key={groupKey}
+               open={isOpen} // Control open state via React state
+               onToggle={(e) => handleToggle(groupKey, (e.target as HTMLDetailsElement).open)} // Sync state on toggle
+               className="bg-gray-700 rounded border border-gray-600"
+             >
+              {/* Restore summary, ensure it displays groupKey */}
+              <summary
+                className="flex justify-between items-center px-3 py-2 cursor-pointer list-none" // list-none hides default marker
+              >
+                {/* Apply Tailwind !important class to the span containing groupKey */}
+                <span className="!text-white">{groupKey}</span>
+                {/* Apply Tailwind !important class to the span containing the arrow */}
+                <span className="text-xs !text-white"> {/* Ensure text-xs is still applied */}
+                  {isOpen ? '▲' : '▼'} {/* Use isOpen state for arrow */}
+                </span>
+              </summary>
+              {/* Render content only if data exists and is an object/array */}
+              {groupData && typeof groupData === 'object' && (
+                <div className="p-3 border-t border-gray-600 space-y-2">
+                  {/* Pass the corresponding value and the path starting with groupKey */}
+                  {renderFormGroup(groupData, [groupKey])}
+                </div>
+              )}
+            </details>
+          );
+        })}
       </div>
     </div>
   );
