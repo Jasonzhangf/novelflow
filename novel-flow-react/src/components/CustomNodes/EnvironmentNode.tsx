@@ -18,21 +18,21 @@ function EnvironmentNode({ id, data }: NodeProps<EnvironmentNodeData>) {
       {/* Title Bar */}
       <div className="node-title-bar">
         <span className="node-id">{id.slice(-4)}</span>
-        <span className="node-name">Environment Node 环境结点</span>
+        <span className="node-name">环境结点</span> {/* Removed English */}
       </div>
 
       {/* Port Area */}
       <div className="node-port-area">
         {/* Output Handle & Label */}
         <Handle type="source" id="environment_info_output" position={Position.Right} style={{ ...outputHandleStyle, top: '50%' }} />
-        <span className="handle-label right" style={{ top: '50%' }}>Environment Info</span>
+        <span className="handle-label right" style={{ top: '50%' }}>环境信息</span> {/* Removed English */}
       </div>
 
       {/* Content Area - Use CSS classes for styling */}
       <div className="node-content justify-center items-center">
          {/* Use appropriate text color for dark theme */}
         <div className="text-center text-xs text-stone-400 p-2"> {/* Adjusted text color */}
-          (环境信息表单区 / Environment form area)
+          (环境信息表单区) {/* Removed English */}
         </div>
       </div>
     </div>

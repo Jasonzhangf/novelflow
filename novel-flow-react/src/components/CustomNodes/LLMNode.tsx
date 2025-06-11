@@ -20,25 +20,26 @@ function LLMNode({ id, data }: NodeProps<LLMNodeData>) {
       {/* Title Bar */}
       <div className="node-title-bar">
         <span className="node-id">{id.slice(-4)}</span>
-        <span className="node-name">LLM Node 大模型结点</span>
+        <span className="node-name">大模型结点</span> {/* Removed English */}
       </div>
 
       {/* Port Area */}
       <div className="node-port-area">
         {/* Input Handle & Label */}
         <Handle type="target" id="scene_data_input" position={Position.Left} style={{ ...handleStyle, top: '50%' }} />
-        <span className="handle-label left" style={{ top: '50%' }}>Scene Data</span>
+        <span className="handle-label left" style={{ top: '50%' }}>场景数据</span> {/* Changed to Chinese */}
 
         {/* Output Handle & Label */}
         <Handle type="source" id="llm_output" position={Position.Right} style={{ ...outputHandleStyle, top: '50%' }} />
-        <span className="handle-label right" style={{ top: '50%' }}>LLM Output</span>
+        <span className="handle-label right" style={{ top: '50%' }}>LLM 输出</span> {/* Changed to Chinese */}
       </div>
 
+      {/* Content Area - Use CSS classes for styling */}
       {/* Content Area - Use CSS classes for styling */}
       <div className="node-content justify-center items-center"> {/* Center content */}
         {/* Use appropriate text color for dark theme */}
         <div className="text-center text-xs text-stone-400 p-2"> {/* Adjusted text color */}
-          (This node will process the scene / 此结点将处理场景)
+          (此结点将处理场景) {/* Removed English */}
         </div>
       </div>
     </div>

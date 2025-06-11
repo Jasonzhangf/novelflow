@@ -1,5 +1,10 @@
 {
   "compilerOptions": {
+    "composite": true, // Add composite flag for project references
+    "baseUrl": ".", // Set base URL for path resolution
+    "paths": {
+      "@/*": ["./src/*"] // Define the @ path alias
+    },
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
     "target": "ES2020",
     "useDefineForClassFields": true,
