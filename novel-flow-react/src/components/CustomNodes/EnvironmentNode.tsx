@@ -9,10 +9,12 @@ export type EnvironmentNodeData = {
 
 function EnvironmentNode({ data }: NodeProps<EnvironmentNodeData>) {
   return (
-    <div className="rounded-lg shadow-xl border-4 border-red-500 bg-white w-[400px] min-h-[120px] relative overflow-visible">
+    // Applied scene-node-style
+    <div className="scene-node-style w-[400px] min-h-[120px] relative overflow-visible"> {/* Applied custom class, removed conflicting Tailwind styles */}
       {/* Title Bar 标题栏 */}
-      <div className="rounded-t-lg bg-stone-800 text-white px-4 py-2 flex items-center justify-between">
+      <div className="header text-gray-700 px-4 py-2 flex items-center justify-between"> {/* Applied custom class, removed conflicting Tailwind styles */}
         <div className="font-bold text-base flex items-center">
+          {/* TODO: Consider updating icon style if needed */}
           <span className="inline-block w-2 h-2 bg-green-400 rounded-full mr-2"></span>
           Environment Node 环境结点
         </div>
@@ -31,4 +33,4 @@ function EnvironmentNode({ data }: NodeProps<EnvironmentNodeData>) {
   );
 }
 
-export default EnvironmentNode; 
+export default EnvironmentNode;

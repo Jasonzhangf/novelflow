@@ -10,10 +10,12 @@ export type LLMNodeData = {
 // and a source handle to send back the generated text.
 function LLMNode({ data }: NodeProps<LLMNodeData>) {
   return (
-    <div className="rounded-lg shadow-xl border-4 border-red-500 bg-white w-[400px] min-h-[120px] relative overflow-visible">
+    // Applied scene-node-style
+    <div className="scene-node-style w-[400px] min-h-[120px] relative overflow-visible"> {/* Applied custom class, removed conflicting Tailwind styles */}
       {/* Title Bar 标题栏 */}
-      <div className="rounded-t-lg bg-stone-800 text-white px-4 py-2 flex items-center justify-between">
+      <div className="header text-gray-700 px-4 py-2 flex items-center justify-between"> {/* Applied custom class, removed conflicting Tailwind styles */}
         <div className="font-bold text-base flex items-center">
+          {/* TODO: Consider updating icon style if needed */}
           <span className="inline-block w-2 h-2 bg-green-400 rounded-full mr-2"></span>
           LLM Node 大模型结点
         </div>
@@ -37,4 +39,4 @@ function LLMNode({ data }: NodeProps<LLMNodeData>) {
   );
 }
 
-export default LLMNode; 
+export default LLMNode;

@@ -32,31 +32,31 @@ const initialNodes: ReactFlowNode[] = [
     id: 'character_1',
     type: 'character',
     data: { label: 'Character 1', version: '1.0', characterInfo: {} },
-    position: { x: 50, y: 50 },
+    position: { x: 50, y: 100 },
   },
   {
     id: 'world_1',
     type: 'world',
     data: { label: 'World', version: '1.0', worldInfo: {} },
-    position: { x: 50, y: 150 },
+    position: { x: 50, y: 250 },
   },
   {
     id: 'environment_1',
     type: 'environment',
     data: { label: 'Environment', version: '1.0', environmentInfo: {} },
-    position: { x: 50, y: 250 },
+    position: { x: 50, y: 400 },
   },
   {
     id: 'scene_1',
     type: 'scene',
     data: { label: 'Scene Node' },
-    position: { x: 400, y: 150 },
+    position: { x: 500, y: 250 },
   },
   {
     id: 'llm_1',
     type: 'llm',
     data: { label: 'LLM Node' },
-    position: { x: 750, y: 150 },
+    position: { x: 950, y: 250 },
   },
 ];
 
@@ -194,4 +194,4 @@ const EditorWithProvider = () => (
   </ReactFlowProvider>
 );
 
-export default EditorWithProvider; 
+export default EditorWithProvider;

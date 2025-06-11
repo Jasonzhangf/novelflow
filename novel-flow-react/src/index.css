@@ -11,6 +11,35 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Custom Node Styles based on reference image */
+.scene-node-style {
+  background-color: #f9fafb; /* Equivalent to bg-gray-50 */
+  border: 1px solid #d1d5db; /* Equivalent to border-gray-300 */
+  border-radius: 0.5rem; /* Equivalent to rounded-lg */
+  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1); /* Equivalent to shadow-sm */
+}
+
+.scene-node-style .header {
+  background-color: #f3f4f6; /* Equivalent to bg-gray-100 */
+  border-bottom: 1px solid #d1d5db; /* Equivalent to border-gray-300 */
+  border-top-left-radius: 0.5rem;
+  border-top-right-radius: 0.5rem;
+}
+
+.scene-node-style .input-panel {
+   border-right: 1px solid #d1d5db; /* Equivalent to border-gray-300 */
+}
+
+.scene-node-style .synopsis-textarea {
+  border: 1px solid #d1d5db; /* Equivalent to border-gray-300 */
+  background-color: white;
+}
+
+.scene-node-style .llm-output-textarea {
+  border: 1px solid #d1d5db; /* Equivalent to border-gray-300 */
+  background-color: #f3f4f6; /* Equivalent to bg-gray-100 */
+}
+
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
