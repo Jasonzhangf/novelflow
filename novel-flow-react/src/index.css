@@ -9,114 +9,179 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  /* Add a dark background to the body for better contrast during dev */
+  background-color: #1c1917; /* bg-stone-900 */
 }
 
-/* Custom Node Styles based on reference image */
+/* Base Node Style (Dark Theme) */
 .scene-node-style {
-  background-color: #f9fafb; /* Equivalent to bg-gray-50 */
-  border: 1px solid #d1d5db; /* Equivalent to border-gray-300 */
-  border-radius: 0.5rem; /* Equivalent to rounded-lg */
-  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1); /* Equivalent to shadow-sm */
+  background-color: #292524; /* bg-stone-800 - Dark base */
+  border: 1px solid #57534e; /* border-stone-600 - Slightly lighter border */
+  border-radius: 0.5rem; /* rounded-lg */
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.2), 0 2px 4px -2px rgb(0 0 0 / 0.1); /* Adjusted shadow for dark */
   display: flex;
-  flex-direction: column; /* Stack header and content vertically */
+  flex-direction: column;
+  color: #d6d3d1; /* Default light text color (stone-300) */
 }
 
-/* New Header Style */
-.node-header {
-  position: relative; /* Needed for absolutely positioned handles */
-  padding: 4px 8px;
-  background-color: #f3f4f6; /* bg-gray-100 */
-  border-bottom: 1px solid #d1d5db; /* border-gray-300 */
-  border-top-left-radius: 0.5rem;
-  border-top-right-radius: 0.5rem;
-  height: 40px; /* Fixed height for header */
+/* --- NEW LAYOUT STYLES (DARK THEME) --- */
+
+/* Title Bar (Top, Darker) */
+.node-title-bar {
+  background-color: #1c1917; /* bg-stone-900 */
+  padding: 6px 10px; /* Slightly more padding */
+  border-top-left-radius: 0.5rem; /* Match parent */
+  border-top-right-radius: 0.5rem; /* Match parent */
+  height: 30px; /* Fixed height */
   display: flex;
   align-items: center;
-  font-size: 10px; /* Small font for header text */
-  color: #4b5563; /* text-gray-600 */
+  /* Use flex properties for alignment: ID left, Name center */
+  justify-content: flex-start; /* Align items to the start by default */
+  border-bottom: 1px solid #57534e; /* border-stone-600 */
+  position: relative; /* For absolute centering of name if needed */
 }
-
-.node-id {
+.node-title-bar .node-id { /* Specific style for ID in title */
   font-weight: bold;
-  margin-right: 8px;
-  color: #6b7280; /* text-gray-500 */
+  color: #a8a29e; /* text-stone-400 - Muted ID color */
+  font-size: 11px;
+  margin-right: 10px; /* Space between ID and Name */
+  flex-shrink: 0; /* Prevent shrinking */
+}
+.node-title-bar .node-name { /* Specific style for Name in title */
+  font-weight: 600; /* semibold */
+  color: #fafaf9; /* text-stone-50 - Bright name */
+  font-size: 12px;
+  text-align: center; /* Center the name text itself */
+  flex-grow: 1; /* Allow name to take up space */
+  /* Remove margin: 0 10px; as justify-content handles spacing */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  /* Ensure it's truly centered if needed */
+  /* position: absolute; left: 50%; transform: translateX(-50%); width: calc(100% - 80px); */ /* Example absolute centering */
 }
 
-.node-name {
- font-weight: 500; /* medium */
+/* Port Area (Middle, Base Dark) */
+.node-port-area {
+  position: relative; /* Needed for handles/labels */
+  padding: 5px 0; /* Vertical padding */
+  background-color: #292524; /* bg-stone-800 - Match base */
+  min-height: 40px; /* Min height for handles, maybe slightly more */
+  border-bottom: 1px solid #57534e; /* border-stone-600 */
+  display: flex; /* Helps if we need vertical alignment */
+  align-items: stretch; /* Stretch to fill height */
 }
 
-/* New Content Area Style */
+/* Handle Labels (Inside Port Area) */
+.handle-label {
+  position: absolute;
+  top: 50%; /* Default vertical center */
+  transform: translateY(-50%);
+  font-size: 9px;
+  color: #60a5fa; /* text-blue-400 - Brighter blue for dark */
+  pointer-events: none;
+  white-space: nowrap;
+  padding: 0 5px;
+  background-color: rgba(41, 37, 36, 0.8); /* Slight background for readability */
+  border-radius: 3px;
+}
+.handle-label.left {
+  left: 15px; /* Position slightly inside from the handle */
+}
+.handle-label.right {
+  right: 15px; /* Position slightly inside from the handle */
+}
+
+/* Content Area Style (Dark Theme Adaptation) */
 .node-content {
-  flex-grow: 1; /* Take remaining vertical space */
-  display: flex; /* For potential L/R split */
+  flex-grow: 1;
+  display: flex;
   padding: 8px;
-  overflow: hidden; /* Hide overflow before scrollbars */
-  background-color: #f9fafb; /* bg-gray-50 */
-  border-bottom-left-radius: 0.5rem;
-  border-bottom-right-radius: 0.5rem;
+  overflow: hidden; /* Handles potential overflow */
+  background-color: #292524; /* bg-stone-800 - Match base */
+  border-bottom-left-radius: 0.5rem; /* Match parent */
+  border-bottom-right-radius: 0.5rem; /* Match parent */
+  min-height: 50px; /* Ensure content area has some space */
 }
 
 .node-content-left,
 .node-content-right {
-  flex: 1; /* Each takes half the space if both exist */
+  flex: 1;
   padding: 4px;
   display: flex;
   flex-direction: column;
 }
 
 .node-content-left {
-  border-right: 1px solid #e5e7eb; /* border-gray-200 */
+  /* Use a darker border for dark theme */
+  border-right: 1px solid #44403c; /* border-stone-700 */
+  margin-right: 8px; /* Add margin instead of padding for separation */
+  padding-right: 8px;
+}
+.node-content-right {
+   padding-left: 8px;
 }
 
+/* Scrollable Content (Dark Theme Adaptation) */
 .scrollable-content {
-  /* Approx 20 lines * 1.5 line-height * 12px font-size = 360px */
-  /* Let's use a slightly smaller max-height for flexibility */
   max-height: 300px;
-  overflow-y: auto; /* Add scrollbar if content exceeds max-height */
-  border: 1px solid #d1d5db; /* border-gray-300 */
+  overflow-y: auto;
+  border: 1px solid #57534e; /* border-stone-600 */
   border-radius: 0.25rem; /* rounded */
-  padding: 4px;
+  padding: 6px 8px; /* More padding */
   font-size: 12px; /* text-xs */
-  background-color: white;
+  background-color: #1c1917; /* bg-stone-900 - Very dark background */
+  color: #d6d3d1; /* text-stone-300 */
+  line-height: 1.4;
+  flex-grow: 1; /* Allow textarea to grow */
+  min-height: 60px; /* Ensure minimum size */
+}
+/* Add placeholder color for dark theme */
+.scrollable-content::placeholder {
+  color: #78716c; /* text-stone-500 */
+  opacity: 1; /* Override default opacity */
 }
 
 .scrollable-content.readonly {
-   background-color: #f3f4f6; /* bg-gray-100 for readonly */
+   background-color: #44403c; /* bg-stone-700 - Slightly lighter readonly */
+   color: #a8a29e; /* text-stone-400 - Muted readonly text */
 }
 
-/* Remove old specific styles */
-.scene-node-style .header { /* Remove old header */
+/* Make buttons fit dark theme */
+.node-content button {
+  background-color: #57534e; /* bg-stone-600 */
+  color: #e7e5e4; /* text-stone-200 */
+  border: 1px solid #78716c; /* border-stone-500 */
+  padding: 4px 8px;
+  font-size: 10px;
+  border-radius: 0.25rem;
+  transition: background-color 0.2s;
 }
-.scene-node-style .input-panel { /* Remove old input panel border */
-}
-.scene-node-style .synopsis-textarea { /* Remove old textarea style */
-}
-.scene-node-style .llm-output-textarea { /* Remove old textarea style */
-}
-
-/* --- Old styles below are correctly commented out --- */
-/* Commented out as they are replaced by new layout styles
-.scene-node-style .header {
-  background-color: #f3f4f6;
-  border-bottom: 1px solid #d1d5db;
-  border-top-left-radius: 0.5rem;
-  border-top-right-radius: 0.5rem;
+.node-content button:hover {
+  background-color: #78716c; /* bg-stone-500 */
 }
 
-.scene-node-style .input-panel {
-   border-right: 1px solid #d1d5db;
+/* Specific adjustments for SceneNode content */
+.scene-node-style .node-content-left h4,
+.scene-node-style .node-content-right h4 {
+  color: #a8a29e; /* text-stone-400 */
+  font-weight: 600; /* semibold */
+  margin-bottom: 4px;
+}
+.scene-node-style .node-content-left .text-\[10px\] {
+   color: #a8a29e; /* text-stone-400 */
 }
 
-.scene-node-style .synopsis-textarea {
-  border: 1px solid #d1d5db;
-  background-color: white;
-}
 
-.scene-node-style .llm-output-textarea {
-  border: 1px solid #d1d5db;
-  background-color: #f3f4f6;
-}
+/* --- Remove or comment out ALL old/unused styles --- */
+/*
+.node-header { ... }
+.node-id { ... } -> Now handled within .node-title-bar .node-id
+.node-name { ... } -> Now handled within .node-title-bar .node-name
+.scene-node-style .header {}
+.scene-node-style .input-panel {}
+.scene-node-style .synopsis-textarea {}
+.scene-node-style .llm-output-textarea {}
 */
 
 code {

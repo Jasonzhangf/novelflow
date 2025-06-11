@@ -72,18 +72,17 @@ function SceneNode({ id, data }: NodeProps<SceneNodeData>) {
     .map(edge => nodes.find(node => node.id === edge.source))
     .filter((node): node is ReactFlowNode => !!node);
 
-  // Define handle style
+  // Define handle style (Keep consistent with other nodes if needed)
   const handleStyle = { background: '#1e90ff', width: '8px', height: '8px', borderRadius: '50%' };
-  const outputHandleStyle = {...handleStyle}; // Same style for output for now
+  const outputHandleStyle = {...handleStyle}; // Using same style for now
 
   // Calculate vertical positions for handles within the port area
   const totalInputHandles = 2 + characterEdges.length + 1; // World, Env, Chars, LLM
-  // Use percentages relative to the port area height.
-  const verticalSpacing = 100 / (totalInputHandles + 1); // Percentage spacing within port area
+  const verticalSpacing = 100 / (totalInputHandles + 1); // Percentage spacing
 
   return (
     // Use the base style class, adjust width/min-height as needed
-    <div className="scene-node-style w-[600px] min-h-[250px]"> {/* Adjusted min-height */}
+    <div className="scene-node-style w-[600px] min-h-[300px]"> {/* Increased min-height for dark theme */}
 
       {/* Title Bar */}
       <div className="node-title-bar">
@@ -92,8 +91,7 @@ function SceneNode({ id, data }: NodeProps<SceneNodeData>) {
       </div>
 
       {/* Port Area */}
-      {/* Calculate dynamic minHeight based on handles, e.g., 15px per handle + padding */}
-      <div className="node-port-area" style={{ minHeight: `${totalInputHandles * 15 + 10}px` }}>
+      <div className="node-port-area" style={{ minHeight: `${totalInputHandles * 20}px` }}> {/* Increased min height per handle */}
         {/* Input Handles & Labels */}
         <Handle type="target" id="world" position={Position.Left} style={{ ...handleStyle, top: `${1 * verticalSpacing}%` }} />
         <span className="handle-label left" style={{ top: `${1 * verticalSpacing}%` }}>World</span>
@@ -121,37 +119,37 @@ function SceneNode({ id, data }: NodeProps<SceneNodeData>) {
         <span className="handle-label right" style={{ top: '50%' }}>Scene Data</span>
       </div>
 
-      {/* Content Area */}
+      {/* Content Area - Use CSS classes for styling */}
       <div className="node-content">
         {/* Left Panel: Inputs Status & Controls */}
         <div className="node-content-left">
-          <h4 className="font-semibold text-stone-700 text-center text-xs mb-2">Inputs 输入状态</h4>
-          {/* Display connection status inside (simplified) */}
-          <div className="text-[10px] text-stone-600">World: {nodes.find(n => n.id === allEdges.find(e => e.target === id && e.targetHandle === 'world')?.source) ? '已连接' : '未连接'}</div>
-          <div className="text-[10px] text-stone-600">Environment: {nodes.find(n => n.id === allEdges.find(e => e.target === id && e.targetHandle === 'environment')?.source) ? '已连接' : '未连接'}</div>
+          <h4 className="text-center text-xs mb-2">Inputs 输入状态</h4>
+          <div className="text-[10px] mb-1">World: {nodes.find(n => n.id === allEdges.find(e => e.target === id && e.targetHandle === 'world')?.source) ? '已连接' : '未连接'}</div>
+          <div className="text-[10px] mb-1">Environment: {nodes.find(n => n.id === allEdges.find(e => e.target === id && e.targetHandle === 'environment')?.source) ? '已连接' : '未连接'}</div>
           {characterInputs.map((node, index) => (
-            <div key={node.id} className="text-[10px] text-stone-600">{node.data.label || `Character ${index + 1}`}: 已连接</div>
+            <div key={node.id} className="text-[10px] mb-1">{node.data.label || `Character ${index + 1}`}: 已连接</div>
           ))}
-           <div className="text-[10px] text-stone-600">LLM Output: {nodes.find(n => n.id === allEdges.find(e => e.target === id && e.targetHandle === 'llm_output')?.source) ? '已连接' : '未连接'}</div>
-          <button onClick={addCharacterNode} className="mt-auto w-full bg-stone-700 hover:bg-stone-900 text-white font-bold py-1 px-2 rounded text-[10px]">
+           <div className="text-[10px] mb-1">LLM Output: {nodes.find(n => n.id === allEdges.find(e => e.target === id && e.targetHandle === 'llm_output')?.source) ? '已连接' : '未连接'}</div>
+          {/* Button styling is now handled by CSS */}
+          <button onClick={addCharacterNode} className="mt-auto w-full">
             Add Character 添加角色
           </button>
         </div>
 
         {/* Right Panel: Synopsis & LLM Output */}
         <div className="node-content-right">
-          <h4 className="font-medium text-gray-600 text-center text-xs mb-1">Scene Synopsis 场景梗概</h4>
+          <h4 className="text-center text-xs mb-1">Scene Synopsis 场景梗概</h4>
+          {/* Textarea styling is now handled by CSS */ }
           <textarea
-            className="scrollable-content w-full flex-grow" // Use flex-grow to take space
+            className="scrollable-content w-full mb-2" /* Added margin bottom */
             placeholder="Enter a synopsis for the scene to be generated...\n输入要生成场景的梗概..."
-            style={{ minHeight: '80px' }} // Ensure minimum height
           ></textarea>
-          <h4 className="font-medium text-gray-600 text-center text-xs mt-2 mb-1">LLM Output 大模型输出</h4>
+          <h4 className="text-center text-xs mb-1">LLM Output 大模型输出</h4>
+           {/* Textarea styling is now handled by CSS */ }
           <textarea
-            className="scrollable-content readonly w-full flex-grow" // Use flex-grow
+            className="scrollable-content readonly w-full"
             placeholder="LLM generation result will appear here...\n大模型生成结果将在此显示..."
             readOnly
-            style={{ minHeight: '120px' }} // Ensure minimum height
           ></textarea>
         </div>
       </div>

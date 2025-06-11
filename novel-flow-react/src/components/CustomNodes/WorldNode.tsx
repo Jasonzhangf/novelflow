@@ -7,9 +7,9 @@ export type WorldNodeData = {
   worldInfo: Record<string, any>;
 };
 
-function WorldNode({ id, data }: NodeProps<WorldNodeData>) { // Added id prop
+function WorldNode({ id, data }: NodeProps<WorldNodeData>) {
   // Define handle style
-  const outputHandleStyle = { background: '#78716c', border: '2px solid #a3a3a3' }; // Keep original output style
+  const outputHandleStyle = { background: '#78716c', border: '2px solid #a3a3a3' }; // Example output style
 
   return (
     // Use the base style class, adjust width/min-height as needed
@@ -22,15 +22,16 @@ function WorldNode({ id, data }: NodeProps<WorldNodeData>) { // Added id prop
       </div>
 
       {/* Port Area */}
-      <div className="node-port-area"> {/* Default min-height should be okay */}
+      <div className="node-port-area">
         {/* Output Handle & Label */}
         <Handle type="source" id="world_info_output" position={Position.Right} style={{ ...outputHandleStyle, top: '50%' }} />
         <span className="handle-label right" style={{ top: '50%' }}>World Info</span>
       </div>
 
-      {/* Content Area */}
+      {/* Content Area - Use CSS classes for styling */}
       <div className="node-content justify-center items-center">
-        <div className="text-center text-xs text-stone-400 p-2">
+        {/* Use appropriate text color for dark theme */}
+        <div className="text-center text-xs text-stone-400 p-2"> {/* Adjusted text color */}
           (世界信息表单区 / World form area)
         </div>
       </div>
