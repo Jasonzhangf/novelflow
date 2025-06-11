@@ -7,27 +7,32 @@ export type CharacterNodeData = {
   characterInfo: Record<string, any>;
 };
 
-function CharacterNode({ data }: NodeProps<CharacterNodeData>) {
+function CharacterNode({ id, data }: NodeProps<CharacterNodeData>) { // Added id prop
+  // Define handle style
+  const outputHandleStyle = { background: '#78716c', border: '2px solid #a3a3a3' }; // Keep original output style
+
   return (
-    // Applied scene-node-style
-    <div className="scene-node-style w-[400px] min-h-[120px] relative overflow-visible"> {/* Applied custom class, removed conflicting Tailwind styles */}
-      {/* Title Bar 标题栏 */}
-      <div className="header text-gray-700 px-4 py-2 flex items-center justify-between"> {/* Applied custom class, removed conflicting Tailwind styles */}
-        <div className="font-bold text-base flex items-center">
-          {/* TODO: Consider updating icon style if needed */}
-          <span className="inline-block w-2 h-2 bg-purple-400 rounded-full mr-2"></span>
-          Character Node 角色结点
+    // Use the base style class, adjust width/min-height as needed
+    <div className="scene-node-style w-[400px] min-h-[100px]"> {/* Adjusted min-height */}
+
+      {/* Title Bar */}
+      <div className="node-title-bar">
+        <span className="node-id">{id.slice(-4)}</span>
+        <span className="node-name">Character Node 角色结点</span>
+      </div>
+
+      {/* Port Area */}
+      <div className="node-port-area"> {/* Default min-height should be okay */}
+        {/* Output Handle & Label */}
+        <Handle type="source" id="character_info_output" position={Position.Right} style={{ ...outputHandleStyle, top: '50%' }} />
+        <span className="handle-label right" style={{ top: '50%' }}>Character Info</span>
+      </div>
+
+      {/* Content Area */}
+      <div className="node-content justify-center items-center">
+        <div className="text-center text-xs text-stone-400 p-2">
+          (角色信息表单区 / Character form area)
         </div>
-        <div className="text-xs opacity-70">{data.label || 'Character'}</div>
-      </div>
-      {/* Main Content 主体内容 */}
-      <div className="p-4">
-        {/* TODO: Add character form fields here 角色信息表单区 */}
-      </div>
-      {/* Output Handle 输出端口 */}
-      <div className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-full ml-6 flex items-center z-10">
-        <div className="pr-2 text-xs text-stone-700">Character Info 角色信息</div>
-        <Handle type="source" position={Position.Right} style={{ background: '#78716c', border: '2px solid #a3a3a3' }} />
       </div>
     </div>
   );

@@ -17,28 +17,107 @@ body {
   border: 1px solid #d1d5db; /* Equivalent to border-gray-300 */
   border-radius: 0.5rem; /* Equivalent to rounded-lg */
   box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1); /* Equivalent to shadow-sm */
+  display: flex;
+  flex-direction: column; /* Stack header and content vertically */
 }
 
+/* New Header Style */
+.node-header {
+  position: relative; /* Needed for absolutely positioned handles */
+  padding: 4px 8px;
+  background-color: #f3f4f6; /* bg-gray-100 */
+  border-bottom: 1px solid #d1d5db; /* border-gray-300 */
+  border-top-left-radius: 0.5rem;
+  border-top-right-radius: 0.5rem;
+  height: 40px; /* Fixed height for header */
+  display: flex;
+  align-items: center;
+  font-size: 10px; /* Small font for header text */
+  color: #4b5563; /* text-gray-600 */
+}
+
+.node-id {
+  font-weight: bold;
+  margin-right: 8px;
+  color: #6b7280; /* text-gray-500 */
+}
+
+.node-name {
+ font-weight: 500; /* medium */
+}
+
+/* New Content Area Style */
+.node-content {
+  flex-grow: 1; /* Take remaining vertical space */
+  display: flex; /* For potential L/R split */
+  padding: 8px;
+  overflow: hidden; /* Hide overflow before scrollbars */
+  background-color: #f9fafb; /* bg-gray-50 */
+  border-bottom-left-radius: 0.5rem;
+  border-bottom-right-radius: 0.5rem;
+}
+
+.node-content-left,
+.node-content-right {
+  flex: 1; /* Each takes half the space if both exist */
+  padding: 4px;
+  display: flex;
+  flex-direction: column;
+}
+
+.node-content-left {
+  border-right: 1px solid #e5e7eb; /* border-gray-200 */
+}
+
+.scrollable-content {
+  /* Approx 20 lines * 1.5 line-height * 12px font-size = 360px */
+  /* Let's use a slightly smaller max-height for flexibility */
+  max-height: 300px;
+  overflow-y: auto; /* Add scrollbar if content exceeds max-height */
+  border: 1px solid #d1d5db; /* border-gray-300 */
+  border-radius: 0.25rem; /* rounded */
+  padding: 4px;
+  font-size: 12px; /* text-xs */
+  background-color: white;
+}
+
+.scrollable-content.readonly {
+   background-color: #f3f4f6; /* bg-gray-100 for readonly */
+}
+
+/* Remove old specific styles */
+.scene-node-style .header { /* Remove old header */
+}
+.scene-node-style .input-panel { /* Remove old input panel border */
+}
+.scene-node-style .synopsis-textarea { /* Remove old textarea style */
+}
+.scene-node-style .llm-output-textarea { /* Remove old textarea style */
+}
+
+/* --- Old styles below are correctly commented out --- */
+/* Commented out as they are replaced by new layout styles
 .scene-node-style .header {
-  background-color: #f3f4f6; /* Equivalent to bg-gray-100 */
-  border-bottom: 1px solid #d1d5db; /* Equivalent to border-gray-300 */
+  background-color: #f3f4f6;
+  border-bottom: 1px solid #d1d5db;
   border-top-left-radius: 0.5rem;
   border-top-right-radius: 0.5rem;
 }
 
 .scene-node-style .input-panel {
-   border-right: 1px solid #d1d5db; /* Equivalent to border-gray-300 */
+   border-right: 1px solid #d1d5db;
 }
 
 .scene-node-style .synopsis-textarea {
-  border: 1px solid #d1d5db; /* Equivalent to border-gray-300 */
+  border: 1px solid #d1d5db;
   background-color: white;
 }
 
 .scene-node-style .llm-output-textarea {
-  border: 1px solid #d1d5db; /* Equivalent to border-gray-300 */
-  background-color: #f3f4f6; /* Equivalent to bg-gray-100 */
+  border: 1px solid #d1d5db;
+  background-color: #f3f4f6;
 }
+*/
 
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',

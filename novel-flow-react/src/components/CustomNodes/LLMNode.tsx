@@ -8,32 +8,37 @@ export type LLMNodeData = {
 // A simple LLM Node for now.
 // It has a target handle to receive the merged JSON from the SceneNode
 // and a source handle to send back the generated text.
-function LLMNode({ data }: NodeProps<LLMNodeData>) {
+function LLMNode({ id, data }: NodeProps<LLMNodeData>) { // Added id prop
+  // Define handle style (consistent with SceneNode)
+  const handleStyle = { background: '#1e90ff', width: '8px', height: '8px', borderRadius: '50%' };
+  const outputHandleStyle = { background: '#78716c', border: '2px solid #a3a3a3' }; // Keep original output style for now
+
   return (
-    // Applied scene-node-style
-    <div className="scene-node-style w-[400px] min-h-[120px] relative overflow-visible"> {/* Applied custom class, removed conflicting Tailwind styles */}
-      {/* Title Bar 标题栏 */}
-      <div className="header text-gray-700 px-4 py-2 flex items-center justify-between"> {/* Applied custom class, removed conflicting Tailwind styles */}
-        <div className="font-bold text-base flex items-center">
-          {/* TODO: Consider updating icon style if needed */}
-          <span className="inline-block w-2 h-2 bg-green-400 rounded-full mr-2"></span>
-          LLM Node 大模型结点
+    // Use the base style class, adjust width/min-height as needed
+    <div className="scene-node-style w-[400px] min-h-[100px]"> {/* Adjusted min-height */}
+
+      {/* Title Bar */}
+      <div className="node-title-bar">
+        <span className="node-id">{id.slice(-4)}</span>
+        <span className="node-name">LLM Node 大模型结点</span>
+      </div>
+
+      {/* Port Area */}
+      <div className="node-port-area"> {/* Default min-height should be okay */}
+        {/* Input Handle & Label */}
+        <Handle type="target" id="scene_data_input" position={Position.Left} style={{ ...handleStyle, top: '50%' }} />
+        <span className="handle-label left" style={{ top: '50%' }}>Scene Data</span>
+
+        {/* Output Handle & Label */}
+        <Handle type="source" id="llm_output" position={Position.Right} style={{ ...outputHandleStyle, top: '50%' }} />
+        <span className="handle-label right" style={{ top: '50%' }}>LLM Output</span>
+      </div>
+
+      {/* Content Area */}
+      <div className="node-content justify-center items-center"> {/* Center content */}
+        <div className="text-center text-xs text-stone-500 p-2">
+          (This node will process the scene / 此结点将处理场景)
         </div>
-        <div className="text-xs opacity-70">{data.label || 'LLM'}</div>
-      </div>
-      {/* Main Content 主体内容 */}
-      <div className="p-4 text-center text-xs text-stone-500">
-        (This node will process the scene / 此结点将处理场景)
-      </div>
-      {/* Input Handle 输入端口 */}
-      <div className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-full ml-[-20px] flex items-center z-10">
-        <div className="pr-2 text-xs text-stone-700">Scene Data 场景数据</div>
-        <Handle type="target" position={Position.Left} style={{ background: '#78716c', border: '2px solid #a3a3a3' }}/>
-      </div>
-      {/* Output Handle 输出端口 */}
-      <div className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-full mr-[-20px] flex items-center z-10">
-        <Handle type="source" position={Position.Right} style={{ background: '#78716c', border: '2px solid #a3a3a3' }}/>
-        <div className="pl-2 text-xs text-stone-700">LLM Output 大模型输出</div>
       </div>
     </div>
   );
