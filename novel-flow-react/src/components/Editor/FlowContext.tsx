@@ -1,10 +1,16 @@
-import { createContext } from 'react';
-import type { Node as ReactFlowNode, Edge, OnNodesChange, OnEdgesChange, OnConnect } from 'reactflow';
+import { createContext, useContext } from 'react';
 
 interface FlowContextType {
-  nodes: ReactFlowNode[];
-  edges: Edge[];
-  addCharacterNode: () => void;
+  updateNodeData: (nodeId: string, newData: any) => void;
+  addNode: (type: string, position: { x: number; y: number }) => void;
 }
 
-export const FlowContext = createContext<FlowContextType | null>(null); 
+export const FlowContext = createContext<FlowContextType | null>(null);
+
+export const useFlowContext = () => {
+  const context = useContext(FlowContext);
+  if (!context) {
+    throw new Error('useFlowContext must be used within a FlowProvider');
+  }
+  return context;
+};
