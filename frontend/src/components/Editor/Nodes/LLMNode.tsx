@@ -1,6 +1,7 @@
 import React from 'react';
 import { type NodeProps } from 'reactflow';
 import { BaseNode } from './BaseNode';
+import { useFlowContext } from '../FlowContext';
 
 interface ConfigItem {
   label: string;
@@ -8,7 +9,8 @@ interface ConfigItem {
   key: string;
 }
 
-export const LLMNode: React.FC<NodeProps> = ({ data }) => {
+export const LLMNode: React.FC<NodeProps> = ({ data, id }) => {
+  const { deleteNode, duplicateNode } = useFlowContext();
   const modelType = data.modelType || 'gpt-3.5-turbo';
   const temperature = data.temperature || 0.5;
   const systemPrompt = data.systemPrompt || 'You are an AI assistant.';
@@ -32,6 +34,10 @@ export const LLMNode: React.FC<NodeProps> = ({ data }) => {
       title="LLM"
       icon="🤖"
       color="blue"
+      id={id}
+      nodeType="llm"
+      onDelete={deleteNode}
+      onDuplicate={duplicateNode}
     >
       <div className="space-y-3">
         {configItems.map((item) => (

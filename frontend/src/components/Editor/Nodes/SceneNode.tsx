@@ -1,8 +1,10 @@
 import React from 'react';
 import { type NodeProps } from 'reactflow';
 import { BaseNode } from './BaseNode';
+import { useFlowContext } from '../FlowContext';
 
-export const SceneNode: React.FC<NodeProps> = ({ data }) => {
+export const SceneNode: React.FC<NodeProps> = ({ data, id }) => {
+  const { deleteNode, duplicateNode } = useFlowContext();
   const sceneName = data.sceneName || data.label || '序章';
   const characterCount = data.characters?.length || 0;
   const hasEnvironment = !!data.environment;
@@ -24,6 +26,10 @@ export const SceneNode: React.FC<NodeProps> = ({ data }) => {
       subtitle={sceneName}
       icon="🎬"
       color="blue"
+      id={id}
+      nodeType="scene"
+      onDelete={deleteNode}
+      onDuplicate={duplicateNode}
     >
       <div className="space-y-3">
         {configItems.map((item) => (

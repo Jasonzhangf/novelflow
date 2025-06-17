@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { useProject } from '../../hooks/useProject';
+import { ProjectFileSelector } from './ProjectFileSelector';
 import { type Node, type Edge } from 'reactflow';
 
 interface ProjectToolbarProps {
@@ -32,6 +33,7 @@ export const ProjectToolbar: React.FC<ProjectToolbarProps> = ({
 
   const [showSaveDialog, setShowSaveDialog] = useState(false);
   const [showNewProjectDialog, setShowNewProjectDialog] = useState(false);
+  const [showFileSelector, setShowFileSelector] = useState(false);
   const [projectName, setProjectName] = useState('');
   const [projectDescription, setProjectDescription] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -142,6 +144,14 @@ export const ProjectToolbar: React.FC<ProjectToolbarProps> = ({
             </button>
           )}
           
+          <button
+            onClick={() => setShowFileSelector(true)}
+            className="px-3 py-1 bg-cyan-500 text-white rounded text-sm hover:bg-cyan-600"
+            disabled={isLoading}
+          >
+            打开项目
+          </button>
+
           <button
             onClick={() => setShowNewProjectDialog(true)}
             className="px-3 py-1 bg-blue-500 text-white rounded text-sm hover:bg-blue-600"
@@ -308,6 +318,17 @@ export const ProjectToolbar: React.FC<ProjectToolbarProps> = ({
           </div>
         </div>
       )}
+
+      {/* 项目文件选择器 */}
+      <ProjectFileSelector
+        isOpen={showFileSelector}
+        onClose={() => setShowFileSelector(false)}
+        onProjectSelect={(projectId) => {
+          if (onProjectLoad) {
+            onProjectLoad(projectId);
+          }
+        }}
+      />
     </div>
   );
 };

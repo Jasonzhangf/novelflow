@@ -1,8 +1,10 @@
 import React from 'react';
 import { type NodeProps } from 'reactflow';
 import { BaseNode } from './BaseNode';
+import { useFlowContext } from '../FlowContext';
 
-export const UserPromptNode: React.FC<NodeProps> = ({ data }) => {
+export const UserPromptNode: React.FC<NodeProps> = ({ data, id }) => {
+  const { deleteNode, duplicateNode } = useFlowContext();
   const promptName = data.promptName || data.label || '用户提示词';
   const content = data.content || data.chapterSummary || '';
   const chapterType = data.chapterType || '';
@@ -25,6 +27,10 @@ export const UserPromptNode: React.FC<NodeProps> = ({ data }) => {
       subtitle={promptName}
       icon="📝"
       color="purple"
+      id={id}
+      nodeType="userPrompt"
+      onDelete={deleteNode}
+      onDuplicate={duplicateNode}
     >
       <div className="space-y-3">
         {configItems.map((item) => (

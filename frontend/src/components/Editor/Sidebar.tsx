@@ -14,7 +14,7 @@ interface SidebarProps {
 export const Sidebar: React.FC<SidebarProps> = ({ selectedNode }) => {
   if (!selectedNode) {
     return (
-      <div className="w-96 bg-gray-50 border-l border-gray-200 p-4">
+      <div className="w-80 bg-gray-50 border-l border-gray-200 p-4">
         <div className="text-center text-gray-500 mt-20">
           <div className="text-4xl mb-4">📝</div>
           <h3 className="text-lg font-medium mb-2">选择一个节点</h3>
@@ -49,7 +49,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ selectedNode }) => {
   };
 
   return (
-    <div className="w-96 bg-white border-l border-gray-200 overflow-y-auto">
+    <div className="w-80 bg-white border-l border-gray-200 overflow-y-auto">
       <div className="sticky top-0 bg-white border-b border-gray-200 p-4">
         <div className="flex items-center space-x-2">
           <div className="w-3 h-3 rounded-full bg-blue-500"></div>

@@ -1,8 +1,10 @@
 import React from 'react';
 import { type NodeProps } from 'reactflow';
 import { BaseNode } from './BaseNode';
+import { useFlowContext } from '../FlowContext';
 
-export const CharacterNode: React.FC<NodeProps> = ({ data }) => {
+export const CharacterNode: React.FC<NodeProps> = ({ data, id }) => {
+  const { deleteNode, duplicateNode } = useFlowContext();
   const characterName = data.name || data.characterName || data.label || '未命名角色';
   const age = data.age || data.characterData?.age || '';
   const occupation = data.occupation || data.characterData?.background?.occupation || '';
@@ -25,6 +27,10 @@ export const CharacterNode: React.FC<NodeProps> = ({ data }) => {
       subtitle={characterName}
       icon="👤"
       color="green"
+      id={id}
+      nodeType="character"
+      onDelete={deleteNode}
+      onDuplicate={duplicateNode}
     >
       <div className="space-y-3">
         {configItems.map((item) => (

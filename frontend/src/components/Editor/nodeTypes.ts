@@ -5,6 +5,7 @@ import { EnvironmentNode } from './Nodes/EnvironmentNode';
 import { LLMNode } from './Nodes/LLMNode';
 import { SystemPromptNode } from './Nodes/SystemPromptNode';
 import { UserPromptNode } from './Nodes/UserPromptNode';
+import { TextOutputNode } from './Nodes/TextOutputNode';
 
 export const nodeTypes: NodeTypes = {
   scene: SceneNode,
@@ -13,4 +14,5 @@ export const nodeTypes: NodeTypes = {
   llm: LLMNode,
   systemPrompt: SystemPromptNode,
   userPrompt: UserPromptNode,
+  textOutput: TextOutputNode,
 };

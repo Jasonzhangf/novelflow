@@ -1,0 +1,145 @@
+{
+  "metadata": {
+    "id": "0bc783c7-a965-4257-b647-a2e763dd471d",
+    "name": "未命名项目",
+    "description": "默认项目",
+    "createdAt": "2025-06-17T05:15:02.940Z",
+    "updatedAt": "2025-06-17T05:15:02.940Z",
+    "version": "1.0.0"
+  },
+  "flowData": {
+    "nodes": [
+      {
+        "id": "scene-1",
+        "type": "scene",
+        "position": {
+          "x": 400,
+          "y": 300
+        },
+        "data": {
+          "label": "场景节点",
+          "sceneName": "序章",
+          "sceneData": {}
+        },
+        "selected": false,
+        "dragging": false
+      },
+      {
+        "id": "character-1",
+        "type": "character",
+        "position": {
+          "x": 150,
+          "y": 150
+        },
+        "data": {
+          "label": "角色节点"
+        },
+        "selected": false,
+        "dragging": false
+      },
+      {
+        "id": "environment-1",
+        "type": "environment",
+        "position": {
+          "x": 650,
+          "y": 150
+        },
+        "data": {
+          "label": "环境节点"
+        },
+        "selected": false,
+        "dragging": false
+      },
+      {
+        "id": "systemPrompt-1",
+        "type": "systemPrompt",
+        "position": {
+          "x": 150,
+          "y": 450
+        },
+        "data": {
+          "label": "系统提示词"
+        },
+        "selected": false,
+        "dragging": false
+      },
+      {
+        "id": "userPrompt-1",
+        "type": "userPrompt",
+        "position": {
+          "x": 400,
+          "y": 450
+        },
+        "data": {
+          "label": "用户提示词"
+        },
+        "selected": false,
+        "dragging": false
+      },
+      {
+        "id": "llm-1",
+        "type": "llm",
+        "position": {
+          "x": 650,
+          "y": 450
+        },
+        "data": {
+          "label": "LLM节点"
+        },
+        "selected": false,
+        "dragging": false
+      }
+    ],
+    "edges": [
+      {
+        "id": "character-1-scene-1",
+        "source": "character-1",
+        "target": "scene-1",
+        "sourceHandle": "bottom",
+        "targetHandle": "top",
+        "selected": false
+      },
+      {
+        "id": "environment-1-scene-1",
+        "source": "environment-1",
+        "target": "scene-1",
+        "sourceHandle": "bottom",
+        "targetHandle": "top",
+        "selected": false
+      },
+      {
+        "id": "systemPrompt-1-scene-1",
+        "source": "systemPrompt-1",
+        "target": "scene-1",
+        "sourceHandle": "bottom",
+        "targetHandle": "top",
+        "selected": false
+      },
+      {
+        "id": "userPrompt-1-scene-1",
+        "source": "userPrompt-1",
+        "target": "scene-1",
+        "sourceHandle": "bottom",
+        "targetHandle": "top",
+        "selected": false
+      },
+      {
+        "id": "scene-1-llm-1",
+        "source": "scene-1",
+        "target": "llm-1",
+        "sourceHandle": "bottom",
+        "targetHandle": "top",
+        "selected": false
+      }
+    ],
+    "viewport": {
+      "x": -133.46239825748023,
+      "y": 24.14037601742524,
+      "zoom": 1.2094462914135045
+    }
+  },
+  "settings": {
+    "gridEnabled": true,
+    "snapToGrid": true
+  }
+}

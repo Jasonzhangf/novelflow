@@ -1,8 +1,10 @@
 import React from 'react';
 import { type NodeProps } from 'reactflow';
 import { BaseNode } from './BaseNode';
+import { useFlowContext } from '../FlowContext';
 
-export const SystemPromptNode: React.FC<NodeProps> = ({ data }) => {
+export const SystemPromptNode: React.FC<NodeProps> = ({ data, id }) => {
+  const { deleteNode, duplicateNode } = useFlowContext();
   const promptName = data.promptName || data.label || '系统提示词';
   const content = data.content || data.template || '';
   const role = data.role || '';
@@ -25,6 +27,10 @@ export const SystemPromptNode: React.FC<NodeProps> = ({ data }) => {
       subtitle={promptName}
       icon="⚙️"
       color="gray"
+      id={id}
+      nodeType="systemPrompt"
+      onDelete={deleteNode}
+      onDuplicate={duplicateNode}
     >
       <div className="space-y-3">
         {configItems.map((item) => (

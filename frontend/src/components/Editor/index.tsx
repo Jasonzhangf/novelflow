@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
 import ReactFlow, {
   addEdge,
   useNodesState,
@@ -21,21 +21,10 @@ import { nodeTypes } from './nodeTypes';
 import { ProjectToolbar } from '../ProjectManager/ProjectToolbar';
 import { ProjectList } from '../ProjectManager/ProjectList';
 import { useProject } from '../../hooks/useProject';
+import { getInitialNodes, getInitialEdges } from '../../utils/initialLayout';
 
-const initialNodes: Node[] = [
-  {
-    id: '1',
-    type: 'scene',
-    position: { x: 250, y: 100 },
-    data: { 
-      label: '场景节点',
-      sceneName: '序章',
-      sceneData: {}
-    },
-  },
-];
-
-const initialEdges: Edge[] = [];
+const initialNodes: Node[] = getInitialNodes();
+const initialEdges: Edge[] = getInitialEdges();
 
 const EditorComponent: React.FC = () => {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
@@ -43,12 +32,36 @@ const EditorComponent: React.FC = () => {
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
   const [showProjectList, setShowProjectList] = useState(false);
   const [showNodeToolbar, setShowNodeToolbar] = useState(true);
+  const [defaultProjectId, setDefaultProjectId] = useState<string | null>(null);
   const reactFlowInstance = useReactFlow();
   
   const {
     saveProject,
     loadProject,
   } = useProject();
+
+  // 初始化默认项目和视图
+  useEffect(() => {
+    const initializeDefaultProject = async () => {
+      try {
+        // 设置合适的初始视图
+        reactFlowInstance.setViewport({ x: 0, y: 0, zoom: 0.8 });
+        
+        const viewport = reactFlowInstance.getViewport();
+        const projectId = await saveProject(initialNodes, initialEdges, {
+          name: '未命名项目',
+          description: '默认项目'
+        }, viewport);
+        setDefaultProjectId(projectId);
+      } catch (error) {
+        console.error('Failed to initialize default project:', error);
+      }
+    };
+
+    // 延迟执行，确保ReactFlow实例完全初始化
+    const timer = setTimeout(initializeDefaultProject, 100);
+    return () => clearTimeout(timer);
+  }, [reactFlowInstance, saveProject]);
 
   const onConnect = useCallback(
     (params: Connection) => setEdges((eds) => addEdge(params, eds)),
@@ -81,23 +94,94 @@ const EditorComponent: React.FC = () => {
   }, [setNodes]);
 
   const addNode = useCallback((type: string, position: { x: number; y: number }) => {
+    // 检查是否已有场景节点（场景节点唯一性）
+    if (type === 'scene') {
+      const existingSceneNode = nodes.find(node => node.type === 'scene');
+      if (existingSceneNode) {
+        alert('只能有一个场景节点！');
+        return;
+      }
+    }
+
+    const newNodeId = `${type}-${Date.now()}`;
     const newNode: Node = {
-      id: `${type}-${Date.now()}`,
+      id: newNodeId,
       type,
       position,
       data: {
         label: getNodeLabel(type),
       },
     };
+
+    // 查找场景节点
+    const sceneNode = nodes.find(node => node.type === 'scene');
+    
     setNodes((nds) => [...nds, newNode]);
-  }, [setNodes]);
+
+    // 自动连接逻辑
+    if (sceneNode && type !== 'scene') {
+      const newEdgeId = `${newNodeId}-${sceneNode.id}`;
+      let newEdge;
+
+      if (type === 'llm') {
+        // LLM节点：从场景节点输出连接到LLM输入
+        newEdge = {
+          id: newEdgeId,
+          source: sceneNode.id,
+          target: newNodeId,
+          sourceHandle: 'bottom',
+          targetHandle: 'top',
+        };
+      } else {
+        // 其他节点：从新节点输出连接到场景节点输入
+        newEdge = {
+          id: newEdgeId,
+          source: newNodeId,
+          target: sceneNode.id,
+          sourceHandle: 'bottom',
+          targetHandle: 'top',
+        };
+      }
+
+      setEdges((eds) => [...eds, newEdge]);
+    }
+  }, [setNodes, setEdges, nodes]);
+
+  const deleteNode = useCallback((nodeId: string) => {
+    setNodes((nds) => nds.filter((node) => node.id !== nodeId));
+    setEdges((eds) => eds.filter((edge) => edge.source !== nodeId && edge.target !== nodeId));
+  }, [setNodes, setEdges]);
+
+  const duplicateNode = useCallback((nodeId: string) => {
+    const nodeToDuplicate = nodes.find((node) => node.id === nodeId);
+    if (!nodeToDuplicate) return;
+
+    const newId = `${nodeToDuplicate.type}-${Date.now()}`;
+    const newNode: Node = {
+      ...nodeToDuplicate,
+      id: newId,
+      position: {
+        x: nodeToDuplicate.position.x + 50,
+        y: nodeToDuplicate.position.y + 50,
+      },
+      selected: false,
+    };
+
+    setNodes((nds) => [...nds, newNode]);
+  }, [nodes, setNodes]);
 
   const handleSaveProject = useCallback(async (
     metadata: { name: string; description?: string; id?: string }
   ) => {
     const viewport = reactFlowInstance.getViewport();
-    return await saveProject(nodes, edges, metadata, viewport);
-  }, [nodes, edges, reactFlowInstance, saveProject]);
+    // 如果没有提供id，使用默认项目ID
+    const projectMetadata = {
+      ...metadata,
+      id: metadata.id || defaultProjectId || undefined,
+      name: metadata.name || '未命名项目'
+    };
+    return await saveProject(nodes, edges, projectMetadata, viewport);
+  }, [nodes, edges, reactFlowInstance, saveProject, defaultProjectId]);
 
   const handleLoadProject = useCallback(async (projectId: string) => {
     const project = await loadProject(projectId);
@@ -121,12 +205,13 @@ const EditorComponent: React.FC = () => {
       memory: '记忆节点',
       llm: 'LLM节点',
       styleControl: '文风控制',
+      textOutput: '文本输出',
     };
     return labels[type] || '未知节点';
   };
 
   return (
-    <FlowContext.Provider value={{ updateNodeData, addNode }}>
+    <FlowContext.Provider value={{ updateNodeData, addNode, deleteNode, duplicateNode }}>
       <div className="h-screen flex flex-col">
         <ProjectToolbar 
           onProjectLoad={handleLoadProject}
@@ -147,6 +232,15 @@ const EditorComponent: React.FC = () => {
               onPaneClick={handlePaneClick}
               nodeTypes={nodeTypes}
               fitView
+              fitViewOptions={{
+                padding: 0.2,
+                includeHiddenNodes: false,
+                minZoom: 0.5,
+                maxZoom: 1.5,
+              }}
+              defaultViewport={{ x: 0, y: 0, zoom: 0.8 }}
+              minZoom={0.3}
+              maxZoom={2}
               attributionPosition="bottom-left"
             >
               <Controls />
@@ -177,12 +271,6 @@ const EditorComponent: React.FC = () => {
                     <div className="p-3 space-y-2">
                       <div className="grid grid-cols-2 gap-2">
                         <button
-                          onClick={() => addNode('scene', { x: Math.random() * 500, y: Math.random() * 500 })}
-                          className="px-2 py-1.5 bg-blue-500 text-white rounded text-xs hover:bg-blue-600"
-                        >
-                          场景
-                        </button>
-                        <button
                           onClick={() => addNode('character', { x: Math.random() * 500, y: Math.random() * 500 })}
                           className="px-2 py-1.5 bg-green-500 text-white rounded text-xs hover:bg-green-600"
                         >
@@ -211,6 +299,12 @@ const EditorComponent: React.FC = () => {
                           className="px-2 py-1.5 bg-purple-500 text-white rounded text-xs hover:bg-purple-600"
                         >
                           LLM
+                        </button>
+                        <button
+                          onClick={() => addNode('textOutput', { x: Math.random() * 500, y: Math.random() * 500 })}
+                          className="px-2 py-1.5 bg-indigo-500 text-white rounded text-xs hover:bg-indigo-600"
+                        >
+                          文本输出
                         </button>
                       </div>
                     </div>

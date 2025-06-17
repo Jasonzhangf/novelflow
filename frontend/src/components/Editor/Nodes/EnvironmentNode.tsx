@@ -1,8 +1,10 @@
 import React from 'react';
 import { type NodeProps } from 'reactflow';
 import { BaseNode } from './BaseNode';
+import { useFlowContext } from '../FlowContext';
 
-export const EnvironmentNode: React.FC<NodeProps> = ({ data }) => {
+export const EnvironmentNode: React.FC<NodeProps> = ({ data, id }) => {
+  const { deleteNode, duplicateNode } = useFlowContext();
   const environmentName = data.environmentName || data.label || '未命名环境';
   const location = data.location || data.environmentData?.location || '';
   const timeOfDay = data.timeOfDay || data.environmentData?.timeOfDay || '';
@@ -25,6 +27,10 @@ export const EnvironmentNode: React.FC<NodeProps> = ({ data }) => {
       subtitle={environmentName}
       icon="🌍"
       color="yellow"
+      id={id}
+      nodeType="environment"
+      onDelete={deleteNode}
+      onDuplicate={duplicateNode}
     >
       <div className="space-y-3">
         {configItems.map((item) => (
