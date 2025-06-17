@@ -12,11 +12,15 @@ import ReactFlow, {
   type Node,
   type Edge,
   type Connection,
+  useReactFlow,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import { FlowContext } from './FlowContext';
 import { Sidebar } from './Sidebar';
 import { nodeTypes } from './nodeTypes';
+import { ProjectToolbar } from '../ProjectManager/ProjectToolbar';
+import { ProjectList } from '../ProjectManager/ProjectList';
+import { useProject } from '../../hooks/useProject';
 
 const initialNodes: Node[] = [
   {
@@ -37,6 +41,13 @@ const EditorComponent: React.FC = () => {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
+  const [showProjectList, setShowProjectList] = useState(false);
+  const reactFlowInstance = useReactFlow();
+  
+  const {
+    saveProject,
+    loadProject,
+  } = useProject();
 
   const onConnect = useCallback(
     (params: Connection) => setEdges((eds) => addEdge(params, eds)),
@@ -80,6 +91,24 @@ const EditorComponent: React.FC = () => {
     setNodes((nds) => [...nds, newNode]);
   }, [setNodes]);
 
+  const handleSaveProject = useCallback(async (
+    metadata: { name: string; description?: string; id?: string }
+  ) => {
+    const viewport = reactFlowInstance.getViewport();
+    return await saveProject(nodes, edges, metadata, viewport);
+  }, [nodes, edges, reactFlowInstance, saveProject]);
+
+  const handleLoadProject = useCallback(async (projectId: string) => {
+    const project = await loadProject(projectId);
+    if (project) {
+      setNodes(project.flowData.nodes);
+      setEdges(project.flowData.edges);
+      if (project.flowData.viewport) {
+        reactFlowInstance.setViewport(project.flowData.viewport);
+      }
+    }
+  }, [loadProject, setNodes, setEdges, reactFlowInstance]);
+
   const getNodeLabel = (type: string) => {
     const labels: Record<string, string> = {
       scene: '场景节点',
@@ -97,79 +126,93 @@ const EditorComponent: React.FC = () => {
 
   return (
     <FlowContext.Provider value={{ updateNodeData, addNode }}>
-      <div className="h-screen flex">
-        <div className="flex-1">
-          <ReactFlow
-            nodes={nodes}
-            edges={edges}
-            onNodesChange={onNodesChange}
-            onEdgesChange={onEdgesChange}
-            onConnect={onConnect}
-            onNodeClick={handleNodeClick}
-            onPaneClick={handlePaneClick}
-            nodeTypes={nodeTypes}
-            fitView
-            attributionPosition="bottom-left"
-          >
-            <Controls />
-            <MiniMap 
-              nodeColor="#374151"
-              nodeStrokeWidth={3}
-              zoomable
-              pannable
-            />
-            <Background 
-              variant={BackgroundVariant.Dots} 
-              gap={20} 
-              size={1}
-              color="#e5e7eb"
-            />
-            <Panel position="top-left">
-              <div className="bg-white rounded-lg shadow-lg p-4 space-y-2">
-                <h3 className="font-semibold text-gray-800">节点工具栏</h3>
-                <div className="grid grid-cols-2 gap-2">
-                  <button
-                    onClick={() => addNode('scene', { x: Math.random() * 500, y: Math.random() * 500 })}
-                    className="px-3 py-2 bg-blue-500 text-white rounded text-sm hover:bg-blue-600"
-                  >
-                    场景
-                  </button>
-                  <button
-                    onClick={() => addNode('character', { x: Math.random() * 500, y: Math.random() * 500 })}
-                    className="px-3 py-2 bg-green-500 text-white rounded text-sm hover:bg-green-600"
-                  >
-                    角色
-                  </button>
-                  <button
-                    onClick={() => addNode('environment', { x: Math.random() * 500, y: Math.random() * 500 })}
-                    className="px-3 py-2 bg-yellow-500 text-white rounded text-sm hover:bg-yellow-600"
-                  >
-                    环境
-                  </button>
-                  <button
-                    onClick={() => addNode('systemPrompt', { x: Math.random() * 500, y: Math.random() * 500 })}
-                    className="px-3 py-2 bg-gray-500 text-white rounded text-sm hover:bg-gray-600"
-                  >
-                    系统提示
-                  </button>
-                  <button
-                    onClick={() => addNode('userPrompt', { x: Math.random() * 500, y: Math.random() * 500 })}
-                    className="px-3 py-2 bg-blue-600 text-white rounded text-sm hover:bg-blue-700"
-                  >
-                    用户提示
-                  </button>
-                  <button
-                    onClick={() => addNode('llm', { x: Math.random() * 500, y: Math.random() * 500 })}
-                    className="px-3 py-2 bg-purple-500 text-white rounded text-sm hover:bg-purple-600"
-                  >
-                    LLM
-                  </button>
+      <div className="h-screen flex flex-col">
+        <ProjectToolbar 
+          onProjectLoad={handleLoadProject}
+          onSaveProject={handleSaveProject}
+          nodes={nodes}
+          edges={edges}
+          onShowProjectList={() => setShowProjectList(true)}
+        />
+        <div className="flex-1 flex">
+          <div className="flex-1">
+            <ReactFlow
+              nodes={nodes}
+              edges={edges}
+              onNodesChange={onNodesChange}
+              onEdgesChange={onEdgesChange}
+              onConnect={onConnect}
+              onNodeClick={handleNodeClick}
+              onPaneClick={handlePaneClick}
+              nodeTypes={nodeTypes}
+              fitView
+              attributionPosition="bottom-left"
+            >
+              <Controls />
+              <MiniMap 
+                nodeColor="#374151"
+                nodeStrokeWidth={3}
+                zoomable
+                pannable
+              />
+              <Background 
+                variant={BackgroundVariant.Dots} 
+                gap={20} 
+                size={1}
+                color="#e5e7eb"
+              />
+              <Panel position="top-left">
+                <div className="bg-white rounded-lg shadow-lg p-4 space-y-2 border border-gray-200">
+                  <h3 className="font-semibold text-gray-800">节点工具栏</h3>
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      onClick={() => addNode('scene', { x: Math.random() * 500, y: Math.random() * 500 })}
+                      className="px-3 py-2 bg-blue-500 text-white rounded text-sm hover:bg-blue-600"
+                    >
+                      场景
+                    </button>
+                    <button
+                      onClick={() => addNode('character', { x: Math.random() * 500, y: Math.random() * 500 })}
+                      className="px-3 py-2 bg-green-500 text-white rounded text-sm hover:bg-green-600"
+                    >
+                      角色
+                    </button>
+                    <button
+                      onClick={() => addNode('environment', { x: Math.random() * 500, y: Math.random() * 500 })}
+                      className="px-3 py-2 bg-yellow-500 text-white rounded text-sm hover:bg-yellow-600"
+                    >
+                      环境
+                    </button>
+                    <button
+                      onClick={() => addNode('systemPrompt', { x: Math.random() * 500, y: Math.random() * 500 })}
+                      className="px-3 py-2 bg-gray-500 text-white rounded text-sm hover:bg-gray-600"
+                    >
+                      系统提示
+                    </button>
+                    <button
+                      onClick={() => addNode('userPrompt', { x: Math.random() * 500, y: Math.random() * 500 })}
+                      className="px-3 py-2 bg-blue-600 text-white rounded text-sm hover:bg-blue-700"
+                    >
+                      用户提示
+                    </button>
+                    <button
+                      onClick={() => addNode('llm', { x: Math.random() * 500, y: Math.random() * 500 })}
+                      className="px-3 py-2 bg-purple-500 text-white rounded text-sm hover:bg-purple-600"
+                    >
+                      LLM
+                    </button>
+                  </div>
                 </div>
-              </div>
-            </Panel>
-          </ReactFlow>
+              </Panel>
+            </ReactFlow>
+          </div>
+          <Sidebar selectedNode={selectedNode} />
         </div>
-        <Sidebar selectedNode={selectedNode} />
+        <ProjectList 
+          isOpen={showProjectList}
+          onClose={() => setShowProjectList(false)}
+          onProjectSelect={handleLoadProject}
+        />
       </div>
     </FlowContext.Provider>
   );
