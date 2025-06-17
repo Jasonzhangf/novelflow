@@ -31,6 +31,7 @@ const EditorComponent: React.FC = () => {
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
   const [showProjectList, setShowProjectList] = useState(false);
+  
   const [showNodeToolbar, setShowNodeToolbar] = useState(true);
   const [defaultProjectId, setDefaultProjectId] = useState<string | null>(null);
   const reactFlowInstance = useReactFlow();

@@ -1,5 +1,4 @@
-import React, { useEffect, useState } from 'react';
-import { createPortal } from 'react-dom';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useProject } from '../../hooks/useProject';
 
 interface ProjectFileInfo {
@@ -21,23 +20,24 @@ export const ProjectFileSelector: React.FC<ProjectFileSelectorProps> = ({
   onClose,
   onProjectSelect
 }) => {
+  
   const { getProjectFiles, isLoading, error } = useProject();
   const [projectFiles, setProjectFiles] = useState<ProjectFileInfo[]>([]);
 
-  useEffect(() => {
-    if (isOpen) {
-      loadProjectFiles();
-    }
-  }, [isOpen]);
-
-  const loadProjectFiles = async () => {
+  const loadProjectFiles = useCallback(async () => {
     try {
       const files = await getProjectFiles();
       setProjectFiles(files);
     } catch (error) {
       console.error('Failed to load project files:', error);
     }
-  };
+  }, [getProjectFiles]);
+
+  useEffect(() => {
+    if (isOpen) {
+      loadProjectFiles();
+    }
+  }, [isOpen, loadProjectFiles]);
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleString('zh-CN');
@@ -52,11 +52,10 @@ export const ProjectFileSelector: React.FC<ProjectFileSelectorProps> = ({
   if (!isOpen) return null;
 
   const modalContent = (
-    <div className="fixed inset-0 z-[999999]" onClick={onClose}>
+    <div className="fixed inset-0 z-[999999] bg-black bg-opacity-50" onClick={onClose}>
       <div 
         className="fixed right-4 top-16 w-96 h-[80vh] bg-white rounded-lg shadow-2xl border border-gray-300 flex flex-col"
         onClick={(e) => e.stopPropagation()}
-        style={{ backgroundColor: '#ffffff' }}
       >
         {/* 头部 */}
         <div className="flex items-center justify-between p-4 border-b border-gray-200">
@@ -148,5 +147,6 @@ export const ProjectFileSelector: React.FC<ProjectFileSelectorProps> = ({
     </div>
   );
 
-  return createPortal(modalContent, document.body);
+  // 不使用createPortal，直接返回modal
+  return modalContent;
 };

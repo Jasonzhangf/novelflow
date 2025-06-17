@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { createPortal } from 'react-dom';
 import { useProject } from '../../hooks/useProject';
 import * as ProjectTypes from '../../types/project';
 
@@ -14,6 +13,7 @@ export const ProjectList: React.FC<ProjectListProps> = ({
   onClose,
   onProjectSelect
 }) => {
+  
   const {
     projectList,
     refreshProjectList,
@@ -81,7 +81,7 @@ export const ProjectList: React.FC<ProjectListProps> = ({
   if (!isOpen) return null;
 
   const modalContent = (
-    <div className="fixed inset-0 z-[999999]" onClick={onClose}>
+    <div className="fixed inset-0 z-[999999] bg-black bg-opacity-50" onClick={onClose}>
       <div 
         className="fixed right-4 top-16 w-80 h-[80vh] bg-white rounded-lg shadow-2xl border border-gray-300 flex flex-col"
         onClick={(e) => e.stopPropagation()}
@@ -237,5 +237,6 @@ export const ProjectList: React.FC<ProjectListProps> = ({
     </div>
   );
 
-  return createPortal(modalContent, document.body);
+  // 不使用createPortal，直接返回modal
+  return modalContent;
 };

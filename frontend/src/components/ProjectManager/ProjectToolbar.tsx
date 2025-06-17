@@ -31,42 +31,14 @@ export const ProjectToolbar: React.FC<ProjectToolbarProps> = ({
     clearError
   } = useProject();
 
-  const [showSaveDialog, setShowSaveDialog] = useState(false);
   const [showNewProjectDialog, setShowNewProjectDialog] = useState(false);
   const [showFileSelector, setShowFileSelector] = useState(false);
+  
+
   const [projectName, setProjectName] = useState('');
   const [projectDescription, setProjectDescription] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleSaveProject = async () => {
-    if (!projectName.trim()) {
-      alert('请输入项目名称');
-      return;
-    }
-
-    try {
-      if (onSaveProject) {
-        await onSaveProject({
-          name: projectName,
-          description: projectDescription,
-          id: currentProject?.metadata.id
-        });
-      } else {
-        await saveProject(nodes, edges, {
-          name: projectName,
-          description: projectDescription,
-          id: currentProject?.metadata.id
-        });
-      }
-      
-      setShowSaveDialog(false);
-      setProjectName('');
-      setProjectDescription('');
-      alert('项目保存成功！');
-    } catch (err) {
-      console.error(err);
-    }
-  };
 
   const handleCreateNewProject = async () => {
     if (!projectName.trim()) {
@@ -93,6 +65,18 @@ export const ProjectToolbar: React.FC<ProjectToolbarProps> = ({
   const handleImportProject = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
+      // 验证文件类型
+      if (!file.name.endsWith('.json') && !file.name.endsWith('.novel-flow.json')) {
+        alert('请选择有效的项目文件 (.json 或 .novel-flow.json)');
+        return;
+      }
+
+      // 验证文件大小 (最大10MB)
+      if (file.size > 10 * 1024 * 1024) {
+        alert('文件太大，请选择小于10MB的文件');
+        return;
+      }
+
       try {
         const projectId = await importProject(file);
         
@@ -100,9 +84,16 @@ export const ProjectToolbar: React.FC<ProjectToolbarProps> = ({
           onProjectLoad(projectId);
         }
         
-        alert('项目导入成功！');
-      } catch (err) {
+        alert('项目导入成功！已切换到导入的项目。');
+      } catch (err: any) {
         console.error(err);
+        const errorMessage = err.message || '导入项目失败';
+        alert(`导入失败：${errorMessage}`);
+      }
+      
+      // 清空文件输入，允许重复选择同一文件
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
       }
     }
   };
@@ -161,7 +152,27 @@ export const ProjectToolbar: React.FC<ProjectToolbarProps> = ({
           </button>
           
           <button
-            onClick={() => setShowSaveDialog(true)}
+            onClick={async () => {
+              try {
+                if (onSaveProject) {
+                  await onSaveProject({
+                    name: currentProject?.metadata.name || '未命名项目',
+                    description: currentProject?.metadata.description,
+                    id: currentProject?.metadata.id
+                  });
+                } else {
+                  await saveProject(nodes, edges, {
+                    name: currentProject?.metadata.name || '未命名项目',
+                    description: currentProject?.metadata.description,
+                    id: currentProject?.metadata.id
+                  });
+                }
+                alert('项目保存成功！');
+              } catch (err) {
+                console.error(err);
+                alert('保存项目失败');
+              }
+            }}
             className="px-3 py-1 bg-green-500 text-white rounded text-sm hover:bg-green-600"
             disabled={isLoading}
           >
@@ -207,61 +218,6 @@ export const ProjectToolbar: React.FC<ProjectToolbarProps> = ({
         className="hidden"
       />
 
-      {/* 保存项目对话框 */}
-      {showSaveDialog && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-96">
-            <h3 className="text-lg font-semibold mb-4">保存项目</h3>
-            
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  项目名称
-                </label>
-                <input
-                  type="text"
-                  value={projectName}
-                  onChange={(e) => setProjectName(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="输入项目名称"
-                />
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  项目描述
-                </label>
-                <textarea
-                  value={projectDescription}
-                  onChange={(e) => setProjectDescription(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 h-20 resize-none"
-                  placeholder="输入项目描述（可选）"
-                />
-              </div>
-            </div>
-            
-            <div className="flex space-x-3 mt-6">
-              <button
-                onClick={handleSaveProject}
-                className="flex-1 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-                disabled={isLoading}
-              >
-                {isLoading ? '保存中...' : '保存'}
-              </button>
-              <button
-                onClick={() => {
-                  setShowSaveDialog(false);
-                  setProjectName('');
-                  setProjectDescription('');
-                }}
-                className="flex-1 px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400"
-              >
-                取消
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* 新建项目对话框 */}
       {showNewProjectDialog && (

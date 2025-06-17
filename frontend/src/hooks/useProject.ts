@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { type Node, type Edge } from 'reactflow';
 import { ApiProjectService } from '../services/apiProjectService';
 import * as ProjectTypes from '../types/project';
@@ -22,6 +22,11 @@ export const useProject = () => {
       console.error(err);
     }
   }, [projectService]);
+
+  // 初始化时加载项目列表
+  useEffect(() => {
+    refreshProjectList();
+  }, [refreshProjectList]);
 
   // 保存项目
   const saveProject = useCallback(async (

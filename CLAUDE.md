@@ -18,6 +18,9 @@ NovelFlow is a visual novel generation system built with React, TypeScript, and 
 - Work in `/frontend` directory for React application development
 - The root directory contains documentation (`/Doc`) and templates (`/Templates`)
 
+## Terminal Command Memory
+- 请以后运行终端命令时使用&，让命令可以后台无阻塞执行
+
 ## Architecture Overview
 
 ### Core Components Structure
