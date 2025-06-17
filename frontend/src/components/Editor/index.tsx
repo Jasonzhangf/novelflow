@@ -42,6 +42,7 @@ const EditorComponent: React.FC = () => {
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
   const [showProjectList, setShowProjectList] = useState(false);
+  const [showNodeToolbar, setShowNodeToolbar] = useState(true);
   const reactFlowInstance = useReactFlow();
   
   const {
@@ -162,46 +163,58 @@ const EditorComponent: React.FC = () => {
                 color="#e5e7eb"
               />
               <Panel position="top-left">
-                <div className="bg-white rounded-lg shadow-lg p-4 space-y-2 border border-gray-200">
-                  <h3 className="font-semibold text-gray-800">节点工具栏</h3>
-                  <div className="grid grid-cols-2 gap-2">
+                <div className="bg-white rounded-lg shadow-lg border border-gray-200 max-w-xs">
+                  <div className="flex items-center justify-between p-3 border-b border-gray-200">
+                    <h3 className="font-semibold text-gray-800 text-sm">节点工具栏</h3>
                     <button
-                      onClick={() => addNode('scene', { x: Math.random() * 500, y: Math.random() * 500 })}
-                      className="px-3 py-2 bg-blue-500 text-white rounded text-sm hover:bg-blue-600"
+                      onClick={() => setShowNodeToolbar(!showNodeToolbar)}
+                      className="text-gray-500 hover:text-gray-700 text-lg"
                     >
-                      场景
-                    </button>
-                    <button
-                      onClick={() => addNode('character', { x: Math.random() * 500, y: Math.random() * 500 })}
-                      className="px-3 py-2 bg-green-500 text-white rounded text-sm hover:bg-green-600"
-                    >
-                      角色
-                    </button>
-                    <button
-                      onClick={() => addNode('environment', { x: Math.random() * 500, y: Math.random() * 500 })}
-                      className="px-3 py-2 bg-yellow-500 text-white rounded text-sm hover:bg-yellow-600"
-                    >
-                      环境
-                    </button>
-                    <button
-                      onClick={() => addNode('systemPrompt', { x: Math.random() * 500, y: Math.random() * 500 })}
-                      className="px-3 py-2 bg-gray-500 text-white rounded text-sm hover:bg-gray-600"
-                    >
-                      系统提示
-                    </button>
-                    <button
-                      onClick={() => addNode('userPrompt', { x: Math.random() * 500, y: Math.random() * 500 })}
-                      className="px-3 py-2 bg-blue-600 text-white rounded text-sm hover:bg-blue-700"
-                    >
-                      用户提示
-                    </button>
-                    <button
-                      onClick={() => addNode('llm', { x: Math.random() * 500, y: Math.random() * 500 })}
-                      className="px-3 py-2 bg-purple-500 text-white rounded text-sm hover:bg-purple-600"
-                    >
-                      LLM
+                      {showNodeToolbar ? '−' : '+'}
                     </button>
                   </div>
+                  {showNodeToolbar && (
+                    <div className="p-3 space-y-2">
+                      <div className="grid grid-cols-2 gap-2">
+                        <button
+                          onClick={() => addNode('scene', { x: Math.random() * 500, y: Math.random() * 500 })}
+                          className="px-2 py-1.5 bg-blue-500 text-white rounded text-xs hover:bg-blue-600"
+                        >
+                          场景
+                        </button>
+                        <button
+                          onClick={() => addNode('character', { x: Math.random() * 500, y: Math.random() * 500 })}
+                          className="px-2 py-1.5 bg-green-500 text-white rounded text-xs hover:bg-green-600"
+                        >
+                          角色
+                        </button>
+                        <button
+                          onClick={() => addNode('environment', { x: Math.random() * 500, y: Math.random() * 500 })}
+                          className="px-2 py-1.5 bg-yellow-500 text-white rounded text-xs hover:bg-yellow-600"
+                        >
+                          环境
+                        </button>
+                        <button
+                          onClick={() => addNode('systemPrompt', { x: Math.random() * 500, y: Math.random() * 500 })}
+                          className="px-2 py-1.5 bg-gray-500 text-white rounded text-xs hover:bg-gray-600"
+                        >
+                          系统提示
+                        </button>
+                        <button
+                          onClick={() => addNode('userPrompt', { x: Math.random() * 500, y: Math.random() * 500 })}
+                          className="px-2 py-1.5 bg-purple-600 text-white rounded text-xs hover:bg-purple-700"
+                        >
+                          用户提示
+                        </button>
+                        <button
+                          onClick={() => addNode('llm', { x: Math.random() * 500, y: Math.random() * 500 })}
+                          className="px-2 py-1.5 bg-purple-500 text-white rounded text-xs hover:bg-purple-600"
+                        >
+                          LLM
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </Panel>
             </ReactFlow>

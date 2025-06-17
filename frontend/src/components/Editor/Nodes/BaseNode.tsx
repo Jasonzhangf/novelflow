@@ -73,23 +73,40 @@ export const BaseNode: React.FC<BaseNodeProps> = ({
         />
       )}
       
-      <div className={`min-w-64 bg-white rounded-lg shadow-lg border ${currentColors.border} hover:shadow-xl transition-shadow`}>
-        <div className={`${currentColors.headerBg} px-4 py-3 rounded-t-lg`}>
+      <div 
+        className={`min-w-64 rounded-lg shadow-lg border-2 ${currentColors.border} hover:shadow-xl transition-shadow`}
+        style={{ backgroundColor: 'white', minWidth: '256px' }}
+      >
+        <div 
+          className={`${currentColors.headerBg} px-4 py-3 rounded-t-lg`}
+          style={{ backgroundColor: currentColors.headerBg.includes('blue') ? '#3b82f6' : 
+                  currentColors.headerBg.includes('green') ? '#10b981' :
+                  currentColors.headerBg.includes('yellow') ? '#f59e0b' :
+                  currentColors.headerBg.includes('purple') ? '#8b5cf6' :
+                  currentColors.headerBg.includes('red') ? '#ef4444' : '#6b7280' }}
+        >
           <div className="flex items-center space-x-3">
-            <div className={`w-8 h-8 ${currentColors.iconBg} rounded-md flex items-center justify-center text-white text-sm font-bold`}>
+            <div 
+              className={`w-8 h-8 rounded-md flex items-center justify-center text-white text-sm font-bold`}
+              style={{ backgroundColor: currentColors.iconBg.includes('blue') ? '#2563eb' : 
+                      currentColors.iconBg.includes('green') ? '#059669' :
+                      currentColors.iconBg.includes('yellow') ? '#d97706' :
+                      currentColors.iconBg.includes('purple') ? '#7c3aed' :
+                      currentColors.iconBg.includes('red') ? '#dc2626' : '#4b5563' }}
+            >
               {icon}
             </div>
             <div>
-              <h3 className={`font-semibold ${currentColors.headerText} text-sm`}>{title}</h3>
+              <h3 className={`font-semibold text-white text-sm`}>{title}</h3>
               {subtitle && (
-                <p className={`text-xs ${currentColors.headerText} opacity-90`}>{subtitle}</p>
+                <p className={`text-xs text-white opacity-90`}>{subtitle}</p>
               )}
             </div>
           </div>
         </div>
         
         {children && (
-          <div className="px-4 py-4 bg-white rounded-b-lg">
+          <div className="px-4 py-4 rounded-b-lg" style={{ backgroundColor: 'white' }}>
             {children}
           </div>
         )}

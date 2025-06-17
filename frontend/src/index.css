@@ -15,3 +15,58 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+/* ReactFlow node overrides to ensure our styles take precedence */
+.react-flow__node {
+  background: transparent !important;
+}
+
+.react-flow__node-scene,
+.react-flow__node-character,
+.react-flow__node-environment,
+.react-flow__node-llm,
+.react-flow__node-systemPrompt,
+.react-flow__node-userPrompt {
+  background: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+}
+
+/* Ensure ReactFlow panel has proper background */
+.react-flow__panel {
+  z-index: 10;
+}
+
+.react-flow__panel > div {
+  background: white !important;
+  backdrop-filter: blur(10px);
+}
+
+/* Force background for all sidebar components */
+.w-96.bg-gray-50,
+.w-96.bg-white {
+  background: white !important;
+}
+
+/* Ensure proper background for default sidebar */
+.react-flow__edge-path,
+.react-flow__edge {
+  z-index: 1;
+}
+
+/* Ensure project modal appears above everything */
+.project-modal-backdrop {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  background-color: rgba(0, 0, 0, 0.75) !important;
+  z-index: 999999 !important;
+}
+
+.project-modal-content {
+  background-color: #ffffff !important;
+  position: relative !important;
+  z-index: 999999 !important;
+}

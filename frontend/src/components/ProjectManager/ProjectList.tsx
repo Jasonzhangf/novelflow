@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useProject } from '../../hooks/useProject';
 import * as ProjectTypes from '../../types/project';
 
@@ -79,9 +80,9 @@ export const ProjectList: React.FC<ProjectListProps> = ({
 
   if (!isOpen) return null;
 
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg w-4/5 h-4/5 max-w-6xl max-h-screen flex flex-col">
+  const modalContent = (
+    <div className="project-modal-backdrop fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center" style={{ zIndex: 999999 }}>
+      <div className="project-modal-content bg-white rounded-lg w-4/5 h-4/5 max-w-6xl max-h-screen flex flex-col shadow-2xl border-2 border-gray-300" style={{ backgroundColor: '#ffffff' }}>
         {/* 头部 */}
         <div className="flex items-center justify-between p-6 border-b border-gray-200">
           <h2 className="text-xl font-semibold text-gray-800">项目管理</h2>
@@ -204,8 +205,8 @@ export const ProjectList: React.FC<ProjectListProps> = ({
 
         {/* 删除确认对话框 */}
         {showDeleteDialog && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-60">
-            <div className="bg-white rounded-lg p-6 w-96">
+          <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center" style={{ zIndex: 1000000 }}>
+            <div className="bg-white rounded-lg p-6 w-96 shadow-2xl border-2 border-gray-300" style={{ backgroundColor: '#ffffff' }}>
               <h3 className="text-lg font-semibold mb-4">确认删除</h3>
               <p className="text-gray-600 mb-6">
                 确定要删除这个项目吗？此操作无法撤销。
@@ -234,4 +235,6 @@ export const ProjectList: React.FC<ProjectListProps> = ({
       </div>
     </div>
   );
+
+  return createPortal(modalContent, document.body);
 };
