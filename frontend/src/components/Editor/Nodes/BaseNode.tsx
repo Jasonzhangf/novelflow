@@ -1,3 +1,5 @@
+// 这是一个基础节点组件，用于定义所有节点的通用样式和行为。
+// This is a base node component that defines the common style and behavior for all nodes.
 import React from 'react';
 import { Handle, Position } from 'reactflow';
 
