@@ -123,6 +123,26 @@ export class ApiProjectService {
     }
   }
 
+  // 批量删除项目
+  public async deleteMultipleProjects(projectIds: string[]): Promise<void> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/projects`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ projectIds }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+    } catch (error) {
+      console.error('Failed to delete multiple projects:', error);
+      throw new Error('批量删除项目失败');
+    }
+  }
+
   // 导出项目到后端文件系统
   public async exportProject(projectId: string): Promise<void> {
     try {

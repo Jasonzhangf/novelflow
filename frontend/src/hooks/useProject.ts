@@ -12,7 +12,6 @@ export const useProject = () => {
 
   const projectService = ApiProjectService.getInstance();
 
-  // 刷新项目列表
   const refreshProjectList = useCallback(async () => {
     try {
       const projects = await projectService.getProjectList();
@@ -23,12 +22,10 @@ export const useProject = () => {
     }
   }, [projectService]);
 
-  // 初始化时加载项目列表
   useEffect(() => {
     refreshProjectList();
   }, [refreshProjectList]);
 
-  // 保存项目
   const saveProject = useCallback(async (
     nodes: Node[],
     edges: Edge[],
@@ -37,17 +34,11 @@ export const useProject = () => {
   ) => {
     setIsLoading(true);
     setError(null);
-
     try {
       const projectId = await projectService.saveProject(nodes, edges, metadata, viewport);
-
-      // 更新当前项目
       const savedProject = await projectService.loadProject(projectId);
       setCurrentProject(savedProject);
-
-      // 刷新项目列表
       await refreshProjectList();
-
       return projectId;
     } catch (err: any) {
       setError(err.message || '保存项目失败');
@@ -57,11 +48,9 @@ export const useProject = () => {
     }
   }, [projectService, refreshProjectList]);
 
-  // 加载项目
   const loadProject = useCallback(async (projectId: string) => {
     setIsLoading(true);
     setError(null);
-
     try {
       const project = await projectService.loadProject(projectId);
       if (project) {
@@ -78,25 +67,20 @@ export const useProject = () => {
     }
   }, [projectService]);
 
-  // 创建新项目
   const createNewProject = useCallback(async (
     name: string,
     description?: string
   ) => {
     setIsLoading(true);
     setError(null);
-
     try {
-      // 使用完整的初始节点布局
       const initialNodes: Node[] = getInitialNodes();
       const initialEdges: Edge[] = getInitialEdges();
-
       const projectId = await saveProject(
         initialNodes,
         initialEdges,
         { name, description }
       );
-
       return projectId;
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : '创建项目失败';
@@ -107,15 +91,12 @@ export const useProject = () => {
     }
   }, [saveProject]);
 
-  // 删除项目
   const deleteProject = useCallback(async (projectId: string) => {
     setIsLoading(true);
     setError(null);
-
     try {
       const success = await projectService.deleteProject(projectId);
       if (success) {
-        // 如果删除的是当前项目，清除当前项目
         if (currentProject?.metadata.id === projectId) {
           setCurrentProject(null);
         }
@@ -131,12 +112,31 @@ export const useProject = () => {
       setIsLoading(false);
     }
   }, [projectService, currentProject, refreshProjectList]);
+  
+  const deleteMultipleProjects = useCallback(async (projectIds: string[]) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      // 等待所有删除操作完成
+      await Promise.all(projectIds.map(id => projectService.deleteProject(id)));
+      
+      // 检查当前项目是否在被删除的列表中
+      if (currentProject && projectIds.includes(currentProject.metadata.id)) {
+        setCurrentProject(null);
+      }
+      
+      await refreshProjectList();
+    } catch (err: any) {
+      setError(err.message || '批量删除项目失败');
+      console.error(err);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [projectService, currentProject, refreshProjectList]);
 
-  // 导出项目
   const exportProject = useCallback(async (projectId: string) => {
     setIsLoading(true);
     setError(null);
-
     try {
       await projectService.exportProject(projectId);
     } catch (err) {
@@ -148,11 +148,9 @@ export const useProject = () => {
     }
   }, [projectService]);
 
-  // 导入项目
   const importProject = useCallback(async (file: File) => {
     setIsLoading(true);
     setError(null);
-
     try {
       const projectId = await projectService.importProject(file);
       refreshProjectList();
@@ -165,11 +163,9 @@ export const useProject = () => {
     }
   }, [projectService, refreshProjectList]);
 
-  // 复制项目
   const duplicateProject = useCallback(async (projectId: string) => {
     setIsLoading(true);
     setError(null);
-
     try {
       const newProjectId = await projectService.duplicateProject(projectId);
       if (newProjectId) {
@@ -186,11 +182,9 @@ export const useProject = () => {
     }
   }, [projectService, refreshProjectList]);
 
-  // 获取项目文件列表
   const getProjectFiles = useCallback(async () => {
     setIsLoading(true);
     setError(null);
-
     try {
       const files = await projectService.getProjectFiles();
       return files;
@@ -203,24 +197,20 @@ export const useProject = () => {
   }, [projectService]);
 
   return {
-    // 状态
     projectList,
     currentProject,
     isLoading,
     error,
-
-    // 方法
     refreshProjectList,
     saveProject,
     loadProject,
     createNewProject,
     deleteProject,
+    deleteMultipleProjects, // 导出新函数
     exportProject,
     importProject,
     duplicateProject,
     getProjectFiles,
-
-    // 清除错误
     clearError: () => setError(null),
   };
 };

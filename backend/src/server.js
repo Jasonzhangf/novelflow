@@ -229,6 +229,36 @@ app.delete('/api/projects/:id', async (req, res) => {
   }
 });
 
+// 批量删除项目
+app.delete('/api/projects', async (req, res) => {
+  try {
+    const { projectIds } = req.body;
+    if (!Array.isArray(projectIds) || projectIds.length === 0) {
+      return res.status(400).json({ error: 'Invalid or empty projectIds array' });
+    }
+
+    const deletionPromises = projectIds.map(id => {
+      const filePath = path.join(PROJECTS_DIR, `${id}.json`);
+      return fs.unlink(filePath).catch(err => {
+        // 如果文件不存在，我们也认为删除成功，以免阻塞整个过程
+        if (err.code === 'ENOENT') {
+          console.warn(`Project file not found for deletion (ignoring): ${id}.json`);
+          return;
+        }
+        // 对于其他错误，向上抛出
+        throw err;
+      });
+    });
+
+    await Promise.all(deletionPromises);
+
+    res.json({ success: true, message: 'Projects deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting multiple projects:', error);
+    res.status(500).json({ error: 'Failed to delete one or more projects' });
+  }
+});
+
 // 复制项目
 app.post('/api/projects/:id/duplicate', async (req, res) => {
   try {

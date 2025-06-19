@@ -51,11 +51,14 @@ export const ProjectList: React.FC<ProjectListProps> = ({
   };
 
   const confirmDelete = async () => {
-    if (projectToDelete) {
+    if (projectToDelete) { // 删除单个项目
       await deleteProject(projectToDelete);
-      setProjectToDelete(null);
-      setShowDeleteDialog(false);
+    } else if (selectedProjects.size > 0) { // 批量删除
+      await deleteMultipleProjects(Array.from(selectedProjects));
+      setSelectedProjects(new Set()); // 清空选择
     }
+    setProjectToDelete(null);
+    setShowDeleteDialog(false);
   };
 
   const handleDuplicateProject = async (projectId: string) => {
@@ -79,6 +82,17 @@ export const ProjectList: React.FC<ProjectListProps> = ({
     return new Date(dateString).toLocaleString('zh-CN');
   };
 
+  const handleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.checked) {
+      const allProjectIds = new Set(projectList.map(p => p.id));
+      setSelectedProjects(allProjectIds);
+    } else {
+      setSelectedProjects(new Set());
+    }
+  };
+
+  const areAllSelected = projectList.length > 0 && selectedProjects.size === projectList.length;
+
   if (!isOpen) return null;
 
   return (
@@ -95,16 +109,32 @@ export const ProjectList: React.FC<ProjectListProps> = ({
         {/* 工具栏 */}
         <div className={styles.toolbar}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span>共 {projectList.length} 个项目</span>
-            <button onClick={refreshProjectList} disabled={isLoading}>
-              {isLoading ? '刷新中...' : '刷新'}
-            </button>
-          </div>
-          {selectedProjects.size > 0 && (
-            <div style={{ marginTop: '0.5rem' }}>
-              <span>已选择 {selectedProjects.size} 个</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+              <input
+                type="checkbox"
+                checked={areAllSelected}
+                onChange={handleSelectAll}
+                title={areAllSelected ? "全不选" : "全选"}
+              />
+              <span>共 {projectList.length} 个项目</span>
+              {selectedProjects.size > 0 && (
+                <span>(已选 {selectedProjects.size})</span>
+              )}
             </div>
-          )}
+            <div>
+              {selectedProjects.size > 0 && (
+                <button 
+                  onClick={() => setShowDeleteDialog(true)} 
+                  style={{ background: '#b91c1c', color: 'white', marginRight: '1rem' }}
+                >
+                  删除选中
+                </button>
+              )}
+              <button onClick={refreshProjectList} disabled={isLoading}>
+                {isLoading ? '刷新中...' : '刷新'}
+              </button>
+            </div>
+          </div>
         </div>
 
         {/* 项目列表 */}
