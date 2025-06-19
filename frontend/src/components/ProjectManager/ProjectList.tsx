@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useProject } from '../../hooks/useProject';
 import * as ProjectTypes from '../../types/project';
+import styles from './ProjectList.module.css';
 
 interface ProjectListProps {
   isOpen: boolean;
@@ -80,124 +81,75 @@ export const ProjectList: React.FC<ProjectListProps> = ({
 
   if (!isOpen) return null;
 
-  const modalContent = (
-    <div className="fixed inset-0 z-[999999] bg-black bg-opacity-70 flex items-center justify-center" onClick={onClose}>
-      <div 
-        className="w-[600px] h-[80vh] bg-dark-surface rounded-lg shadow-2xl border border-dark-border flex flex-col"
-        onClick={(e) => e.stopPropagation()}
-      >
+  return (
+    <div className={styles.backdrop} onClick={onClose}>
+      <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
         {/* 头部 */}
-        <div className="flex items-center justify-between p-4 border-b border-dark-border">
-          <h2 className="text-lg font-semibold text-dark-text-primary">项目管理</h2>
-          <button
-            onClick={onClose}
-            className="text-dark-text-secondary hover:text-dark-text-primary text-xl"
-          >
+        <div className={styles.header}>
+          <h2 className={styles.title}>项目管理</h2>
+          <button onClick={onClose} className={styles.closeButton}>
             ✕
           </button>
         </div>
 
         {/* 工具栏 */}
-        <div className="px-4 py-2 border-b border-dark-border bg-dark-bg">
-          <div className="flex items-center justify-between">
-            <span className="text-xs text-dark-text-secondary">
-              共 {projectList.length} 个项目
-            </span>
-            <button
-              onClick={refreshProjectList}
-              className="px-2 py-1 bg-dark-input text-dark-text-primary rounded text-xs hover:bg-dark-hover border border-dark-border"
-              disabled={isLoading}
-            >
+        <div className={styles.toolbar}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span>共 {projectList.length} 个项目</span>
+            <button onClick={refreshProjectList} disabled={isLoading}>
               {isLoading ? '刷新中...' : '刷新'}
             </button>
           </div>
           {selectedProjects.size > 0 && (
-            <div className="mt-1">
-              <span className="text-xs text-dark-accent">
-                已选择 {selectedProjects.size} 个
-              </span>
+            <div style={{ marginTop: '0.5rem' }}>
+              <span>已选择 {selectedProjects.size} 个</span>
             </div>
           )}
         </div>
 
         {/* 项目列表 */}
-        <div className="flex-1 overflow-auto p-3">
+        <div className={styles.content}>
           {error && (
-            <div className="mb-2 p-2 bg-red-800 border border-red-600 rounded text-white text-xs">
-              {error}
-            </div>
+            <div className="error-message">{error}</div>
           )}
 
           {isLoading ? (
-            <div className="flex items-center justify-center h-full">
-              <div className="text-dark-text-secondary text-sm">加载中...</div>
-            </div>
+            <div>加载中...</div>
           ) : projectList.length === 0 ? (
-            <div className="flex items-center justify-center h-full">
-              <div className="text-dark-text-secondary text-sm">暂无项目</div>
-            </div>
+            <div>暂无项目</div>
           ) : (
-            <div className="space-y-3">
+            <div>
               {projectList.map((project: ProjectTypes.ProjectSummary) => (
                 <div
                   key={project.id}
-                  className={`border rounded-lg p-3 transition-shadow cursor-pointer 
-                    ${selectedProjects.has(project.id) 
-                      ? 'border-dark-accent bg-dark-input' 
-                      : 'border-dark-border bg-dark-surface hover:bg-dark-input'}`
-                  }
+                  className={`${styles.projectItem} ${selectedProjects.has(project.id) ? styles.selected : ''}`}
                   onClick={() => handleSelectProject(project.id)}
                 >
-                  <div className="flex items-start justify-between mb-2">
-                    <h3 className="font-semibold text-dark-text-primary truncate flex-1 text-sm">
-                      {project.name}
-                    </h3>
+                  <div className={styles.projectHeader}>
+                    <h3 className={styles.projectName}>{project.name}</h3>
                     <input
                       type="checkbox"
                       checked={selectedProjects.has(project.id)}
                       onChange={() => handleSelectProject(project.id)}
-                      className="ml-2 w-4 h-4 rounded bg-dark-input border-dark-border text-dark-accent focus:ring-dark-accent"
                       onClick={(e) => e.stopPropagation()}
                     />
                   </div>
 
                   {project.description && (
-                    <p className="text-xs text-dark-text-secondary mb-2 line-clamp-2">
-                      {project.description}
-                    </p>
+                    <p className={styles.projectMeta}>{project.description}</p>
                   )}
 
-                  <div className="text-xs text-dark-text-secondary space-y-1 mb-2">
+                  <div className={styles.projectMeta}>
                     <div>节点: {project.nodeCount} | 连接: {project.edgeCount}</div>
                     <div>创建: {formatDate(project.createdAt)}</div>
                     <div>更新: {formatDate(project.updatedAt)}</div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-2 pt-2 border-t border-dark-border" onClick={(e) => e.stopPropagation()}>
-                    <button
-                      onClick={() => onProjectSelect(project.id)}
-                      className="w-full px-2 py-1 bg-dark-accent text-dark-text-primary rounded text-xs hover:opacity-90"
-                    >
-                      打开
-                    </button>
-                    <button
-                      onClick={() => handleDuplicateProject(project.id)}
-                      className="w-full px-2 py-1 bg-dark-input text-dark-text-primary rounded text-xs hover:bg-dark-hover"
-                    >
-                      复制
-                    </button>
-                    <button
-                      onClick={() => handleExportProject(project.id)}
-                      className="w-full px-2 py-1 bg-dark-input text-dark-text-primary rounded text-xs hover:bg-dark-hover"
-                    >
-                      导出
-                    </button>
-                    <button
-                      onClick={() => handleDeleteProject(project.id)}
-                      className="w-full px-2 py-1 bg-red-800 text-white rounded text-xs hover:bg-red-700"
-                    >
-                      删除
-                    </button>
+                  <div className={styles.projectActions} onClick={(e) => e.stopPropagation()}>
+                    <button onClick={() => onProjectSelect(project.id)}>打开</button>
+                    <button onClick={() => handleDuplicateProject(project.id)}>复制</button>
+                    <button onClick={() => handleExportProject(project.id)}>导出</button>
+                    <button onClick={() => handleDeleteProject(project.id)}>删除</button>
                   </div>
                 </div>
               ))}
@@ -207,23 +159,17 @@ export const ProjectList: React.FC<ProjectListProps> = ({
 
         {/* 删除确认对话框 */}
         {showDeleteDialog && (
-          <div className="fixed inset-0 z-[999999] bg-black bg-opacity-70 flex items-center justify-center">
-            <div className="bg-dark-surface p-6 rounded-lg shadow-2xl border border-dark-border w-96">
-              <h3 className="text-lg font-semibold text-dark-text-primary mb-2">确认删除</h3>
-              <p className="text-dark-text-secondary mb-4">确定要删除这个项目吗？此操作无法撤销。</p>
-              <div className="flex justify-end space-x-2">
-                <button
-                  onClick={() => setShowDeleteDialog(false)}
-                  className="px-4 py-2 bg-dark-input text-dark-text-primary rounded hover:bg-dark-hover border border-dark-border"
-                >
-                  取消
-                </button>
-                <button
-                  onClick={confirmDelete}
-                  className="px-4 py-2 bg-red-800 text-white rounded hover:bg-red-700"
-                >
-                  删除
-                </button>
+          <div className={styles.backdrop}>
+            <div className={styles.modal} style={{ height: 'auto', width: '400px' }}>
+              <div className={styles.header}>
+                <h3 className={styles.title}>确认删除</h3>
+              </div>
+              <div className={styles.content} style={{ padding: '1.5rem' }}>
+                <p>确定要删除这个项目吗？此操作无法撤销。</p>
+                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '1rem', marginTop: '1.5rem' }}>
+                  <button onClick={() => setShowDeleteDialog(false)}>取消</button>
+                  <button onClick={confirmDelete} style={{ background: '#b91c1c', color: 'white' }}>删除</button>
+                </div>
               </div>
             </div>
           </div>
@@ -231,6 +177,4 @@ export const ProjectList: React.FC<ProjectListProps> = ({
       </div>
     </div>
   );
-
-  return modalContent;
 };
