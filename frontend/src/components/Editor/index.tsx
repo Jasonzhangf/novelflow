@@ -213,6 +213,11 @@ const EditorComponent: React.FC = () => {
     return labels[type] || '未知节点';
   };
 
+  const handleProjectSelect = (projectId: string) => {
+    handleLoadProject(projectId);
+    setShowProjectList(false);
+  };
+
   return (
     <FlowContext.Provider value={{ updateNodeData, addNode, deleteNode, duplicateNode }}>
       <div className="editor-layout">
@@ -248,25 +253,34 @@ const EditorComponent: React.FC = () => {
             >
               <Controls />
               <MiniMap 
-                nodeColor="#374151"
-                nodeStrokeWidth={3}
-                pannable
+                nodeColor={(n) => n.data?.color || '#ff0072'}
+                style={{ backgroundColor: '#2D3748' }}
               />
               <Background variant={BackgroundVariant.Dots} gap={12} size={1} />
-              <Panel position="top-left">
-                {showNodeToolbar && <NodeToolbar onAddNode={addNode} />}
-              </Panel>
+              
+              {showNodeToolbar && (
+                <Panel position="top-left">
+                  <NodeToolbar onAddNode={addNode} />
+                </Panel>
+              )}
             </ReactFlow>
           </div>
-          <NodeEditor selectedNode={selectedNode} />
+          {selectedNode && (
+            <NodeEditor
+              key={selectedNode.id}
+              node={selectedNode}
+              onClose={() => setSelectedNode(null)}
+              onDelete={deleteNode}
+              onDuplicate={duplicateNode}
+            />
+          )}
         </div>
-        {showProjectList && 
-          <ProjectList 
-            isOpen={showProjectList}
-            onClose={() => setShowProjectList(false)} 
-            onProjectSelect={handleLoadProject}
-          />
-        }
+        
+        <ProjectList
+          isOpen={showProjectList}
+          onClose={() => setShowProjectList(false)}
+          onProjectSelect={handleProjectSelect}
+        />
       </div>
     </FlowContext.Provider>
   );

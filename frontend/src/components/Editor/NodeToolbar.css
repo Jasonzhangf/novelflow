@@ -1,6 +1,6 @@
 .node-toolbar {
-  background-color: var(--color-surface);
-  border: 1px solid var(--color-border);
+  background-color: var(--bg-panel);
+  border: 1px solid var(--border-dark);
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   width: 200px;
@@ -11,12 +11,12 @@
 
 .node-toolbar-header {
   padding: 12px;
-  border-bottom: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--border-dark);
 }
 
 .node-toolbar-title {
   font-weight: 600;
-  color: var(--color-text-primary);
+  color: var(--text-light);
   margin: 0;
 }
 
@@ -29,14 +29,15 @@
 
 .node-toolbar-button {
   padding: 8px;
-  background-color: var(--color-input-bg);
-  color: var(--color-text-primary);
+  background-color: var(--bg-dark);
+  color: var(--text-light);
   border-radius: 4px;
-  border: 1px solid var(--color-border);
+  border: 1px solid var(--border-dark);
   cursor: pointer;
   transition: background-color 0.2s ease;
 }
 
 .node-toolbar-button:hover {
-  background-color: var(--color-hover);
+  background-color: var(--bg-hover);
+  border-color: var(--border-light);
 } 
