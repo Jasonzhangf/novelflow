@@ -112,6 +112,55 @@ Refer to `/Doc/novel-generator-architecture.md` for detailed character data stru
 - Project types centralized in `/frontend/src/types/`
 - ReactFlow types imported from 'reactflow' package
 
+## CSS 技术实现 (CSS Implementation)
+
+项目采用全局 CSS 与 CSS Modules 相结合的混合策略，以实现样式的高效管理和隔离。
+
+- **全局样式 (Global Styles)**: 
+  - 核心文件: `global-dark.css`, `index.css`, `App.css`。
+  - 用途: 定义全局的设计系统，包括颜色变量（CSS Custom Properties）、基础字体、布局以及对第三方库（如 React Flow）的样式重置。
+  - 提供了可复用的工具类，如 `.nf-card`, `.nf-btn`, `.nf-input`，用于构建一致的 UI 界面。
+
+- **CSS Modules**:
+  - 应用范围: 在组件层面（如 `/frontend/src/components/ProjectManager/`）广泛使用 `.module.css` 文件。
+  - 优势: 所有类名和动画名默认都是局部作用域的，有效避免了全局命名冲突，使得组件样式更加内聚和可维护。
+
+## 配色方案 (Color Scheme)
+
+项目整体采用了一个层次清晰、视觉舒适的暗色主题。所有颜色均通过 CSS 变量在 `:root` 中定义，便于统一管理和潜在的主题扩展。
+
+- **核心颜色**:
+  - **背景色 (Backgrounds)**: 采用分层设计，从深到浅依次为：
+    - `--color-background-base` (`#1a1b1e`): 应用的最底层背景。
+    - `--color-background-surface` (`#242528`): 用于卡片、节点和面板等表面元素。
+    - `--color-background-element` (`#2c2d30`): 用于按钮等可交互元素。
+  - **文本色 (Text Colors)**:
+    - `--color-text-primary` (`#f0f0f0`): 用于主要标题和正文。
+    - `--color-text-secondary` (`#a0a0a0`): 用于次要信息和描述性文本。
+  - **边框色 (Borders)**:
+    - `--color-border-default` (`#3a3b3d`): 用于区分不同UI元素的标准边框。
+    - `--color-border-subtle` (`#4a4b4d`): 用于悬浮或聚焦状态下的高亮边框。
+
+## 项目管理逻辑 (Project Management Logic)
+
+项目管理的核心逻辑由 `useProject.ts` 钩子集中处理，遵循单向数据流和用户驱动的原则，确保了行为的可预测性。
+
+- **初始化流程**:
+  - 应用启动时，会向后端请求项目列表。
+  - **如果后端存在已保存的项目**: 自动加载**最后更新**的一个项目到画布中。
+  - **如果后端没有项目**: 在前端内存中创建一个临时的"未命名项目"，画布为空，等待用户操作。
+  - 此初始化流程仅在应用首次加载时执行一次，刷新页面会正确恢复当前状态。
+
+- **保存机制**:
+  - **用户驱动**: 项目的保存操作**完全由用户手动触发**（点击"保存项目"按钮），系统不存在任何自动保存逻辑。
+  - **智能保存**: 保存函数能够智能判断当前项目是新项目还是已存在的项目。
+    - 对于新项目（在内存中，没有ID），会向后端发起 `POST` 请求创建新文件。
+    - 对于已存在的项目，会发起 `PUT` 请求更新对应文件。
+
+- **核心操作**:
+  - **新建项目**: 点击"新建项目"按钮只会在前端内存中创建一个新的、未保存的临时项目，清空当前画布，**此操作不会与后端发生任何交互**。
+  - **重命名**: 用户可以为**已保存**的项目重命名。此操作会更新后端项目中存储的元数据（`metadata.name`）。
+
 ## Documentation References
 
 - `/Doc/Node_Design_Documentation.md` - Detailed node architecture and data structures
