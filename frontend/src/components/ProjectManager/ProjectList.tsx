@@ -19,6 +19,7 @@ export const ProjectList: React.FC<ProjectListProps> = ({
     projectList,
     refreshProjectList,
     deleteProject,
+    deleteMultipleProjects, // 导入批量删除函数
     exportProject,
     duplicateProject,
     isLoading,
@@ -27,6 +28,7 @@ export const ProjectList: React.FC<ProjectListProps> = ({
 
   const [selectedProjects, setSelectedProjects] = useState<Set<string>>(new Set());
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  // 现在 projectToDelete 可以是单个项目 ID 或一个 ID 数组
   const [projectToDelete, setProjectToDelete] = useState<string | null>(null);
 
   useEffect(() => {
@@ -45,26 +47,37 @@ export const ProjectList: React.FC<ProjectListProps> = ({
     setSelectedProjects(newSelected);
   };
 
-  const handleDeleteProject = async (projectId: string) => {
+  // 处理单个项目删除
+  const handleDeleteProject = (projectId: string) => {
     setProjectToDelete(projectId);
+    setShowDeleteDialog(true);
+  };
+  
+  // 处理批量删除
+  const handleDeleteSelectedProjects = () => {
+    // 将 projectToDelete 清空，这样 confirmDelete 就知道是批量删除
+    setProjectToDelete(null);
     setShowDeleteDialog(true);
   };
 
   const confirmDelete = async () => {
-    if (projectToDelete) { // 删除单个项目
+    // 删除单个项目
+    if (projectToDelete) {
       await deleteProject(projectToDelete);
-    } else if (selectedProjects.size > 0) { // 批量删除
+    } 
+    // 批量删除
+    else if (selectedProjects.size > 0) {
       await deleteMultipleProjects(Array.from(selectedProjects));
       setSelectedProjects(new Set()); // 清空选择
     }
-    setProjectToDelete(null);
+    // 关闭对话框并重置状态
     setShowDeleteDialog(false);
+    setProjectToDelete(null);
   };
 
   const handleDuplicateProject = async (projectId: string) => {
     try {
       await duplicateProject(projectId);
-      alert('项目复制成功！');
     } catch (err) {
       console.error(err);
     }
@@ -94,11 +107,16 @@ export const ProjectList: React.FC<ProjectListProps> = ({
   const areAllSelected = projectList.length > 0 && selectedProjects.size === projectList.length;
 
   if (!isOpen) return null;
+  
+  const getProjectName = (projectId: string) => {
+      const project = projectList.find(p => p.id === projectId);
+      return project ? project.name : '';
+  }
 
   return (
     <div className={styles.backdrop} onClick={onClose}>
       <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
-        {/* 头部 */}
+        {/* ... (header and toolbar) */}
         <div className={styles.header}>
           <h2 className={styles.title}>项目管理</h2>
           <button onClick={onClose} className={styles.closeButton}>
@@ -106,7 +124,6 @@ export const ProjectList: React.FC<ProjectListProps> = ({
           </button>
         </div>
 
-        {/* 工具栏 */}
         <div className={styles.toolbar}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
@@ -124,7 +141,7 @@ export const ProjectList: React.FC<ProjectListProps> = ({
             <div>
               {selectedProjects.size > 0 && (
                 <button 
-                  onClick={() => setShowDeleteDialog(true)} 
+                  onClick={handleDeleteSelectedProjects} 
                   style={{ background: '#b91c1c', color: 'white', marginRight: '1rem' }}
                 >
                   删除选中
@@ -136,10 +153,10 @@ export const ProjectList: React.FC<ProjectListProps> = ({
             </div>
           </div>
         </div>
-
-        {/* 项目列表 */}
+        
         <div className={styles.content}>
-          {error && (
+          {/* ... (error, loading, project list rendering) */}
+           {error && (
             <div className="error-message">{error}</div>
           )}
 
@@ -190,15 +207,21 @@ export const ProjectList: React.FC<ProjectListProps> = ({
         {/* 删除确认对话框 */}
         {showDeleteDialog && (
           <div className={styles.backdrop}>
-            <div className={styles.modal} style={{ height: 'auto', width: '400px' }}>
+            <div className={styles.modal} style={{ height: 'auto', width: '400px', zIndex: 1100 }}>
               <div className={styles.header}>
                 <h3 className={styles.title}>确认删除</h3>
               </div>
               <div className={styles.content} style={{ padding: '1.5rem' }}>
-                <p>确定要删除这个项目吗？此操作无法撤销。</p>
+                <p>
+                  {projectToDelete
+                    ? `确定要删除项目 "${getProjectName(projectToDelete)} "吗？`
+                    : `确定要删除选中的 ${selectedProjects.size} 个项目吗？`}
+                  <br />
+                  此操作无法撤销。
+                </p>
                 <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '1rem', marginTop: '1.5rem' }}>
                   <button onClick={() => setShowDeleteDialog(false)}>取消</button>
-                  <button onClick={confirmDelete} style={{ background: '#b91c1c', color: 'white' }}>删除</button>
+                  <button onClick={confirmDelete} style={{ background: '#b91c1c', color: 'white' }}>确认删除</button>
                 </div>
               </div>
             </div>
