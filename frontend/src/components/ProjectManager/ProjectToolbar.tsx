@@ -1,13 +1,12 @@
 import React, { useState, useRef } from 'react';
 import { useProject } from '../../hooks/useProject';
 import { ProjectFileSelector } from './ProjectFileSelector';
-import { NewProjectDialog } from './NewProjectDialog';
 import styles from './ProjectToolbar.module.css';
 import { type Node, type Edge } from 'reactflow';
 
 interface ProjectToolbarProps {
   onProjectLoad?: (projectId: string) => void;
-  onSaveProject?: (metadata: { name: string; description?: string; id?: string }) => Promise<string>;
+  onSaveProject?: (metadata: { name: string; description?: string; id?: string | null }) => Promise<string>;
   currentProjectName?: string;
   nodes?: Node[];
   edges?: Edge[];
@@ -25,7 +24,7 @@ export const ProjectToolbar: React.FC<ProjectToolbarProps> = ({
   const {
     saveProject,
     createNewProject,
-    exportProject,
+    renameProject,
     importProject,
     currentProject,
     isLoading,
@@ -33,21 +32,12 @@ export const ProjectToolbar: React.FC<ProjectToolbarProps> = ({
     clearError
   } = useProject();
 
-  const [showNewProjectDialog, setShowNewProjectDialog] = useState(false);
   const [showFileSelector, setShowFileSelector] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleCreateNewProject = async (name: string, description: string) => {
-    try {
-      const projectId = await createNewProject(name, description);
-      if (onProjectLoad) {
-        onProjectLoad(projectId);
-      }
-      alert('新项目创建成功！');
-    } catch (err) {
-      console.error(err);
-      throw err;
-    }
+  const handleCreateNewProject = () => {
+    // No dialog, just create a new empty project in memory
+    createNewProject();
   };
 
   const handleImportProject = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -57,13 +47,13 @@ export const ProjectToolbar: React.FC<ProjectToolbarProps> = ({
         alert('请选择有效的项目文件 (.json 或 .novel-flow.json)');
         return;
       }
-      if (file.size > 10 * 1024 * 1024) {
+      if (file.size > 10 * 1024 * 1024) { // 10MB limit
         alert('文件太大，请选择小于10MB的文件');
         return;
       }
       try {
         const projectId = await importProject(file);
-        if (onProjectLoad) {
+        if (onProjectLoad && projectId) {
           onProjectLoad(projectId);
         }
         alert('项目导入成功！已切换到导入的项目。');
@@ -78,15 +68,51 @@ export const ProjectToolbar: React.FC<ProjectToolbarProps> = ({
     }
   };
 
-  const handleExportProject = async () => {
-    if (currentProject) {
+  const handleRenameProject = async () => {
+    if (!currentProject || !currentProject.metadata.id) {
+      alert('请先保存项目后再重命名。');
+      return;
+    }
+    const newName = prompt('请输入新的项目名称：', currentProject.metadata.name);
+    if (newName && newName.trim() !== '' && newName !== currentProject.metadata.name) {
       try {
-        await exportProject(currentProject.metadata.id);
+        await renameProject(newName);
+        alert('项目已重命名！');
       } catch (err) {
+        alert('重命名失败，请稍后重试。');
         console.error(err);
       }
-    } else {
-      alert('请先保存项目');
+    }
+  };
+
+  const handleSave = async () => {
+    try {
+      let metadata = {
+        name: currentProject?.metadata.name || '未命名项目',
+        description: currentProject?.metadata.description,
+        id: currentProject?.metadata.id
+      };
+
+      // If it's a new project, prompt for a name
+      if (!metadata.id) {
+        const newName = prompt('请输入项目名称：', metadata.name);
+        if (newName && newName.trim() !== '') {
+          metadata.name = newName;
+        } else {
+          // User cancelled or entered empty name
+          return; 
+        }
+      }
+
+      if (onSaveProject) {
+        await onSaveProject(metadata);
+      } else {
+        await saveProject(nodes, edges, metadata);
+      }
+      alert('项目保存成功！');
+    } catch (err) {
+      console.error(err);
+      alert('保存项目失败');
     }
   };
 
@@ -97,7 +123,7 @@ export const ProjectToolbar: React.FC<ProjectToolbarProps> = ({
           {currentProjectName || currentProject?.metadata.name || '未命名项目'}
         </h2>
         {isLoading && <span className={styles.metaText}>加载中...</span>}
-        {currentProject && (
+        {currentProject && currentProject.metadata.id && (
           <span className={styles.metaText}>
             (最后保存: {new Date(currentProject.metadata.updatedAt).toLocaleString()})
           </span>
@@ -111,28 +137,11 @@ export const ProjectToolbar: React.FC<ProjectToolbarProps> = ({
         <button onClick={() => setShowFileSelector(true)} disabled={isLoading} className={styles.button}>
           打开项目
         </button>
-        <button onClick={() => setShowNewProjectDialog(true)} disabled={isLoading} className={styles.button}>
+        <button onClick={handleCreateNewProject} disabled={isLoading} className={styles.button}>
           新建项目
         </button>
         <button
-          onClick={async () => {
-            try {
-              const metadata = {
-                name: currentProject?.metadata.name || '未命名项目',
-                description: currentProject?.metadata.description,
-                id: currentProject?.metadata.id
-              };
-              if (onSaveProject) {
-                await onSaveProject(metadata);
-              } else {
-                await saveProject(nodes, edges, metadata);
-              }
-              alert('项目保存成功！');
-            } catch (err) {
-              console.error(err);
-              alert('保存项目失败');
-            }
-          }}
+          onClick={handleSave}
           disabled={isLoading}
           className={styles.button}
         >
@@ -141,8 +150,8 @@ export const ProjectToolbar: React.FC<ProjectToolbarProps> = ({
         <button onClick={() => fileInputRef.current?.click()} disabled={isLoading} className={styles.button}>
           导入项目
         </button>
-        <button onClick={handleExportProject} disabled={isLoading || !currentProject} className={styles.button}>
-          导出项目
+        <button onClick={handleRenameProject} disabled={isLoading || !currentProject?.metadata.id} className={styles.button}>
+          重命名
         </button>
       </div>
 
@@ -160,13 +169,6 @@ export const ProjectToolbar: React.FC<ProjectToolbarProps> = ({
         accept=".json,.novel-flow.json"
         style={{ display: 'none' }}
       />
-
-      {showNewProjectDialog && (
-        <NewProjectDialog
-          onClose={() => setShowNewProjectDialog(false)}
-          onCreate={handleCreateNewProject}
-        />
-      )}
 
       {showFileSelector && (
         <ProjectFileSelector

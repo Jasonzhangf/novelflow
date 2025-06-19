@@ -1,7 +1,7 @@
 import { type Node, type Edge } from 'reactflow';
 
 export interface ProjectMetadata {
-  id: string;
+  id: string | null;
   name: string;
   description?: string;
   createdAt: string;

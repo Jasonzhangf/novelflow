@@ -18,6 +18,8 @@ REM Create PID directory if it doesn't exist
 if not exist "%PID_DIR%" mkdir "%PID_DIR%"
 
 REM Main command dispatcher
+set "command=%~1"
+if /i "%command%"=="" set "command=help"
 goto :dispatch
 
 REM =====================================================================
@@ -43,8 +45,10 @@ REM =====================================================================
     set "_service_name=%~2"
     echo 正在清理端口 %_port% ^(%_service_name%^)...
     for /f "tokens=5" %%a in ('netstat -aon ^| findstr ":%_port%" ^| findstr "LISTENING"') do (
-        echo   - 正在终止端口 %_port% 上的进程 ^(PID: %%a^)...
-        taskkill /F /PID %%a >nul
+        if not "%%a" == "" (
+            echo   - 正在终止端口 %_port% 上的进程 ^(PID: %%a^)...
+            taskkill /F /PID %%a >nul
+        )
     )
     endlocal
     exit /b
@@ -52,24 +56,24 @@ REM =====================================================================
 :start_frontend
     echo.
     echo --- 启动前端服务 ---
-    if exist "frontend\package.json" (
-        cd frontend
-        echo 检查前端依赖...
-        call npm install >nul 2>nul
-        echo 启动前端开发服务 ^(端口 %FRONTEND_PORT%^)...
-        start "Frontend_NovelFlow" cmd /c "npm run dev > ..\frontend.log 2>&1"
-        cd ..
-    ) else (
+    if not exist "frontend\package.json" (
         echo [错误] 未找到 'frontend' 目录或 'package.json'。
         exit /b 1
     )
     
-    echo 等待前端服务启动...
-    ping 127.0.0.1 -n 9 >nul
+    cd frontend
+    echo 检查前端依赖...
+    call npm install >nul 2>nul
+    echo 启动前端开发服务 ^(端口 %FRONTEND_PORT%^)...
+    start "Frontend_NovelFlow" cmd /c "npm run dev -- --port %FRONTEND_PORT% > ..\frontend.log 2>&1"
+    cd ..
+    
+    echo 等待前端服务启动 ^(最多10秒^)...
+    timeout /t 10 /nobreak >nul
 
     call :check_port_and_set_pid %FRONTEND_PORT% frontend_pid
     if defined frontend_pid (
-        echo %frontend_pid% > "%FRONTEND_PID_FILE%"
+        echo !frontend_pid! > "%FRONTEND_PID_FILE%"
         echo [成功] 前端服务已启动 ^(PID: !frontend_pid!^)
         echo   - 前端访问地址: http://localhost:%FRONTEND_PORT%
     ) else (
@@ -81,24 +85,24 @@ REM =====================================================================
 :start_backend
     echo.
     echo --- 启动后端服务 ---
-    if exist "backend\package.json" (
-        cd backend
-        echo 检查后端依赖...
-        call npm install >nul 2>nul
-        echo 启动后端开发服务 ^(端口 %BACKEND_PORT%^)...
-        start "Backend_NovelFlow" cmd /c "npm run dev > ..\backend.log 2>&1"
-        cd ..
-    ) else (
+    if not exist "backend\package.json" (
         echo [错误] 未找到 'backend' 目录或 'package.json'。
         exit /b 1
     )
+    
+    cd backend
+    echo 检查后端依赖...
+    call npm install >nul 2>nul
+    echo 启动后端开发服务 ^(端口 %BACKEND_PORT%^)...
+    start "Backend_NovelFlow" cmd /c "npm run dev > ..\backend.log 2>&1"
+    cd ..
 
-    echo 等待后端服务启动...
-    ping 127.0.0.1 -n 6 >nul
+    echo 等待后端服务启动 ^(最多5秒^)...
+    timeout /t 5 /nobreak >nul
     
     call :check_port_and_set_pid %BACKEND_PORT% backend_pid
     if defined backend_pid (
-        echo %backend_pid% > "%BACKEND_PID_FILE%"
+        echo !backend_pid! > "%BACKEND_PID_FILE%"
         echo [成功] 后端服务已启动 ^(PID: !backend_pid!^)
     ) else (
         echo [错误] 后端服务启动失败。请检查 'backend.log' 获取详情。
@@ -137,15 +141,19 @@ REM =====================================================================
     echo [信息] 停止 NovelFlow 服务...
     if exist "%FRONTEND_PID_FILE%" (
         set /p PID=<"%FRONTEND_PID_FILE%"
-        echo   - 停止旧的前端服务 ^(PID: !PID!^)...
-        taskkill /F /PID !PID! >nul 2>nul
-        del "%FRONTEND_PID_FILE%"
+        if defined PID (
+            echo   - 停止旧的前端服务 ^(PID: !PID!^)...
+            taskkill /F /PID !PID! >nul 2>nul
+            del "%FRONTEND_PID_FILE%"
+        )
     )
     if exist "%BACKEND_PID_FILE%" (
         set /p PID=<"%BACKEND_PID_FILE%"
-        echo   - 停止旧的后端服务 ^(PID: !PID!^)...
-        taskkill /F /PID !PID! >nul 2>nul
-        del "%BACKEND_PID_FILE%"
+        if defined PID (
+            echo   - 停止旧的后端服务 ^(PID: !PID!^)...
+            taskkill /F /PID !PID! >nul 2>nul
+            del "%BACKEND_PID_FILE%"
+        )
     )
     
     REM As a fallback, kill whatever is on the ports
@@ -158,7 +166,6 @@ REM =====================================================================
 :show_status
     echo.
     echo --- NovelFlow 服务状态 ---
-    set "frontend_pid="
     call :check_port_and_set_pid %FRONTEND_PORT% frontend_pid
     if defined frontend_pid (
         echo [运行中] 前端服务 ^(PID: !frontend_pid!, 端口: %FRONTEND_PORT%^)
@@ -167,7 +174,6 @@ REM =====================================================================
         echo [已停止] 前端服务 ^(端口: %FRONTEND_PORT%^)
     )
     
-    set "backend_pid="
     call :check_port_and_set_pid %BACKEND_PORT% backend_pid
     if defined backend_pid (
         echo [运行中] 后端服务 ^(PID: !backend_pid!, 端口: %BACKEND_PORT%^)
@@ -187,24 +193,24 @@ REM =====================================================================
     echo [信息] 重启 NovelFlow 服务...
     call :stop_service
     echo 等待服务完全停止...
-    ping 127.0.0.1 -n 3 >nul
+    timeout /t 2 /nobreak >nul
     call :start_service
     goto :eof
 
 :build_frontend
     echo.
     echo --- 构建前端生产版本 ---
-    if exist "frontend\package.json" (
-        cd frontend
-        echo 正在安装依赖...
-        call npm install
-        echo 正在构建...
-        call npm run build
-        cd ..
-        echo [成功] 前端构建完成，产物位于 'frontend\dist'。
-    ) else (
+    if not exist "frontend\package.json" (
         echo [错误] 未找到 'frontend' 目录或 'package.json'。
+        goto :eof
     )
+    cd frontend
+    echo 正在安装依赖...
+    call npm install
+    echo 正在构建...
+    call npm run build
+    cd ..
+    echo [成功] 前端构建完成，产物位于 'frontend\dist'。
     goto :eof
 
 :show_help
@@ -226,18 +232,17 @@ REM =====================================================================
     goto :eof
 
 :dispatch
-    if /i "%~1"=="start"   goto start_service
-    if /i "%~1"=="stop"    goto stop_service
-    if /i "%~1"=="restart" goto restart_service
-    if /i "%~1"=="status"  goto show_status
-    if /i "%~1"=="kill"    goto force_kill
-    if /i "%~1"=="build"   goto build_frontend
-    if /i "%~1"=="help"    goto show_help
-    if /i "%~1"=="--help"  goto show_help
-    if /i "%~1"=="-h"      goto show_help
+    if /i "%command%"=="start"   goto start_service
+    if /i "%command%"=="stop"    goto stop_service
+    if /i "%command%"=="restart" goto restart_service
+    if /i "%command%"=="status"  goto show_status
+    if /i "%command%"=="kill"    goto force_kill
+    if /i "%command%"=="build"   goto build_frontend
+    if /i "%command%"=="help"    goto show_help
     
     REM Default action
+    echo [警告] 未知命令: '%command%'.
     goto show_help
 
 :eof
-endlocal 
+endlocal

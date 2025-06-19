@@ -12,6 +12,48 @@ export const useProject = () => {
 
   const projectService = ApiProjectService.getInstance();
 
+  useEffect(() => {
+    const initializeApp = async () => {
+      setIsLoading(true);
+      try {
+        const projects = await projectService.getProjectList();
+        setProjectList(projects);
+
+        if (projects && projects.length > 0) {
+          // Backend sorts projects by last updated, so the first one is the most recent.
+          const mostRecentProject = await projectService.loadProject(projects[0].id);
+          if (mostRecentProject) {
+            setCurrentProject(mostRecentProject);
+          } else {
+            // If loading the specific project fails for some reason, start fresh.
+            setCurrentProject({
+              metadata: { id: null, name: '未命名项目', description: '', createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(), version: '1.0.0' },
+              flowData: { nodes: getInitialNodes(), edges: getInitialEdges(), viewport: { x: 0, y: 0, zoom: 1 } },
+            });
+          }
+        } else {
+          // No projects exist on the backend, create a new unsaved project in memory.
+          setCurrentProject({
+            metadata: { id: null, name: '未命名项目', description: '', createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(), version: '1.0.0' },
+            flowData: { nodes: getInitialNodes(), edges: getInitialEdges(), viewport: { x: 0, y: 0, zoom: 1 } },
+          });
+        }
+      } catch (err) {
+        console.error("Failed to initialize app:", err);
+        setError("无法连接到后端服务。将创建一个新的本地项目。");
+        // If the backend is unreachable, create a new unsaved project in memory.
+        setCurrentProject({
+          metadata: { id: null, name: '未命名项目', description: '', createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(), version: '1.0.0' },
+          flowData: { nodes: getInitialNodes(), edges: getInitialEdges(), viewport: { x: 0, y: 0, zoom: 1 } },
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    initializeApp();
+  }, []); // IMPORTANT: Empty dependency array ensures this runs only ONCE on mount.
+
   const refreshProjectList = useCallback(async () => {
     try {
       const projects = await projectService.getProjectList();
@@ -21,10 +63,6 @@ export const useProject = () => {
       console.error(err);
     }
   }, [projectService]);
-
-  useEffect(() => {
-    refreshProjectList();
-  }, [refreshProjectList]);
 
   const saveProject = useCallback(async (
     nodes: Node[],
@@ -67,29 +105,27 @@ export const useProject = () => {
     }
   }, [projectService]);
 
-  const createNewProject = useCallback(async (
-    name: string,
-    description?: string
-  ) => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const initialNodes: Node[] = getInitialNodes();
-      const initialEdges: Edge[] = getInitialEdges();
-      const projectId = await saveProject(
-        initialNodes,
-        initialEdges,
-        { name, description }
-      );
-      return projectId;
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : '创建项目失败';
-      setError(errorMessage);
-      throw err;
-    } finally {
-      setIsLoading(false);
-    }
-  }, [saveProject]);
+  const initializeNewProject = useCallback(() => {
+    setCurrentProject({
+      metadata: {
+        id: null,
+        name: '未命名项目',
+        description: '',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        version: '1.0.0',
+      },
+      flowData: {
+        nodes: getInitialNodes(),
+        edges: getInitialEdges(),
+        viewport: { x: 0, y: 0, zoom: 1 },
+      },
+    });
+  }, []);
+  
+  const createNewProject = useCallback(() => {
+    initializeNewProject();
+  }, [initializeNewProject]);
 
   const deleteProject = useCallback(async (projectId: string) => {
     setIsLoading(true);
@@ -97,63 +133,83 @@ export const useProject = () => {
     try {
       const success = await projectService.deleteProject(projectId);
       if (success) {
-        if (currentProject?.metadata.id === projectId) {
-          setCurrentProject(null);
+        // After deleting, load the most recent project or create a new one
+        const projects = await projectService.getProjectList();
+        setProjectList(projects);
+        if (projects.length > 0) {
+          await loadProject(projects[0].id);
+        } else {
+          initializeNewProject();
         }
-        await refreshProjectList();
-        return true;
       } else {
         throw new Error('删除项目失败');
       }
     } catch (err: any) {
       setError(err.message || '删除项目失败');
-      return false;
     } finally {
       setIsLoading(false);
     }
-  }, [projectService, currentProject, refreshProjectList]);
+  }, [projectService, loadProject, initializeNewProject]);
   
   const deleteMultipleProjects = useCallback(async (projectIds: string[]) => {
     setIsLoading(true);
     setError(null);
     try {
-      // 等待所有删除操作完成
       await Promise.all(projectIds.map(id => projectService.deleteProject(id)));
       
-      // 检查当前项目是否在被删除的列表中
-      if (currentProject && projectIds.includes(currentProject.metadata.id)) {
-        setCurrentProject(null);
+      const projects = await projectService.getProjectList();
+      setProjectList(projects);
+      if (projects.length > 0) {
+        await loadProject(projects[0].id);
+      } else {
+        initializeNewProject();
       }
-      
-      await refreshProjectList();
     } catch (err: any) {
       setError(err.message || '批量删除项目失败');
       console.error(err);
     } finally {
       setIsLoading(false);
     }
-  }, [projectService, currentProject, refreshProjectList]);
+  }, [projectService, loadProject, initializeNewProject]);
 
-  const exportProject = useCallback(async (projectId: string) => {
+  const renameProject = useCallback(async (newName: string) => {
+    if (!currentProject || !currentProject.metadata.id) {
+      setError("请先保存当前项目才能重命名");
+      setTimeout(() => setError(null), 3000);
+      return;
+    }
+    
     setIsLoading(true);
     setError(null);
+
     try {
-      await projectService.exportProject(projectId);
+      const { nodes, edges, viewport } = currentProject.flowData;
+      const metadata: Partial<ProjectTypes.ProjectMetadata> = { ...currentProject.metadata, name: newName };
+      
+      await projectService.saveProject(nodes, edges, metadata, viewport);
+      
+      setCurrentProject(prev => {
+        if (!prev) return null;
+        const newMeta: ProjectTypes.ProjectMetadata = { ...prev.metadata, id: prev.metadata.id, name: newName };
+        return { ...prev, metadata: newMeta };
+      });
+      await refreshProjectList();
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : '导出项目失败';
+      const errorMessage = err instanceof Error ? err.message : '重命名项目失败';
       setError(errorMessage);
       throw err;
     } finally {
       setIsLoading(false);
     }
-  }, [projectService]);
+  }, [projectService, currentProject, refreshProjectList]);
 
   const importProject = useCallback(async (file: File) => {
     setIsLoading(true);
     setError(null);
     try {
       const projectId = await projectService.importProject(file);
-      refreshProjectList();
+      await refreshProjectList();
+      await loadProject(projectId);
       return projectId;
     } catch (err: any) {
       setError(err.message || '导入项目失败');
@@ -161,7 +217,7 @@ export const useProject = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [projectService, refreshProjectList]);
+  }, [projectService, refreshProjectList, loadProject]);
 
   const duplicateProject = useCallback(async (projectId: string) => {
     setIsLoading(true);
@@ -206,8 +262,8 @@ export const useProject = () => {
     loadProject,
     createNewProject,
     deleteProject,
-    deleteMultipleProjects, // 导出新函数
-    exportProject,
+    deleteMultipleProjects,
+    renameProject,
     importProject,
     duplicateProject,
     getProjectFiles,

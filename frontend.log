@@ -1,12 +1,14 @@
 
 > novel-flow-react@0.0.0 dev
-> vite
+> vite --port 4008
 
 
-  [32m[1mVITE[22m v6.3.5[39m  [2mready in [0m[1m277[22m[2m[0m ms[22m
+  [32m[1mVITE[22m v6.3.5[39m  [2mready in [0m[1m286[22m[2m[0m ms[22m
 
   [32m➜[39m  [1mLocal[22m:   [36mhttp://localhost:[1m4008[22m/[39m
 [2m[32m  ➜[39m[22m[2m  press [22m[1mh + enter[22m[2m to show help[22m
-[2m21:47:20[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/components/ProjectManager/ProjectList.tsx[22m
-[2m21:50:42[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/components/Editor/index.tsx, /src/components/ProjectManager/ProjectToolbar.tsx, /src/components/ProjectManager/ProjectList.tsx, /src/components/ProjectManager/ProjectFileSelector.tsx[22m
-[2m21:50:57[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/components/Editor/index.tsx[22m
+[2m22:41:55[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/components/Editor/index.tsx[22m
+[2m22:42:09[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/components/Editor/index.tsx[22m
+[2m22:42:23[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/components/Editor/index.tsx[22m
+[2m22:42:38[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/components/Editor/index.tsx[22m
+[2m22:43:07[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/components/Editor/index.tsx[22m
