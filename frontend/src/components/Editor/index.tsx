@@ -121,8 +121,8 @@ const EditorComponent: React.FC = () => {
     
     setNodes((nds) => [...nds, newNode]);
 
-    // 自动连接逻辑
-    if (sceneNode && type !== 'scene') {
+    // 自动连接逻辑 - 排除'scene'和'textOutput'类型的节点
+    if (sceneNode && type !== 'scene' && type !== 'textOutput') {
       const newEdgeId = `${newNodeId}-${sceneNode.id}`;
       let newEdge;
 

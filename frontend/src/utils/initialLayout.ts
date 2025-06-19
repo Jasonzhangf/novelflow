@@ -57,6 +57,16 @@ export const getInitialNodes = (): Node[] => [
       label: 'LLM节点',
     },
   },
+  // 文本输出节点（LLM节点下方）
+  {
+    id: 'text-output-1',
+    type: 'textOutput',
+    position: { x: 800, y: 750 },
+    data: {
+      label: '文本显示',
+      text: 'LLM 的输出将在这里显示',
+    },
+  },
 ];
 
 export const getInitialEdges = (): Edge[] => [
@@ -99,5 +109,14 @@ export const getInitialEdges = (): Edge[] => [
     target: 'llm-1',
     sourceHandle: 'bottom',
     targetHandle: 'top',
+  },
+  // LLM节点 -> 文本输出节点
+  {
+    id: 'llm-1-text-output-1',
+    source: 'llm-1',
+    target: 'text-output-1',
+    sourceHandle: 'bottom',
+    targetHandle: 'top',
+    animated: true,
   },
 ];
