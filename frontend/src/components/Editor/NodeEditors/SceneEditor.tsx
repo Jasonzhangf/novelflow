@@ -20,8 +20,10 @@ export const SceneEditor: React.FC<SceneEditorProps> = ({ node }) => {
     characters: [],
     environment: null,
     objectives: [],
-    constraints: []
+    constraints: [],
+    personality: {},
   });
+  const [collapsedGroups, setCollapsedGroups] = useState<Record<string, boolean>>({});
 
   const handleDataChange = (newData: any) => {
     setSceneData(newData);
@@ -32,6 +34,26 @@ export const SceneEditor: React.FC<SceneEditorProps> = ({ node }) => {
       characters: newData.characters,
       environment: newData.environment
     });
+  };
+
+  // personality group 折叠/展开
+  const toggleGroup = (group: string) => {
+    setCollapsedGroups(prev => ({ ...prev, [group]: !prev[group] }));
+  };
+
+  // 修改 personality 某个属性的值
+  const handlePersonalityValueChange = (group: string, attr: string, value: number) => {
+    const newPersonality = {
+      ...sceneData.personality,
+      [group]: {
+        ...sceneData.personality?.[group],
+        [attr]: {
+          ...sceneData.personality?.[group]?.[attr],
+          Value: value
+        }
+      }
+    };
+    handleDataChange({ ...sceneData, personality: newPersonality });
   };
 
   const handleImportJSON = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -159,6 +181,46 @@ export const SceneEditor: React.FC<SceneEditorProps> = ({ node }) => {
             />
           </div>
         </div>
+      </div>
+
+      {/* personality 区域 */}
+      <div className="border-t border-dark-border pt-4">
+        <h4 className="text-base font-semibold text-dark-text-primary mb-2">角色性格（personality）</h4>
+        {sceneData.personality && Object.keys(sceneData.personality).length > 0 ? (
+          <div className="space-y-3">
+            {Object.entries(sceneData.personality).map(([group, attrs]) => (
+              <div key={group} className="border border-dark-border rounded mb-2 bg-dark-surface">
+                <div
+                  className="flex items-center justify-between px-3 py-2 cursor-pointer bg-dark-input hover:bg-dark-hover rounded-t"
+                  onClick={() => toggleGroup(group)}
+                >
+                  <span className="font-bold text-dark-text-primary">{group}</span>
+                  <span className="text-dark-text-secondary text-xs">{collapsedGroups[group] ? '展开' : '收起'}</span>
+                </div>
+                {!collapsedGroups[group] && (
+                  <div className="p-3 space-y-2">
+                    {Object.entries(attrs as any).map(([attrKey, attrObj]: [string, any]) => (
+                      <div key={attrKey} className="flex items-center gap-2">
+                        <span className="w-24 text-dark-text-secondary text-xs">{attrObj.Caption}</span>
+                        <span className="w-32 text-dark-text-secondary text-xs">{attrKey}</span>
+                        <input
+                          type="number"
+                          className="w-20 bg-dark-input text-dark-text-primary border border-dark-border rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-dark-accent"
+                          value={attrObj.Value}
+                          min={0}
+                          max={100}
+                          onChange={e => handlePersonalityValueChange(group, attrKey, Number(e.target.value))}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-dark-text-secondary text-sm">暂无性格设定</div>
+        )}
       </div>
 
       <div className="border-t border-dark-border pt-4">

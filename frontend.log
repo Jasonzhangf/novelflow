@@ -6,3 +6,9 @@
   VITE v6.3.5  ready in 71 ms
 
   ➜  Local:   http://localhost:4008/
+4:53:51 PM [vite] (client) hmr update /src/components/Editor/NodeEditors/SceneEditor.tsx
+4:55:44 PM [vite] (client) hmr update /src/components/Editor/NodeEditors/CharacterEditor.tsx
+4:59:40 PM [vite] (client) hmr update /src/components/Editor/NodeEditor.css
+5:10:07 PM [vite] (client) hmr update /src/components/Editor/NodeEditors/CharacterEditor.tsx
+5:13:46 PM [vite] (client) hmr update /src/components/Editor/NodeEditors/CharacterEditor.css
+5:31:45 PM [vite] (client) hmr update /src/components/Editor/NodeEditors/CharacterEditor.css

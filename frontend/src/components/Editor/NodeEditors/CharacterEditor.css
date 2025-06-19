@@ -3,6 +3,7 @@
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
+  color: var(--text-light, #fff) !important;
 }
 
 .editor-header {
@@ -14,7 +15,7 @@
 .editor-title {
   font-size: 1.125rem;
   font-weight: 600;
-  color: var(--text-light);
+  color: var(--text-light, #fff) !important;
 }
 
 .editor-actions {
@@ -25,7 +26,7 @@
 .editor-button {
   padding: 0.25rem 0.75rem;
   background-color: var(--bg-panel);
-  color: var(--text-light);
+  color: var(--text-light, #fff) !important;
   border: 1px solid var(--border-dark);
   border-radius: 4px;
   font-size: 0.875rem;
@@ -49,12 +50,14 @@
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  color: var(--text-light, #fff) !important;
 }
 
 .form-group {
   border: 1px solid var(--border-dark);
   border-radius: 6px;
   overflow: hidden;
+  color: var(--text-light, #fff) !important;
 }
 
 .form-group-header {
@@ -65,6 +68,7 @@
   background-color: var(--bg-panel);
   cursor: pointer;
   user-select: none;
+  color: var(--text-light, #fff) !important;
 }
 
 .form-group-header:hover {
@@ -73,7 +77,7 @@
 
 .form-group-header h3 {
   font-weight: 600;
-  color: var(--text-light);
+  color: var(--text-light, #fff) !important;
   margin: 0;
   font-size: 1rem;
 }
@@ -84,18 +88,20 @@
   flex-direction: column;
   gap: 1rem;
   background-color: var(--bg-dark);
+  color: var(--text-light, #fff) !important;
 }
 
 .form-field {
   display: flex;
   flex-direction: column;
+  color: var(--text-light, #fff) !important;
 }
 
 .form-label {
   display: block;
   font-size: 0.875rem;
   font-weight: 500;
-  color: var(--text-secondary);
+  color: var(--text-light, #fff);
   margin-bottom: 0.25rem;
 }
 
@@ -104,7 +110,7 @@
 .form-select {
   width: 100%;
   background-color: var(--bg-darkest);
-  color: var(--text-light);
+  color: var(--text-light, #fff);
   border: 1px solid var(--border-dark);
   border-radius: 6px;
   padding: 0.5rem 0.75rem;
@@ -124,6 +130,38 @@
   resize: none;
 }
 
+.form-input::placeholder,
+.form-textarea::placeholder {
+  color: var(--text-secondary, #bbb);
+  opacity: 1;
+}
+
+.personality-attr-caption,
+.personality-attr-key {
+  color: var(--text-light, #fff);
+}
+
+.personality-attr-key {
+  font-size: 12px;
+  opacity: 0.7;
+}
+
 .hidden-file-input {
   display: none;
+}
+
+.editor-container * {
+  color: var(--text-light, #fff) !important;
+}
+
+.sidebar-container {
+  color: var(--text-light, #fff) !important;
+}
+
+.form-group-header span, .form-group-header h3 {
+  color: var(--text-light, #fff) !important;
+}
+
+.personality-group-header, .personality-group-title, .personality-group-toggle {
+  color: var(--text-light, #fff) !important;
 } 

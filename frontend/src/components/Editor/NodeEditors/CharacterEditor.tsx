@@ -8,6 +8,49 @@ interface CharacterEditorProps {
   node: Node;
 }
 
+// personality 全量模板
+const PERSONALITY_TEMPLATE = {
+  CoreTemperament: {
+    OptimismLevel: { Caption: '乐观度', Value: 50 },
+    CalmnessLevel: { Caption: '冷静度', Value: 50 },
+    ExtroversionLevel: { Caption: '外向性', Value: 50 },
+    SeriousnessLevel: { Caption: '严肃性', Value: 50 },
+    PatienceLevel: { Caption: '耐心度', Value: 50 },
+    SensitivityLevel: { Caption: '敏感度', Value: 50 }
+  },
+  InternalValues: {
+    HonestyLevel: { Caption: '诚实度', Value: 50 },
+    KindnessLevel: { Caption: '善良度', Value: 50 },
+    JusticeLevel: { Caption: '公正性', Value: 50 },
+    LoyaltyLevel: { Caption: '忠诚度', Value: 50 },
+    CourageLevel: { Caption: '勇气度', Value: 50 },
+    StrengthOfPrinciples: { Caption: '原则性强度', Value: 50 }
+  },
+  ThinkingStyle: {
+    LogicalityLevel: { Caption: '逻辑性', Value: 50 },
+    AnalyticalLevel: { Caption: '分析性', Value: 50 },
+    CreativityLevel: { Caption: '创造性', Value: 50 },
+    FlexibilityLevel: { Caption: '灵活性', Value: 50 },
+    CuriosityLevel: { Caption: '好奇心强度', Value: 50 },
+    DepthOfThought: { Caption: '思考深度', Value: 50 }
+  },
+  InternalMotivation: {
+    AmbitionLevel: { Caption: '野心度', Value: 50 },
+    NeedForAchievementPower: { Caption: '成就/权力需求强度', Value: 50 },
+    NeedForKnowledgeUnderstanding: { Caption: '求知/理解需求强度', Value: 50 },
+    NeedForAffiliationBelonging: { Caption: '归属/社交需求强度', Value: 50 },
+    SelfDisciplineLevel: { Caption: '自律性', Value: 50 },
+    PerseveranceLevel: { Caption: '毅力强度', Value: 50 }
+  },
+  SelfPerception: {
+    ConfidenceLevel: { Caption: '自信度', Value: 50 },
+    SelfEsteemLevel: { Caption: '自尊水平', Value: 50 },
+    HumilityLevel: { Caption: '谦逊度', Value: 50 },
+    AnxietyLevel: { Caption: '焦虑水平', Value: 50 },
+    InnerPeaceLevel: { Caption: '内在平静度', Value: 50 }
+  }
+};
+
 const CollapsibleSection: React.FC<{ title: string, children: React.ReactNode, initiallyOpen?: boolean }> = ({ title, children, initiallyOpen = true }) => {
   const [isOpen, setIsOpen] = useState(initiallyOpen);
 
@@ -38,6 +81,7 @@ export const CharacterEditor: React.FC<CharacterEditorProps> = ({ node }) => {
     relationships: [],
     language: 'chinese'
   });
+  const [collapsedGroups, setCollapsedGroups] = useState<Record<string, boolean>>({});
 
   const handleDataChange = (newData: any) => {
     setCharacterData(newData);
@@ -85,6 +129,26 @@ export const CharacterEditor: React.FC<CharacterEditorProps> = ({ node }) => {
     } catch (error) {
       alert('加载模板失败');
     }
+  };
+
+  // personality group 折叠/展开
+  const toggleGroup = (group: string) => {
+    setCollapsedGroups(prev => ({ ...prev, [group]: !prev[group] }));
+  };
+
+  // 修改 personality 某个属性的值
+  const handlePersonalityValueChange = (group: string, attr: string, value: number) => {
+    const newPersonality = {
+      ...characterData.personality,
+      [group]: {
+        ...characterData.personality?.[group],
+        [attr]: {
+          ...characterData.personality?.[group]?.[attr],
+          Value: value
+        }
+      }
+    };
+    handleDataChange({ ...characterData, personality: newPersonality });
   };
 
   return (
@@ -181,6 +245,53 @@ export const CharacterEditor: React.FC<CharacterEditorProps> = ({ node }) => {
               className="form-textarea"
               placeholder="简要描述角色的核心特征"
             />
+          </div>
+        </CollapsibleSection>
+
+        <CollapsibleSection title="性格设定">
+          <div className="personality-section">
+            {Object.entries(PERSONALITY_TEMPLATE).map(([group, attrs]) => (
+              <div key={group} className="personality-group">
+                <div
+                  className="personality-group-header"
+                  onClick={() => toggleGroup(group)}
+                >
+                  <span className="personality-group-title">{group}</span>
+                  <span className="personality-group-toggle">{collapsedGroups[group] ? '展开' : '收起'}</span>
+                </div>
+                {!collapsedGroups[group] && (
+                  <div className="personality-group-content">
+                    {Object.entries(attrs as any).map(([attrKey, attrTemplate]: [string, any]) => {
+                      const attrObj =
+                        characterData.personality?.[group]?.[attrKey] || attrTemplate;
+                      return (
+                        <div key={attrKey} className="personality-attr-row" style={{ alignItems: 'center', display: 'flex', gap: '8px', marginBottom: '8px' }}>
+                          <span className="personality-attr-caption" style={{ width: 80 }}>{attrTemplate.Caption}</span>
+                          <span className="personality-attr-key" style={{ width: 120, color: '#aaa', fontSize: '12px' }}>{attrKey}</span>
+                          <input
+                            type="range"
+                            min={0}
+                            max={100}
+                            step={1}
+                            value={attrObj.Value}
+                            style={{ width: 120 }}
+                            onChange={e => handlePersonalityValueChange(group, attrKey, Number(e.target.value))}
+                          />
+                          <input
+                            type="number"
+                            min={0}
+                            max={100}
+                            value={attrObj.Value}
+                            style={{ width: 56 }}
+                            onChange={e => handlePersonalityValueChange(group, attrKey, Number(e.target.value))}
+                          />
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            ))}
           </div>
         </CollapsibleSection>
       </div>
