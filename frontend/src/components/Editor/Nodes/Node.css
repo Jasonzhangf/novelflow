@@ -1,0 +1,87 @@
+.node-common {
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  min-width: 250px;
+}
+
+.interactive-node:hover {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.node-header {
+  background-color: #e0e0e0;
+  color: #333;
+  padding: 8px 12px;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+  border-bottom: 1px solid #ccc;
+  font-weight: bold;
+}
+
+.node-content {
+  padding: 12px;
+}
+
+.config-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.config-form fieldset {
+  border: 1px solid #ddd;
+  padding: 10px;
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.config-form legend {
+  padding: 0 5px;
+  font-weight: bold;
+  color: #555;
+}
+
+.config-form label {
+  font-size: 14px;
+  color: #333;
+}
+
+.config-form input[type="text"],
+.config-form input[type="number"],
+.config-form select,
+.config-form textarea {
+  width: 100%;
+  padding: 6px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.config-form .checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+}
+
+.node-actions {
+  margin-top: 16px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.node-actions button {
+  padding: 6px 12px;
+  border: 1px solid #ccc;
+  background-color: #f0f0f0;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.node-actions button:hover {
+  background-color: #e0e0e0;
+} 

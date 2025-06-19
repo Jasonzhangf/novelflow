@@ -51,7 +51,6 @@ export const TextOutputNode: React.FC<TextOutputNodeProps> = ({ data, id }) => {
     <>
       <BaseNode
         title={data.title || '文本输出'}
-        color="bg-indigo-500"
         icon="📄"
         id={id}
         nodeType="textOutput"

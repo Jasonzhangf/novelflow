@@ -24,9 +24,7 @@ export const EnvironmentNode: React.FC<NodeProps> = ({ data, id }) => {
   return (
     <BaseNode
       title="环境节点"
-      subtitle={environmentName}
       icon="🌍"
-      color="yellow"
       id={id}
       nodeType="environment"
       onDelete={deleteNode}

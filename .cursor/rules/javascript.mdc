@@ -1,0 +1,6 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+remember to use java script codes under src\tools\js, modify and use these codes there instead of directly generate java scripts in python codes

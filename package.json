@@ -1,0 +1,13 @@
+{
+  "name": "novelflow-monorepo",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "concurrently \"npm:start:backend\" \"npm:start:frontend\"",
+    "start:backend": "kill-port 8888 && cd backend && npm start",
+    "start:frontend": "kill-port 4008 && cd frontend && npm run dev"
+  },
+  "dependencies": {
+    "concurrently": "^9.1.2",
+    "kill-port": "^2.0.1"
+  }
+}

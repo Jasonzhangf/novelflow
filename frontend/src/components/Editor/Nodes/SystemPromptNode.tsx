@@ -24,9 +24,7 @@ export const SystemPromptNode: React.FC<NodeProps> = ({ data, id }) => {
   return (
     <BaseNode
       title="系统提示词"
-      subtitle={promptName}
       icon="⚙️"
-      color="gray"
       id={id}
       nodeType="systemPrompt"
       onDelete={deleteNode}

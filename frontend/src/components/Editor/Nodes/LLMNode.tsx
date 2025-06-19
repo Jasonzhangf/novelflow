@@ -33,7 +33,6 @@ export const LLMNode: React.FC<NodeProps> = ({ data, id }) => {
     <BaseNode
       title="LLM"
       icon="🤖"
-      color="blue"
       id={id}
       nodeType="llm"
       onDelete={deleteNode}

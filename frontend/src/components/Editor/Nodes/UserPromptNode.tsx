@@ -24,9 +24,7 @@ export const UserPromptNode: React.FC<NodeProps> = ({ data, id }) => {
   return (
     <BaseNode
       title="用户提示词"
-      subtitle={promptName}
       icon="📝"
-      color="purple"
       id={id}
       nodeType="userPrompt"
       onDelete={deleteNode}

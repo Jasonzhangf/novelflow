@@ -1,0 +1,6 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+remember never make a large function. always generate small functions. always try to make a function call serve least features and always use sub functions to implement logic.

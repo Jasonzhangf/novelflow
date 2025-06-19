@@ -1,0 +1,93 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# 项目规则 (Project Rules)
+
+## 1. 项目结构 (Project Structure)
+**中文:**
+CLAUDE.md 是项目的核心文件，包含所有重要信息。在进行任何项目修改前，请务必阅读此文件，以确保您的方案与项目保持一致。在执行任何操作前，请确保您的操作与此文件不冲突。这是最高指令。
+
+**English:**
+CLAUDE.md is the core file of the project, containing all important information. Before making any project modifications, please read this file to ensure your plan is consistent with the project. Before performing any operation, ensure your operation does not conflict with this file. This is the highest directive.
+
+## 2. 记忆 (Memory)
+**中文:**
+每次用户发送以 `#` 开头的指令时，请深刻理解该指令，并修改 `CLAUDE.md` 文件来记录此指令。
+
+**English:**
+Each time the user sends an instruction starting with `#`, please deeply understand the instruction and modify the `CLAUDE.md` file to record this instruction.
+
+## 3. 项目指导 (Project Guidance)
+**中文:**
+每次成功修改项目后，如果用户确认修改成功，需要重新理解项目，并与 `CLAUDE.md` 进行对比，修改相应内容，以确保项目文件是最新的。
+
+**English:**
+After each successful project modification, if the user confirms the modification is successful, you need to re-understand the project, compare it with `CLAUDE.md`, and update accordingly to ensure project files are up-to-date.
+
+## 4. 语言 (Language)
+**中文:**
+尽量使用中文回复。
+
+**English:**
+Reply in Chinese as much as possible.
+
+## 5. JavaScript 代码使用 (JavaScript Code Usage)
+**中文:**
+在生成或使用 JavaScript 代码时，必须优先使用和修改位于 `src\tools\js` 目录下的现有 `.js` 文件。严禁在 Python 代码字符串中直接嵌入或生成 JavaScript 代码。
+
+**English:**
+When generating or using JavaScript code, you must prioritize utilizing and modifying existing `.js` files located in the `src\tools\js` directory. It is strictly forbidden to embed or generate JavaScript code directly within Python code strings. 
+
+## 6. 代码执行控制 (Code Execution Control)
+**中文:**
+`.claude/settings.local.json` 文件用于指定用户允许或拒绝自动执行的命令。
+
+**English:**
+`.claude/settings.local.json` is used to specify commands allowed or denied for automatic execution by the user.
+
+## 7. 指令分解与进度跟踪 (Instruction Decomposition & Progress Tracking)
+**中文:**
+收到用户指令后，第一件事是将指令分解清楚，理解用户意图，然后转化为执行步骤。在每次执行时都要更新执行进度，方便自己和用户理解当前进度。
+
+**English:**
+Upon receiving a user instruction, the first step is to clearly decompose the instruction, understand the user's intent, and then break it down into execution steps. Update the execution progress with each step to help both yourself and the user understand the current status.
+
+## 8. Bug 修复 (Bug Fixing)
+**中文:**
+在进行 bug 修复时，你应该在没有明确 bug 或已达成目标之前，直接执行更改而无需询问用户。你应该积极使用 mcp 工具进行代码更改或命令执行。
+
+**English:**
+When doing bug fixes, you should execute the change without asking the user until there are no explicit bugs or the target has been achieved. You should actively use mcp tools to perform code changes or command execution.
+
+## 9. 生成代码设计 (Generated Code Design)
+**中文:**
+默认情况下，生成的代码应设计为函数、类方法或事件处理程序，等待被调用或触发。
+
+**English:**
+Generated code should be designed by default as functions, class methods, or event handlers, waiting to be called or triggered.
+
+# 项目规则 (Project Rules)
+
+## 10. 测试与验证 (Testing & Verification)
+**中文:**
+为确保解决方案有效，请使用用户最近的相关终端命令作为测试命令。在最终确定响应之前，使用 MCP 工具在内部执行此测试。每次执行测试时，都要向用户展示你运行的确切测试命令，方便他们验证结果。如果需要生成测试文件，请在tests目录下生成。
+
+**English:**
+To ensure the solution works, use the user's most recent relevant terminal command as your test command. Execute this test internally with MCP tools before finalizing your response. Present the exact test command you ran to the user every time you perform a test, making it easy for them to verify the result. If test files need to be generated, please generate them in the tests directory.
+
+
+## 11. 禁止行为 - 画布与布局 (Forbidden Behavior - Canvas & Layout)
+**中文:**
+目前不要自动更改画布和布局。如果任何执行需要更改画布/节点布局或外观，请先征得用户许可。
+
+**English:**
+Do not change canvas and layout automatically at this time. If any execution requires changing the canvas/node layout or appearance, ask the user for permission.
+
+## 12. 禁止行为 - 结构重构 (Forbidden Behavior - Structure Redesign)
+**中文:**
+除非用户同意，否则不要进行结构重构。每次都应征求用户许可。
+
+**English:**
+Do not perform structure redesign unless the user agrees. Ask for user permission each time.

@@ -23,9 +23,7 @@ export const SceneNode: React.FC<NodeProps> = ({ data, id }) => {
   return (
     <BaseNode
       title="场景节点"
-      subtitle={sceneName}
       icon="🎬"
-      color="blue"
       id={id}
       nodeType="scene"
       onDelete={deleteNode}

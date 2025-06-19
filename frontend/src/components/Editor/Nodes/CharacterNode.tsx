@@ -24,9 +24,7 @@ export const CharacterNode: React.FC<NodeProps> = ({ data, id }) => {
   return (
     <BaseNode
       title="角色节点"
-      subtitle={characterName}
       icon="👤"
-      color="green"
       id={id}
       nodeType="character"
       onDelete={deleteNode}
