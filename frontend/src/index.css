@@ -48,19 +48,3 @@ code {
   z-index: 1;
 }
 
-/* Ensure project modal appears above everything */
-.project-modal-backdrop {
-  position: fixed !important;
-  top: 0 !important;
-  left: 0 !important;
-  right: 0 !important;
-  bottom: 0 !important;
-  background-color: rgba(0, 0, 0, 0.75) !important;
-  z-index: 999999 !important;
-}
-
-.project-modal-content {
-  background-color: #ffffff !important;
-  position: relative !important;
-  z-index: 999999 !important;
-}
