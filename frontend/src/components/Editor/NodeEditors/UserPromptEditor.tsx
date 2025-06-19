@@ -120,27 +120,21 @@ ${promptData.requirements?.length > 0 ? `\n特殊要求：\n${promptData.require
   };
 
   return (
-    <div className="p-4 space-y-4">
+    <div className="p-4 space-y-6">
       <div className="flex justify-between items-center">
-        <h3 className="text-lg font-semibold">用户提示词配置</h3>
+        <h3 className="text-lg font-semibold text-dark-text-primary">用户提示词设定</h3>
         <div className="flex space-x-2">
           <button
             onClick={() => fileInputRef.current?.click()}
-            className="px-3 py-1 bg-blue-500 text-white rounded text-sm hover:bg-blue-600"
+            className="px-3 py-1 bg-dark-input text-dark-text-primary rounded text-sm hover:bg-dark-hover border border-dark-border"
           >
             导入
           </button>
           <button
             onClick={handleExportJSON}
-            className="px-3 py-1 bg-green-500 text-white rounded text-sm hover:bg-green-600"
+            className="px-3 py-1 bg-dark-input text-dark-text-primary rounded text-sm hover:bg-dark-hover border border-dark-border"
           >
             导出
-          </button>
-          <button
-            onClick={generateContent}
-            className="px-3 py-1 bg-purple-500 text-white rounded text-sm hover:bg-purple-600"
-          >
-            生成内容
           </button>
         </div>
       </div>
@@ -153,47 +147,46 @@ ${promptData.requirements?.length > 0 ? `\n特殊要求：\n${promptData.require
         className="hidden"
       />
 
-      {/* 基本信息快速编辑 */}
-      <div className="space-y-3">
+      <div className="space-y-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">提示词名称</label>
+          <label className="block text-sm font-medium text-dark-text-secondary mb-1">提示词名称</label>
           <input
             type="text"
             value={promptData.promptName || ''}
             onChange={(e) => handleDataChange({ ...promptData, promptName: e.target.value })}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="输入提示词名称"
+            className="w-full bg-dark-input text-dark-text-primary border border-dark-border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-dark-accent"
+            placeholder="为该提示词命名"
           />
         </div>
-        
+
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">章节标题</label>
+          <label className="block text-sm font-medium text-dark-text-secondary mb-1">章节标题</label>
           <input
             type="text"
             value={promptData.chapterTitle || ''}
             onChange={(e) => handleDataChange({ ...promptData, chapterTitle: e.target.value })}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full bg-dark-input text-dark-text-primary border border-dark-border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-dark-accent"
             placeholder="输入章节标题"
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">章节概要</label>
+          <label className="block text-sm font-medium text-dark-text-secondary mb-1">章节概要</label>
           <textarea
             value={promptData.chapterSummary || ''}
             onChange={(e) => handleDataChange({ ...promptData, chapterSummary: e.target.value })}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 h-20 resize-none"
+            className="w-full bg-dark-input text-dark-text-primary border border-dark-border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-dark-accent h-20 resize-none"
             placeholder="简要描述本章节的主要内容和目标"
           />
         </div>
 
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">章节类型</label>
+            <label className="block text-sm font-medium text-dark-text-secondary mb-1">章节类型</label>
             <select
               value={promptData.chapterType || '正文'}
               onChange={(e) => handleDataChange({ ...promptData, chapterType: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full bg-dark-input text-dark-text-primary border border-dark-border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-dark-accent"
             >
               <option value="序章">序章</option>
               <option value="正文">正文</option>
@@ -205,25 +198,25 @@ ${promptData.requirements?.length > 0 ? `\n特殊要求：\n${promptData.require
           </div>
           
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">目标字数</label>
+            <label className="block text-sm font-medium text-dark-text-secondary mb-1">目标字数</label>
             <input
               type="number"
               min="500"
               max="10000"
               value={promptData.targetLength || 2000}
               onChange={(e) => handleDataChange({ ...promptData, targetLength: parseInt(e.target.value) })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full bg-dark-input text-dark-text-primary border border-dark-border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-dark-accent"
             />
           </div>
         </div>
 
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">节奏控制</label>
+            <label className="block text-sm font-medium text-dark-text-secondary mb-1">节奏控制</label>
             <select
               value={promptData.pacing || 'normal'}
               onChange={(e) => handleDataChange({ ...promptData, pacing: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full bg-dark-input text-dark-text-primary border border-dark-border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-dark-accent"
             >
               <option value="slow">缓慢推进</option>
               <option value="normal">正常节奏</option>
@@ -232,12 +225,12 @@ ${promptData.requirements?.length > 0 ? `\n特殊要求：\n${promptData.require
           </div>
           
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">情绪基调</label>
+            <label className="block text-sm font-medium text-dark-text-secondary mb-1">情绪基调</label>
             <input
               type="text"
               value={promptData.mood || ''}
               onChange={(e) => handleDataChange({ ...promptData, mood: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full bg-dark-input text-dark-text-primary border border-dark-border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-dark-accent"
               placeholder="如：紧张、轻松、神秘"
             />
           </div>
@@ -245,12 +238,12 @@ ${promptData.requirements?.length > 0 ? `\n特殊要求：\n${promptData.require
       </div>
 
       {/* 重点关注 */}
-      <div className="border-t pt-4">
+      <div className="border-t border-dark-border pt-4">
         <div className="flex justify-between items-center mb-3">
-          <h4 className="text-md font-semibold text-gray-800">重点关注</h4>
+          <h4 className="text-md font-semibold text-dark-text-primary">重点关注</h4>
           <button
             onClick={addFocusPoint}
-            className="px-3 py-1 bg-blue-500 text-white rounded text-sm hover:bg-blue-600"
+            className="px-3 py-1 bg-dark-input text-dark-text-primary rounded text-sm hover:bg-dark-hover border border-dark-border"
           >
             添加重点
           </button>
@@ -263,11 +256,11 @@ ${promptData.requirements?.length > 0 ? `\n特殊要求：\n${promptData.require
               value={point}
               onChange={(e) => updateFocusPoint(index, e.target.value)}
               placeholder="输入需要重点关注的内容"
-              className="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm"
+              className="flex-1 bg-dark-input text-dark-text-primary border border-dark-border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-dark-accent"
             />
             <button
               onClick={() => removeFocusPoint(index)}
-              className="px-3 py-2 bg-red-500 text-white rounded text-sm hover:bg-red-600"
+              className="px-3 py-2 bg-dark-input text-dark-text-primary rounded text-sm hover:bg-dark-hover border border-dark-border"
             >
               删除
             </button>
@@ -276,12 +269,12 @@ ${promptData.requirements?.length > 0 ? `\n特殊要求：\n${promptData.require
       </div>
 
       {/* 特殊要求 */}
-      <div className="border-t pt-4">
+      <div className="border-t border-dark-border pt-4">
         <div className="flex justify-between items-center mb-3">
-          <h4 className="text-md font-semibold text-gray-800">特殊要求</h4>
+          <h4 className="text-md font-semibold text-dark-text-primary">特殊要求</h4>
           <button
             onClick={addRequirement}
-            className="px-3 py-1 bg-blue-500 text-white rounded text-sm hover:bg-blue-600"
+            className="px-3 py-1 bg-dark-input text-dark-text-primary rounded text-sm hover:bg-dark-hover border border-dark-border"
           >
             添加要求
           </button>
@@ -294,11 +287,11 @@ ${promptData.requirements?.length > 0 ? `\n特殊要求：\n${promptData.require
               value={req}
               onChange={(e) => updateRequirement(index, e.target.value)}
               placeholder="输入特殊创作要求"
-              className="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm"
+              className="flex-1 bg-dark-input text-dark-text-primary border border-dark-border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-dark-accent"
             />
             <button
               onClick={() => removeRequirement(index)}
-              className="px-3 py-2 bg-red-500 text-white rounded text-sm hover:bg-red-600"
+              className="px-3 py-2 bg-dark-input text-dark-text-primary rounded text-sm hover:bg-dark-hover border border-dark-border"
             >
               删除
             </button>
@@ -307,18 +300,18 @@ ${promptData.requirements?.length > 0 ? `\n特殊要求：\n${promptData.require
       </div>
 
       {/* 提示词内容 */}
-      <div className="border-t pt-4">
-        <label className="block text-sm font-medium text-gray-700 mb-2">提示词内容</label>
+      <div className="border-t border-dark-border pt-4">
+        <label className="block text-sm font-medium text-dark-text-secondary mb-2">提示词内容</label>
         <textarea
           value={promptData.content || ''}
           onChange={(e) => handleDataChange({ ...promptData, content: e.target.value })}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 h-32 resize-none"
+          className="w-full bg-dark-input text-dark-text-primary border border-dark-border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-dark-accent h-32 resize-none"
           placeholder="完整的用户提示词内容，可以使用上方的'生成内容'按钮自动生成"
         />
       </div>
 
-      <div className="border-t pt-4">
-        <label className="block text-sm font-medium text-gray-700 mb-2">完整JSON配置</label>
+      <div className="border-t border-dark-border pt-4">
+        <label className="block text-sm font-medium text-dark-text-secondary mb-2">完整JSON数据</label>
         <JSONEditor
           data={promptData}
           onChange={handleDataChange}

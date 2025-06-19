@@ -62,19 +62,19 @@ export const SceneEditor: React.FC<SceneEditorProps> = ({ node }) => {
   };
 
   return (
-    <div className="p-4 space-y-4">
+    <div className="p-4 space-y-6">
       <div className="flex justify-between items-center">
-        <h3 className="text-lg font-semibold">场景设定</h3>
+        <h3 className="text-lg font-semibold text-dark-text-primary">场景设定</h3>
         <div className="flex space-x-2">
           <button
             onClick={() => fileInputRef.current?.click()}
-            className="px-3 py-1 bg-blue-500 text-white rounded text-sm hover:bg-blue-600"
+            className="px-3 py-1 bg-dark-input text-dark-text-primary rounded text-sm hover:bg-dark-hover border border-dark-border"
           >
             导入
           </button>
           <button
             onClick={handleExportJSON}
-            className="px-3 py-1 bg-green-500 text-white rounded text-sm hover:bg-green-600"
+            className="px-3 py-1 bg-dark-input text-dark-text-primary rounded text-sm hover:bg-dark-hover border border-dark-border"
           >
             导出
           </button>
@@ -90,79 +90,79 @@ export const SceneEditor: React.FC<SceneEditorProps> = ({ node }) => {
       />
 
       {/* 基本信息快速编辑 */}
-      <div className="space-y-3">
+      <div className="space-y-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">场景名称</label>
+          <label className="block text-sm font-medium text-dark-text-secondary mb-1">场景名称</label>
           <input
             type="text"
             value={sceneData.sceneName || ''}
             onChange={(e) => handleDataChange({ ...sceneData, sceneName: e.target.value })}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full bg-dark-input text-dark-text-primary border border-dark-border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-dark-accent"
             placeholder="输入场景名称"
           />
         </div>
         
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">场景概要</label>
+          <label className="block text-sm font-medium text-dark-text-secondary mb-1">场景概要</label>
           <textarea
             value={sceneData.summary || ''}
             onChange={(e) => handleDataChange({ ...sceneData, summary: e.target.value })}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 h-24 resize-none"
+            className="w-full bg-dark-input text-dark-text-primary border border-dark-border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-dark-accent h-24 resize-none"
             placeholder="描述场景的主要内容和目标"
           />
         </div>
 
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">地点</label>
+            <label className="block text-sm font-medium text-dark-text-secondary mb-1">地点</label>
             <input
               type="text"
               value={sceneData.location || ''}
               onChange={(e) => handleDataChange({ ...sceneData, location: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full bg-dark-input text-dark-text-primary border border-dark-border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-dark-accent"
               placeholder="场景地点"
             />
           </div>
           
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">时间</label>
+            <label className="block text-sm font-medium text-dark-text-secondary mb-1">时间</label>
             <input
               type="text"
               value={sceneData.timeOfDay || ''}
               onChange={(e) => handleDataChange({ ...sceneData, timeOfDay: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full bg-dark-input text-dark-text-primary border border-dark-border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-dark-accent"
               placeholder="如：清晨、黄昏"
             />
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">天气</label>
+            <label className="block text-sm font-medium text-dark-text-secondary mb-1">天气</label>
             <input
               type="text"
               value={sceneData.weather || ''}
               onChange={(e) => handleDataChange({ ...sceneData, weather: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full bg-dark-input text-dark-text-primary border border-dark-border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-dark-accent"
               placeholder="天气情况"
             />
           </div>
           
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">氛围</label>
+            <label className="block text-sm font-medium text-dark-text-secondary mb-1">氛围</label>
             <input
               type="text"
               value={sceneData.mood || ''}
               onChange={(e) => handleDataChange({ ...sceneData, mood: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full bg-dark-input text-dark-text-primary border border-dark-border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-dark-accent"
               placeholder="情绪氛围"
             />
           </div>
         </div>
       </div>
 
-      <div className="border-t pt-4">
-        <label className="block text-sm font-medium text-gray-700 mb-2">完整JSON数据</label>
+      <div className="border-t border-dark-border pt-4">
+        <label className="block text-sm font-medium text-dark-text-secondary mb-2">完整JSON数据</label>
         <JSONEditor
           data={sceneData}
           onChange={handleDataChange}

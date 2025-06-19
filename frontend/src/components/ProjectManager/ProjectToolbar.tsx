@@ -111,15 +111,15 @@ export const ProjectToolbar: React.FC<ProjectToolbarProps> = ({
   };
 
   return (
-    <div className="bg-white border-b border-gray-200 px-4 py-2">
+    <div className="bg-dark-surface border-b border-dark-border px-4 py-2">
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-2">
-          <h2 className="text-lg font-semibold text-gray-800">
+          <h2 className="text-lg font-semibold text-dark-text-primary">
             {currentProjectName || currentProject?.metadata.name || '未命名项目'}
           </h2>
-          {isLoading && <span className="text-sm text-blue-600">加载中...</span>}
+          {isLoading && <span className="text-sm text-dark-accent">加载中...</span>}
           {currentProject && (
-            <span className="text-sm text-gray-500">
+            <span className="text-sm text-dark-text-secondary">
               (最后保存: {new Date(currentProject.metadata.updatedAt).toLocaleString()})
             </span>
           )}
@@ -129,7 +129,7 @@ export const ProjectToolbar: React.FC<ProjectToolbarProps> = ({
           {onShowProjectList && (
             <button
               onClick={onShowProjectList}
-              className="px-3 py-1 bg-gray-600 text-white rounded text-sm hover:bg-gray-700"
+              className="px-3 py-1 bg-dark-input text-dark-text-primary rounded text-sm hover:bg-dark-hover border border-dark-border"
             >
               项目管理
             </button>
@@ -137,7 +137,7 @@ export const ProjectToolbar: React.FC<ProjectToolbarProps> = ({
           
           <button
             onClick={() => setShowFileSelector(true)}
-            className="px-3 py-1 bg-cyan-500 text-white rounded text-sm hover:bg-cyan-600"
+            className="px-3 py-1 bg-dark-input text-dark-text-primary rounded text-sm hover:bg-dark-hover border border-dark-border"
             disabled={isLoading}
           >
             打开项目
@@ -145,7 +145,7 @@ export const ProjectToolbar: React.FC<ProjectToolbarProps> = ({
 
           <button
             onClick={() => setShowNewProjectDialog(true)}
-            className="px-3 py-1 bg-blue-500 text-white rounded text-sm hover:bg-blue-600"
+            className="px-3 py-1 bg-dark-input text-dark-text-primary rounded text-sm hover:bg-dark-hover border border-dark-border"
             disabled={isLoading}
           >
             新建项目
@@ -173,7 +173,7 @@ export const ProjectToolbar: React.FC<ProjectToolbarProps> = ({
                 alert('保存项目失败');
               }
             }}
-            className="px-3 py-1 bg-green-500 text-white rounded text-sm hover:bg-green-600"
+            className="px-3 py-1 bg-dark-input text-dark-text-primary rounded text-sm hover:bg-dark-hover border border-dark-border"
             disabled={isLoading}
           >
             保存项目
@@ -181,7 +181,7 @@ export const ProjectToolbar: React.FC<ProjectToolbarProps> = ({
           
           <button
             onClick={() => fileInputRef.current?.click()}
-            className="px-3 py-1 bg-purple-500 text-white rounded text-sm hover:bg-purple-600"
+            className="px-3 py-1 bg-dark-input text-dark-text-primary rounded text-sm hover:bg-dark-hover border border-dark-border"
             disabled={isLoading}
           >
             导入项目
@@ -189,7 +189,7 @@ export const ProjectToolbar: React.FC<ProjectToolbarProps> = ({
           
           <button
             onClick={handleExportProject}
-            className="px-3 py-1 bg-orange-500 text-white rounded text-sm hover:bg-orange-600"
+            className="px-3 py-1 bg-dark-input text-dark-text-primary rounded text-sm hover:bg-dark-hover border border-dark-border"
             disabled={isLoading || !currentProject}
           >
             导出项目
@@ -198,14 +198,9 @@ export const ProjectToolbar: React.FC<ProjectToolbarProps> = ({
       </div>
 
       {error && (
-        <div className="mt-2 p-2 bg-red-100 border border-red-300 rounded text-red-700 text-sm">
-          错误: {error}
-          <button
-            onClick={clearError}
-            className="ml-2 text-red-500 hover:text-red-700"
-          >
-            ✕
-          </button>
+        <div className="mt-2 p-2 bg-red-800 border border-red-600 rounded text-white text-xs">
+          <button onClick={clearError} className="float-right font-bold">X</button>
+          {error}
         </div>
       )}
 
@@ -221,54 +216,49 @@ export const ProjectToolbar: React.FC<ProjectToolbarProps> = ({
 
       {/* 新建项目对话框 */}
       {showNewProjectDialog && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-96">
-            <h3 className="text-lg font-semibold mb-4">创建新项目</h3>
+        <div className="fixed inset-0 z-[999999] bg-black bg-opacity-70 flex items-center justify-center">
+          <div className="bg-dark-surface p-6 rounded-lg shadow-2xl border border-dark-border w-96">
+            <h3 className="text-lg font-semibold text-dark-text-primary mb-4">创建新项目</h3>
             
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-dark-text-secondary mb-1">
                   项目名称
                 </label>
                 <input
                   type="text"
                   value={projectName}
                   onChange={(e) => setProjectName(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="输入项目名称"
+                  className="w-full bg-dark-input text-dark-text-primary border border-dark-border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-dark-accent"
+                  placeholder="给你的项目起个名字"
                 />
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  项目描述
+                <label className="block text-sm font-medium text-dark-text-secondary mb-1">
+                  项目描述 (可选)
                 </label>
                 <textarea
                   value={projectDescription}
                   onChange={(e) => setProjectDescription(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 h-20 resize-none"
-                  placeholder="输入项目描述（可选）"
+                  className="w-full bg-dark-input text-dark-text-primary border border-dark-border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-dark-accent h-24 resize-none"
+                  placeholder="简单描述一下项目内容"
                 />
               </div>
             </div>
             
-            <div className="flex space-x-3 mt-6">
+            <div className="mt-6 flex justify-end space-x-2">
               <button
-                onClick={handleCreateNewProject}
-                className="flex-1 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-                disabled={isLoading}
-              >
-                {isLoading ? '创建中...' : '创建'}
-              </button>
-              <button
-                onClick={() => {
-                  setShowNewProjectDialog(false);
-                  setProjectName('');
-                  setProjectDescription('');
-                }}
-                className="flex-1 px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400"
+                onClick={() => setShowNewProjectDialog(false)}
+                className="px-4 py-2 bg-dark-input text-dark-text-primary rounded hover:bg-dark-hover border border-dark-border"
               >
                 取消
+              </button>
+              <button
+                onClick={handleCreateNewProject}
+                className="px-4 py-2 bg-dark-accent text-dark-text-primary rounded hover:opacity-90 border border-dark-border"
+              >
+                创建
               </button>
             </div>
           </div>
@@ -276,6 +266,7 @@ export const ProjectToolbar: React.FC<ProjectToolbarProps> = ({
       )}
 
       {/* 项目文件选择器 */}
+      {showFileSelector && (
       <ProjectFileSelector
         isOpen={showFileSelector}
         onClose={() => setShowFileSelector(false)}
@@ -283,8 +274,10 @@ export const ProjectToolbar: React.FC<ProjectToolbarProps> = ({
           if (onProjectLoad) {
             onProjectLoad(projectId);
           }
+            setShowFileSelector(false);
         }}
       />
+      )}
     </div>
   );
 };

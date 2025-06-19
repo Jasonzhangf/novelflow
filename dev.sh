@@ -11,8 +11,8 @@
 
 set -e  # 遇到错误立即退出
 
-BACKEND_PORT=3001
-FRONTEND_PORT=5173
+BACKEND_PORT=8888
+FRONTEND_PORT=4008
 PID_DIR=".pids"
 FRONTEND_PID_FILE="$PID_DIR/frontend.pid"
 BACKEND_PID_FILE="$PID_DIR/backend.pid"
@@ -56,7 +56,7 @@ check_port() {
 kill_port() {
     local port=$1
     local service_name=$2
-    local force=${3:-false}
+    local force=${3:-true} # 默认改为强制
     local pids=$(check_port $port)
     
     if [ ! -z "$pids" ]; then
@@ -88,30 +88,44 @@ start_frontend() {
     print_success "前端依赖检查完成"
 
     print_status "🚀 启动前端开发服务 (端口 $FRONTEND_PORT)..."
-    (cd frontend && npm run dev & echo $! > "../$FRONTEND_PID_FILE")
+    (cd frontend && npm run dev &) > frontend.log 2>&1
     
     # 等待一段时间让服务启动
-    sleep 5 
+    print_status "等待前端服务启动..."
+    sleep 8
     
-    local pid=$(cat "$FRONTEND_PID_FILE")
-    # 检查进程是否仍在运行
-    if ps -p $pid > /dev/null; then
-        print_success "前端服务已启动 (PID: $pid)"
-        print_status "🌐 前端访问地址: http://localhost:$FRONTEND_PORT"
-    else
-        print_error "前端服务启动失败。请检查 'frontend' 目录下的日志。"
+    local pid=$(check_port $FRONTEND_PORT)
+    if [ -z "$pid" ]; then
+        print_error "前端服务启动失败。请检查 'frontend.log' 文件获取详细信息。"
         return 1
     fi
+
+    echo $pid > "$FRONTEND_PID_FILE"
+    print_success "前端服务已启动 (PID: $pid)"
+    print_status "🌐 前端访问地址: http://localhost:$FRONTEND_PORT"
 }
 
 # 启动后端
 start_backend() {
-    print_warning "后端启动逻辑未定义。"
-    print_status "如果您有后端服务，请在 dev.sh 脚本的 start_backend 函数中添加启动命令。"
-    # 示例:
-    # print_status "🚀 启动后端服务 (端口 $BACKEND_PORT)..."
-    # (cd backend && <your-backend-start-command> & echo $! > "../$BACKEND_PID_FILE")
-    # print_success "后端服务已启动"
+    print_status "检查后端依赖 (backend)..."
+    (cd backend && npm install > /dev/null 2>&1)
+    print_success "后端依赖检查完成"
+
+    print_status "🚀 启动后端开发服务 (端口 $BACKEND_PORT)..."
+    (cd backend && npm run dev &) > backend.log 2>&1
+    
+    # 等待一段时间让服务启动
+    print_status "等待后端服务启动..."
+    sleep 5
+
+    local pid=$(check_port $BACKEND_PORT)
+    if [ -z "$pid" ]; then
+        print_error "后端服务启动失败。请检查 'backend.log' 文件获取详细信息。"
+        return 1
+    fi
+    
+    echo $pid > "$BACKEND_PID_FILE"
+    print_success "后端服务已启动 (PID: $pid)"
 }
 
 # 启动服务
@@ -119,14 +133,14 @@ start_service() {
     print_status "🚀 启动 NovelFlow 开发环境..."
     ensure_pid_dir
     
-    # 交互式清理端口
-    if ! kill_port $FRONTEND_PORT "Frontend" false || ! kill_port $BACKEND_PORT "Backend" false; then
+    # 强制清理端口
+    if ! kill_port $FRONTEND_PORT "Frontend" true || ! kill_port $BACKEND_PORT "Backend" true; then
         exit 1
     fi
     
     # 启动服务
-    start_frontend
     start_backend
+    start_frontend
     
     echo ""
     print_success "✅ NovelFlow 环境启动完成"

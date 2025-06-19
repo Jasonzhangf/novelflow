@@ -1,0 +1,42 @@
+.node-toolbar {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  width: 200px;
+  font-size: 14px;
+  margin-top: 80px;
+  margin-left: 10px;
+}
+
+.node-toolbar-header {
+  padding: 12px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.node-toolbar-title {
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.node-toolbar-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  padding: 12px;
+}
+
+.node-toolbar-button {
+  padding: 8px;
+  background-color: var(--color-input-bg);
+  color: var(--color-text-primary);
+  border-radius: 4px;
+  border: 1px solid var(--color-border);
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.node-toolbar-button:hover {
+  background-color: var(--color-hover);
+} 

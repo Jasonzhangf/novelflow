@@ -15,7 +15,6 @@ export const JSONEditor: React.FC<JSONEditorProps> = ({
 }) => {
   const [jsonString, setJsonString] = useState('');
   const [error, setError] = useState<string | null>(null);
-  const [isExpanded, setIsExpanded] = useState(false);
 
   useEffect(() => {
     try {
@@ -49,66 +48,38 @@ export const JSONEditor: React.FC<JSONEditorProps> = ({
     }
   };
 
-  const minifyJSON = () => {
-    try {
-      const parsed = JSON.parse(jsonString);
-      const minified = JSON.stringify(parsed);
-      setJsonString(minified);
-      setError(null);
-    } catch (err) {
-      setError('JSON 格式错误，无法压缩');
-    }
-  };
-
   return (
-    <div className="border border-gray-300 rounded-md">
-      <div className="flex justify-between items-center bg-gray-50 px-3 py-2 border-b border-gray-300">
+    <div className="space-y-2">
+      <div className="flex items-center justify-between mb-2">
+        <label className="text-sm font-medium text-dark-text-secondary">完整 JSON 数据</label>
         <div className="flex items-center space-x-2">
-          <span className="text-sm font-medium text-gray-700">JSON 编辑器</span>
-          {error && (
-            <span className="text-xs text-red-600 bg-red-100 px-2 py-1 rounded">
-              {error}
-            </span>
-          )}
-        </div>
-        <div className="flex space-x-2">
-          <button
-            onClick={formatJSON}
-            className="px-2 py-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600"
+          <button 
+            onClick={formatJSON} 
+            className="px-2 py-1 text-xs rounded bg-dark-input text-dark-text-primary hover:bg-dark-hover"
             disabled={readOnly || !!error}
           >
             格式化
           </button>
-          <button
-            onClick={minifyJSON}
-            className="px-2 py-1 text-xs bg-gray-500 text-white rounded hover:bg-gray-600"
-            disabled={readOnly || !!error}
-          >
-            压缩
-          </button>
-          <button
-            onClick={() => setIsExpanded(!isExpanded)}
-            className="px-2 py-1 text-xs bg-gray-400 text-white rounded hover:bg-gray-500"
-          >
-            {isExpanded ? '收起' : '展开'}
-          </button>
         </div>
       </div>
-      
-      <textarea
-        value={jsonString}
-        onChange={(e) => handleChange(e.target.value)}
-        readOnly={readOnly}
-        className={`w-full p-3 font-mono text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-          error ? 'border-red-300 bg-red-50' : 'border-gray-300'
-        } ${readOnly ? 'bg-gray-50 cursor-not-allowed' : ''}`}
-        style={{ 
-          height: isExpanded ? '500px' : height,
-          transition: 'height 0.2s ease-in-out'
-        }}
-        placeholder="在此输入或编辑 JSON 数据..."
-        spellCheck={false}
-      />
+      <div 
+        className={`border border-dark-border rounded-md overflow-hidden transition-all duration-300 ${error ? 'border-red-500' : ''}`}
+      >
+        <textarea
+          value={jsonString}
+          onChange={(e) => handleChange(e.target.value)}
+          readOnly={readOnly}
+          className={`w-full p-3 font-mono text-sm resize-none focus:outline-none focus:ring-1 focus:ring-dark-accent
+            bg-dark-input text-dark-text-primary
+            ${readOnly ? 'cursor-not-allowed' : ''}
+            ${error ? 'text-red-400' : ''}`
+          }
+          style={{ height }}
+          placeholder="在此输入或编辑 JSON 数据..."
+          spellCheck={false}
+        />
+      </div>
+      {error && <p className="text-xs text-red-400 mt-1">{error}</p>}
     </div>
   );
 };

@@ -1,7 +1,3 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
@@ -9,6 +5,8 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-color: var(--bg-darkest);
+  color: var(--text-light);
 }
 
 code {
@@ -43,8 +41,8 @@ code {
 }
 
 /* Force background for all sidebar components */
-.w-96.bg-gray-50,
-.w-96.bg-white {
+.w-\[600px\].bg-gray-50,
+.w-\[600px\].bg-white {
   background: white !important;
 }
 

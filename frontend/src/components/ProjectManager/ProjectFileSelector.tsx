@@ -52,34 +52,34 @@ export const ProjectFileSelector: React.FC<ProjectFileSelectorProps> = ({
   if (!isOpen) return null;
 
   const modalContent = (
-    <div className="fixed inset-0 z-[999999] bg-black bg-opacity-50" onClick={onClose}>
+    <div className="fixed inset-0 z-[999999] bg-black bg-opacity-70 flex items-center justify-center" onClick={onClose}>
       <div 
-        className="fixed right-4 top-16 w-96 h-[80vh] bg-white rounded-lg shadow-2xl border border-gray-300 flex flex-col"
+        className="w-[600px] h-[80vh] bg-dark-surface rounded-lg shadow-2xl border border-dark-border flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
         {/* 头部 */}
-        <div className="flex items-center justify-between p-4 border-b border-gray-200">
-          <h2 className="text-lg font-semibold text-gray-800">选择项目文件</h2>
+        <div className="flex items-center justify-between p-4 border-b border-dark-border">
+          <h2 className="text-lg font-semibold text-dark-text-primary">选择项目文件</h2>
           <button
             onClick={onClose}
-            className="text-gray-500 hover:text-gray-700 text-xl"
+            className="text-dark-text-secondary hover:text-dark-text-primary text-xl"
           >
             ✕
           </button>
         </div>
 
         {/* 工具栏 */}
-        <div className="px-4 py-2 border-b border-gray-200 bg-gray-50">
+        <div className="px-4 py-2 border-b border-dark-border bg-dark-bg">
           <div className="flex items-center justify-between">
-            <span className="text-xs text-gray-600">
+            <span className="text-xs text-dark-text-secondary">
               共 {projectFiles.length} 个文件
             </span>
             <button
               onClick={loadProjectFiles}
-              className="px-2 py-1 bg-gray-500 text-white rounded text-xs hover:bg-gray-600"
+              className="px-2 py-1 bg-dark-input text-dark-text-primary rounded text-xs hover:bg-dark-hover border border-dark-border"
               disabled={isLoading}
             >
-              刷新
+              {isLoading ? '刷新中...' : '刷新'}
             </button>
           </div>
         </div>
@@ -87,53 +87,53 @@ export const ProjectFileSelector: React.FC<ProjectFileSelectorProps> = ({
         {/* 文件列表 */}
         <div className="flex-1 overflow-auto p-3">
           {error && (
-            <div className="mb-2 p-2 bg-red-100 border border-red-300 rounded text-red-700 text-xs">
+            <div className="mb-2 p-2 bg-red-800 border border-red-600 rounded text-white text-xs">
               {error}
             </div>
           )}
 
           {isLoading ? (
-            <div className="flex items-center justify-center h-32">
-              <div className="text-gray-500 text-sm">加载中...</div>
+            <div className="flex items-center justify-center h-full">
+              <div className="text-dark-text-secondary text-sm">加载中...</div>
             </div>
           ) : projectFiles.length === 0 ? (
-            <div className="flex items-center justify-center h-32">
-              <div className="text-gray-500 text-sm">暂无项目文件</div>
+            <div className="flex items-center justify-center h-full">
+              <div className="text-dark-text-secondary text-sm">暂无项目文件</div>
             </div>
           ) : (
             <div className="space-y-2">
               {projectFiles.map((file: ProjectFileInfo, index) => (
                 <div
                   key={index}
-                  className="border rounded-lg p-3 hover:shadow-md transition-shadow cursor-pointer hover:bg-gray-50"
+                  className="border border-dark-border rounded-lg p-3 hover:shadow-md transition-shadow cursor-pointer bg-dark-surface hover:bg-dark-input"
                   onClick={() => {
                     onProjectSelect(file.projectId);
                     onClose();
                   }}
                 >
                   <div className="mb-2">
-                    <h3 className="font-semibold text-gray-800 text-sm truncate">
+                    <h3 className="font-semibold text-dark-text-primary text-sm truncate">
                       {file.projectName}
                     </h3>
-                    <p className="text-xs text-gray-600 truncate">
+                    <p className="text-xs text-dark-text-secondary truncate">
                       {file.fileName}
                     </p>
                   </div>
 
-                  <div className="text-xs text-gray-500 space-y-1">
+                  <div className="text-xs text-dark-text-secondary space-y-1">
                     <div>修改时间: {formatDate(file.lastModified)}</div>
                     <div>文件大小: {formatFileSize(file.fileSize)}</div>
-                    <div>项目ID: {file.projectId}</div>
+                    <div className="truncate">项目ID: {file.projectId}</div>
                   </div>
 
-                  <div className="mt-2">
+                  <div className="mt-3 pt-3 border-t border-dark-border">
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
                         onProjectSelect(file.projectId);
                         onClose();
                       }}
-                      className="w-full px-2 py-1 bg-blue-500 text-white rounded text-xs hover:bg-blue-600"
+                      className="w-full px-2 py-1 bg-dark-accent text-dark-text-primary rounded text-xs hover:opacity-90"
                     >
                       打开项目
                     </button>
@@ -147,6 +147,5 @@ export const ProjectFileSelector: React.FC<ProjectFileSelectorProps> = ({
     </div>
   );
 
-  // 不使用createPortal，直接返回modal
   return modalContent;
 };

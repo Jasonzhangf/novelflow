@@ -109,19 +109,19 @@ export const SystemPromptEditor: React.FC<SystemPromptEditorProps> = ({ node }) 
   };
 
   return (
-    <div className="p-4 space-y-4">
+    <div className="p-4 space-y-6">
       <div className="flex justify-between items-center">
-        <h3 className="text-lg font-semibold">系统提示词配置</h3>
+        <h3 className="text-lg font-semibold text-dark-text-primary">系统提示词设定</h3>
         <div className="flex space-x-2">
           <button
             onClick={() => fileInputRef.current?.click()}
-            className="px-3 py-1 bg-blue-500 text-white rounded text-sm hover:bg-blue-600"
+            className="px-3 py-1 bg-dark-input text-dark-text-primary rounded text-sm hover:bg-dark-hover border border-dark-border"
           >
             导入
           </button>
           <button
             onClick={handleExportJSON}
-            className="px-3 py-1 bg-green-500 text-white rounded text-sm hover:bg-green-600"
+            className="px-3 py-1 bg-dark-input text-dark-text-primary rounded text-sm hover:bg-dark-hover border border-dark-border"
           >
             导出
           </button>
@@ -142,37 +142,36 @@ export const SystemPromptEditor: React.FC<SystemPromptEditorProps> = ({ node }) 
         className="hidden"
       />
 
-      {/* 基本信息快速编辑 */}
-      <div className="space-y-3">
+      <div className="space-y-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">提示词名称</label>
+          <label className="block text-sm font-medium text-dark-text-secondary mb-1">提示词名称</label>
           <input
             type="text"
             value={promptData.promptName || ''}
             onChange={(e) => handleDataChange({ ...promptData, promptName: e.target.value })}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="输入提示词名称"
+            className="w-full bg-dark-input text-dark-text-primary border border-dark-border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-dark-accent"
+            placeholder="为该提示词命名"
           />
         </div>
-        
+
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">AI角色设定</label>
+          <label className="block text-sm font-medium text-dark-text-secondary mb-1">AI角色设定</label>
           <input
             type="text"
             value={promptData.role || ''}
             onChange={(e) => handleDataChange({ ...promptData, role: e.target.value })}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full bg-dark-input text-dark-text-primary border border-dark-border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-dark-accent"
             placeholder="定义AI的角色，如：专业小说写作助手"
           />
         </div>
 
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">语言</label>
+            <label className="block text-sm font-medium text-dark-text-secondary mb-1">语言</label>
             <select
               value={promptData.language || 'chinese'}
               onChange={(e) => handleDataChange({ ...promptData, language: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full bg-dark-input text-dark-text-primary border border-dark-border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-dark-accent"
             >
               <option value="chinese">中文</option>
               <option value="english">English</option>
@@ -180,11 +179,11 @@ export const SystemPromptEditor: React.FC<SystemPromptEditorProps> = ({ node }) 
           </div>
           
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">输出格式</label>
+            <label className="block text-sm font-medium text-dark-text-secondary mb-1">输出格式</label>
             <select
               value={promptData.outputFormat || 'structured'}
               onChange={(e) => handleDataChange({ ...promptData, outputFormat: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full bg-dark-input text-dark-text-primary border border-dark-border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-dark-accent"
             >
               <option value="structured">结构化JSON</option>
               <option value="plain">纯文本</option>
@@ -194,76 +193,42 @@ export const SystemPromptEditor: React.FC<SystemPromptEditorProps> = ({ node }) 
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">系统提示词内容</label>
+          <label className="block text-sm font-medium text-dark-text-secondary mb-1">系统提示词内容</label>
           <textarea
             value={promptData.content || ''}
             onChange={(e) => handleDataChange({ ...promptData, content: e.target.value })}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 h-32 resize-none"
-            placeholder="输入详细的系统提示词，定义AI的行为、输出格式等..."
+            className="w-full bg-dark-input text-dark-text-primary border border-dark-border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-dark-accent h-32 resize-none"
+            placeholder="输入系统提示词..."
           />
         </div>
-      </div>
 
-      {/* 变量管理 */}
-      <div className="border-t pt-4">
-        <div className="flex justify-between items-center mb-3">
-          <h4 className="text-md font-semibold text-gray-800">提示词变量</h4>
-          <button
-            onClick={addVariable}
-            className="px-3 py-1 bg-blue-500 text-white rounded text-sm hover:bg-blue-600"
-          >
-            添加变量
-          </button>
+        <div>
+          <label className="block text-sm font-medium text-dark-text-secondary mb-1">备注</label>
+          <input
+            type="text"
+            value={promptData.notes || ''}
+            onChange={(e) => handleDataChange({ ...promptData, notes: e.target.value })}
+            className="w-full bg-dark-input text-dark-text-primary border border-dark-border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-dark-accent"
+            placeholder="添加一些备注信息"
+          />
         </div>
-        
-        {promptData.variables?.map((variable: any, index: number) => (
-          <div key={index} className="bg-gray-50 p-3 rounded-md mb-2">
-            <div className="grid grid-cols-2 gap-2 mb-2">
-              <input
-                type="text"
-                value={variable.name || ''}
-                onChange={(e) => updateVariable(index, 'name', e.target.value)}
-                placeholder="变量名 (如: characterName)"
-                className="px-2 py-1 border border-gray-300 rounded text-sm"
-              />
-              <select
-                value={variable.type || 'string'}
-                onChange={(e) => updateVariable(index, 'type', e.target.value)}
-                className="px-2 py-1 border border-gray-300 rounded text-sm"
-              >
-                <option value="string">字符串</option>
-                <option value="object">对象</option>
-                <option value="array">数组</option>
-              </select>
-            </div>
-            <input
-              type="text"
-              value={variable.description || ''}
-              onChange={(e) => updateVariable(index, 'description', e.target.value)}
-              placeholder="描述 (如: 主角的姓名)"
-              className="w-full px-2 py-1 border border-gray-300 rounded text-sm mb-2"
-            />
-            <div className="flex justify-between items-center">
-              <input
-                type="text"
-                value={variable.source || ''}
-                onChange={(e) => updateVariable(index, 'source', e.target.value)}
-                placeholder="数据源路径 (如: nodes.character1.data.name)"
-                className="flex-1 px-2 py-1 border border-gray-300 rounded text-sm mr-2"
-              />
-              <button
-                onClick={() => removeVariable(index)}
-                className="px-2 py-1 bg-red-500 text-white rounded text-sm hover:bg-red-600"
-              >
-                删除
-              </button>
-            </div>
-          </div>
-        ))}
+
+        <div className="flex items-center space-x-2">
+          <input
+            type="checkbox"
+            id="isTemplate"
+            checked={promptData.isTemplate || false}
+            onChange={(e) => handleDataChange({ ...promptData, isTemplate: e.target.checked })}
+            className="w-4 h-4 rounded bg-dark-input border-dark-border text-dark-accent focus:ring-dark-accent"
+          />
+          <label htmlFor="isTemplate" className="text-sm text-dark-text-primary">
+            作为模板
+          </label>
+        </div>
       </div>
 
-      <div className="border-t pt-4">
-        <label className="block text-sm font-medium text-gray-700 mb-2">完整JSON配置</label>
+      <div className="border-t border-dark-border pt-4">
+        <label className="block text-sm font-medium text-dark-text-secondary mb-2">完整JSON数据</label>
         <JSONEditor
           data={promptData}
           onChange={handleDataChange}

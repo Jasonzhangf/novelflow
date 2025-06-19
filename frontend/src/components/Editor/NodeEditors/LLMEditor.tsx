@@ -72,30 +72,84 @@ export const LLMEditor: React.FC<LLMEditorProps> = ({ node }) => {
   };
 
   return (
-    <div className="p-4 space-y-4">
-      <div className="flex justify-between items-center">
-        <h3 className="text-lg font-semibold">LLM 配置</h3>
-        <div className="flex space-x-2">
-          <button
-            onClick={() => fileInputRef.current?.click()}
-            className="px-3 py-1 bg-blue-500 text-white rounded text-sm hover:bg-blue-600"
+    <div className="p-4 space-y-6">
+      <h3 className="text-lg font-semibold text-dark-text-primary">LLM 配置</h3>
+
+      <div className="space-y-4">
+        <div>
+          <label htmlFor="modelType" className="block text-sm font-medium text-dark-text-secondary mb-1">模型类型</label>
+          <select
+            id="modelType"
+            value={llmConfig.modelName || 'GPT-4'}
+            onChange={(e) => handleConfigChange({ ...llmConfig, modelName: e.target.value })}
+            className="w-full bg-dark-input text-dark-text-primary border border-dark-border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-dark-accent"
           >
-            导入
-          </button>
-          <button
-            onClick={handleExportConfig}
-            className="px-3 py-1 bg-green-500 text-white rounded text-sm hover:bg-green-600"
-          >
-            导出
-          </button>
-          <button
-            onClick={handleGenerate}
-            disabled={node.data.isGenerating}
-            className="px-3 py-1 bg-purple-500 text-white rounded text-sm hover:bg-purple-600 disabled:opacity-50"
-          >
-            {node.data.isGenerating ? '生成中...' : '生成'}
-          </button>
+            <option value="GPT-4">GPT-4</option>
+            <option value="GPT-3.5-Turbo">GPT-3.5 Turbo</option>
+            <option value="Claude-3">Claude-3</option>
+            <option value="Gemini-Pro">Gemini-Pro</option>
+            <option value="Ollama">Ollama (本地)</option>
+          </select>
         </div>
+
+        <div>
+          <label htmlFor="temperature" className="block text-sm font-medium text-dark-text-secondary mb-1">
+            Temperature: {llmConfig.temperature?.toFixed(1) || '0.5'}
+          </label>
+          <input
+            id="temperature"
+            type="range"
+            min="0"
+            max="1"
+            step="0.1"
+            value={llmConfig.temperature || 0.5}
+            onChange={(e) => handleConfigChange({ ...llmConfig, temperature: parseFloat(e.target.value) })}
+            className="w-full h-2 bg-dark-input rounded-lg appearance-none cursor-pointer"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-dark-text-secondary mb-1">系统提示词</label>
+          <textarea
+            value={llmConfig.systemPrompt || ''}
+            onChange={(e) => handleConfigChange({ ...llmConfig, systemPrompt: e.target.value })}
+            className="w-full bg-dark-input text-dark-text-primary border border-dark-border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-dark-accent h-24 resize-none"
+            placeholder="You are an AI assistant."
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-dark-text-secondary mb-1">输入模板</label>
+          <input
+            type="text"
+            value={llmConfig.promptTemplate || ''}
+            onChange={(e) => handleConfigChange({ ...llmConfig, promptTemplate: e.target.value })}
+            className="w-full bg-dark-input text-dark-text-primary border border-dark-border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-dark-accent"
+            placeholder="例如：'Translate the following text to French: {{text}}'"
+          />
+        </div>
+      </div>
+
+      <div className="flex justify-between items-center">
+        <button
+          onClick={() => fileInputRef.current?.click()}
+          className="px-3 py-1 bg-blue-500 text-white rounded text-sm hover:bg-blue-600"
+        >
+          导入
+        </button>
+        <button
+          onClick={handleExportConfig}
+          className="px-3 py-1 bg-green-500 text-white rounded text-sm hover:bg-green-600"
+        >
+          导出
+        </button>
+        <button
+          onClick={handleGenerate}
+          disabled={node.data.isGenerating}
+          className="px-3 py-1 bg-purple-500 text-white rounded text-sm hover:bg-purple-600 disabled:opacity-50"
+        >
+          {node.data.isGenerating ? '生成中...' : '生成'}
+        </button>
       </div>
 
       <input
@@ -105,78 +159,6 @@ export const LLMEditor: React.FC<LLMEditorProps> = ({ node }) => {
         accept=".json"
         className="hidden"
       />
-
-      {/* 基本配置快速编辑 */}
-      <div className="space-y-3">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">模型名称</label>
-          <select
-            value={llmConfig.modelName || 'GPT-4'}
-            onChange={(e) => handleConfigChange({ ...llmConfig, modelName: e.target.value })}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="GPT-4">GPT-4</option>
-            <option value="GPT-3.5-Turbo">GPT-3.5-Turbo</option>
-            <option value="Claude-3">Claude-3</option>
-            <option value="Gemini-Pro">Gemini-Pro</option>
-            <option value="Ollama">Ollama (本地)</option>
-          </select>
-        </div>
-        
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">API Key</label>
-          <input
-            type="password"
-            value={llmConfig.apiKey || ''}
-            onChange={(e) => handleConfigChange({ ...llmConfig, apiKey: e.target.value })}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="输入API密钥"
-          />
-        </div>
-
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">温度值</label>
-            <input
-              type="number"
-              min="0"
-              max="2"
-              step="0.1"
-              value={llmConfig.temperature || 0.7}
-              onChange={(e) => handleConfigChange({ 
-                ...llmConfig, 
-                temperature: parseFloat(e.target.value) 
-              })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-          
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">最大tokens</label>
-            <input
-              type="number"
-              min="1"
-              max="8000"
-              value={llmConfig.maxTokens || 2000}
-              onChange={(e) => handleConfigChange({ 
-                ...llmConfig, 
-                maxTokens: parseInt(e.target.value) 
-              })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">系统提示词</label>
-          <textarea
-            value={llmConfig.systemPrompt || ''}
-            onChange={(e) => handleConfigChange({ ...llmConfig, systemPrompt: e.target.value })}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 h-24 resize-none"
-            placeholder="设置LLM的行为和角色"
-          />
-        </div>
-      </div>
 
       {/* 输出结果显示 */}
       {node.data.lastResponse && (

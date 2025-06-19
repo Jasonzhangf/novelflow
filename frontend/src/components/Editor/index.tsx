@@ -16,12 +16,14 @@ import ReactFlow, {
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import { FlowContext } from './FlowContext';
-import { Sidebar } from './Sidebar';
+import { NodeEditor } from './NodeEditor';
+import { NodeToolbar } from './NodeToolbar';
 import { nodeTypes } from './nodeTypes';
 import { ProjectToolbar } from '../ProjectManager/ProjectToolbar';
 import { ProjectList } from '../ProjectManager/ProjectList';
 import { useProject } from '../../hooks/useProject';
 import { getInitialNodes, getInitialEdges } from '../../utils/initialLayout';
+import './Editor.css';
 
 const initialNodes: Node[] = getInitialNodes();
 const initialEdges: Edge[] = getInitialEdges();
@@ -213,7 +215,7 @@ const EditorComponent: React.FC = () => {
 
   return (
     <FlowContext.Provider value={{ updateNodeData, addNode, deleteNode, duplicateNode }}>
-      <div className="h-screen flex flex-col">
+      <div className="editor-layout">
         <ProjectToolbar 
           onProjectLoad={handleLoadProject}
           onSaveProject={handleSaveProject}
@@ -221,8 +223,8 @@ const EditorComponent: React.FC = () => {
           edges={edges}
           onShowProjectList={() => setShowProjectList(true)}
         />
-        <div className="flex-1 flex">
-          <div className="flex-1">
+        <div className="editor-main">
+          <div className="react-flow-wrapper">
             <ReactFlow
               nodes={nodes}
               edges={edges}
@@ -248,79 +250,23 @@ const EditorComponent: React.FC = () => {
               <MiniMap 
                 nodeColor="#374151"
                 nodeStrokeWidth={3}
-                zoomable
                 pannable
               />
-              <Background 
-                variant={BackgroundVariant.Dots} 
-                gap={20} 
-                size={1}
-                color="#e5e7eb"
-              />
+              <Background variant={BackgroundVariant.Dots} gap={12} size={1} />
               <Panel position="top-left">
-                <div className="bg-white rounded-lg shadow-lg border border-gray-200 max-w-xs">
-                  <div className="flex items-center justify-between p-3 border-b border-gray-200">
-                    <h3 className="font-semibold text-gray-800 text-sm">节点工具栏</h3>
-                    <button
-                      onClick={() => setShowNodeToolbar(!showNodeToolbar)}
-                      className="text-gray-500 hover:text-gray-700 text-lg"
-                    >
-                      {showNodeToolbar ? '−' : '+'}
-                    </button>
-                  </div>
-                  {showNodeToolbar && (
-                    <div className="p-3 space-y-2">
-                      <div className="grid grid-cols-2 gap-2">
-                        <button
-                          onClick={() => addNode('character', { x: Math.random() * 500, y: Math.random() * 500 })}
-                          className="px-2 py-1.5 bg-green-500 text-white rounded text-xs hover:bg-green-600"
-                        >
-                          角色
-                        </button>
-                        <button
-                          onClick={() => addNode('environment', { x: Math.random() * 500, y: Math.random() * 500 })}
-                          className="px-2 py-1.5 bg-yellow-500 text-white rounded text-xs hover:bg-yellow-600"
-                        >
-                          环境
-                        </button>
-                        <button
-                          onClick={() => addNode('systemPrompt', { x: Math.random() * 500, y: Math.random() * 500 })}
-                          className="px-2 py-1.5 bg-gray-500 text-white rounded text-xs hover:bg-gray-600"
-                        >
-                          系统提示
-                        </button>
-                        <button
-                          onClick={() => addNode('userPrompt', { x: Math.random() * 500, y: Math.random() * 500 })}
-                          className="px-2 py-1.5 bg-purple-600 text-white rounded text-xs hover:bg-purple-700"
-                        >
-                          用户提示
-                        </button>
-                        <button
-                          onClick={() => addNode('llm', { x: Math.random() * 500, y: Math.random() * 500 })}
-                          className="px-2 py-1.5 bg-purple-500 text-white rounded text-xs hover:bg-purple-600"
-                        >
-                          LLM
-                        </button>
-                        <button
-                          onClick={() => addNode('textOutput', { x: Math.random() * 500, y: Math.random() * 500 })}
-                          className="px-2 py-1.5 bg-indigo-500 text-white rounded text-xs hover:bg-indigo-600"
-                        >
-                          文本输出
-                        </button>
-                      </div>
-                    </div>
-                  )}
-                </div>
+                {showNodeToolbar && <NodeToolbar onAddNode={addNode} />}
               </Panel>
             </ReactFlow>
           </div>
-          <Sidebar selectedNode={selectedNode} />
+          <NodeEditor selectedNode={selectedNode} />
         </div>
-        <ProjectList 
-          isOpen={showProjectList}
-          onClose={() => setShowProjectList(false)}
-          onProjectSelect={handleLoadProject}
-        />
+        {showProjectList && 
+          <ProjectList 
+            isOpen={showProjectList}
+            onClose={() => setShowProjectList(false)} 
+            onProjectSelect={handleLoadProject}
+          />
+        }
       </div>
     </FlowContext.Provider>
   );

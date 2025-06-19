@@ -104,7 +104,7 @@ export const BaseNode: React.FC<BaseNodeProps> = ({
           
           {/* 菜单内容 */}
           <div
-            className="fixed z-[999999] bg-white border border-gray-200 rounded-lg shadow-lg py-2 min-w-32"
+            className="fixed z-[999999] bg-dark-surface border border-dark-border rounded-md shadow-lg py-1 min-w-[150px]"
             style={{
               left: contextMenuPosition.x,
               top: contextMenuPosition.y,
@@ -112,16 +112,16 @@ export const BaseNode: React.FC<BaseNodeProps> = ({
           >
             <button
               onClick={handleDuplicate}
-              className="w-full px-4 py-2 text-left text-sm hover:bg-gray-100 flex items-center space-x-2"
+              className="w-full px-3 py-2 text-left text-sm text-dark-text-primary hover:bg-dark-input flex items-center space-x-2"
             >
-              <span>📋</span>
+              <span className="text-base">📋</span>
               <span>复制</span>
             </button>
             <button
               onClick={handleDelete}
-              className="w-full px-4 py-2 text-left text-sm hover:bg-gray-100 text-red-600 flex items-center space-x-2"
+              className="w-full px-3 py-2 text-left text-sm text-red-400 hover:bg-dark-input flex items-center space-x-2"
             >
-              <span>🗑️</span>
+              <span className="text-base">🗑️</span>
               <span>删除</span>
             </button>
           </div>

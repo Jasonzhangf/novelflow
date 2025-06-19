@@ -64,19 +64,19 @@ export const EnvironmentEditor: React.FC<EnvironmentEditorProps> = ({ node }) =>
   };
 
   return (
-    <div className="p-4 space-y-4">
+    <div className="p-4 space-y-6">
       <div className="flex justify-between items-center">
-        <h3 className="text-lg font-semibold">环境设定</h3>
+        <h3 className="text-lg font-semibold text-dark-text-primary">环境设定</h3>
         <div className="flex space-x-2">
           <button
             onClick={() => fileInputRef.current?.click()}
-            className="px-3 py-1 bg-blue-500 text-white rounded text-sm hover:bg-blue-600"
+            className="px-3 py-1 bg-dark-input text-dark-text-primary rounded text-sm hover:bg-dark-hover border border-dark-border"
           >
             导入
           </button>
           <button
             onClick={handleExportJSON}
-            className="px-3 py-1 bg-green-500 text-white rounded text-sm hover:bg-green-600"
+            className="px-3 py-1 bg-dark-input text-dark-text-primary rounded text-sm hover:bg-dark-hover border border-dark-border"
           >
             导出
           </button>
@@ -91,47 +91,46 @@ export const EnvironmentEditor: React.FC<EnvironmentEditorProps> = ({ node }) =>
         className="hidden"
       />
 
-      {/* 基本信息快速编辑 */}
-      <div className="space-y-3">
+      <div className="space-y-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">环境名称</label>
+          <label className="block text-sm font-medium text-dark-text-secondary mb-1">环境名称</label>
           <input
             type="text"
             value={environmentData.environmentName || ''}
             onChange={(e) => handleDataChange({ ...environmentData, environmentName: e.target.value })}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full bg-dark-input text-dark-text-primary border border-dark-border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-dark-accent"
             placeholder="输入环境名称"
           />
         </div>
         
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">地点描述</label>
+          <label className="block text-sm font-medium text-dark-text-secondary mb-1">地点描述</label>
           <textarea
             value={environmentData.location || ''}
             onChange={(e) => handleDataChange({ ...environmentData, location: e.target.value })}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 h-20 resize-none"
+            className="w-full bg-dark-input text-dark-text-primary border border-dark-border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-dark-accent h-24 resize-none"
             placeholder="详细描述环境的地理位置和特征"
           />
         </div>
 
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">时间</label>
+            <label className="block text-sm font-medium text-dark-text-secondary mb-1">时间</label>
             <input
               type="text"
               value={environmentData.timeOfDay || ''}
               onChange={(e) => handleDataChange({ ...environmentData, timeOfDay: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full bg-dark-input text-dark-text-primary border border-dark-border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-dark-accent"
               placeholder="如：清晨、正午"
             />
           </div>
           
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">季节</label>
+            <label className="block text-sm font-medium text-dark-text-secondary mb-1">季节</label>
             <select
               value={environmentData.season || ''}
               onChange={(e) => handleDataChange({ ...environmentData, season: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full bg-dark-input text-dark-text-primary border border-dark-border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-dark-accent"
             >
               <option value="">选择季节</option>
               <option value="春季">春季</option>
@@ -144,55 +143,55 @@ export const EnvironmentEditor: React.FC<EnvironmentEditorProps> = ({ node }) =>
 
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">天气</label>
+            <label className="block text-sm font-medium text-dark-text-secondary mb-1">天气</label>
             <input
               type="text"
               value={environmentData.weather || ''}
               onChange={(e) => handleDataChange({ ...environmentData, weather: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full bg-dark-input text-dark-text-primary border border-dark-border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-dark-accent"
               placeholder="如：晴朗、多云、雨天"
             />
           </div>
           
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">光线</label>
+            <label className="block text-sm font-medium text-dark-text-secondary mb-1">光线</label>
             <input
               type="text"
               value={environmentData.lighting || ''}
               onChange={(e) => handleDataChange({ ...environmentData, lighting: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full bg-dark-input text-dark-text-primary border border-dark-border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-dark-accent"
               placeholder="如：昏暗、明亮、阴沉"
             />
           </div>
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">氛围描述</label>
+          <label className="block text-sm font-medium text-dark-text-secondary mb-1">氛围描述</label>
           <textarea
             value={environmentData.atmosphere || ''}
             onChange={(e) => handleDataChange({ ...environmentData, atmosphere: e.target.value })}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 h-20 resize-none"
+            className="w-full bg-dark-input text-dark-text-primary border border-dark-border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-dark-accent h-24 resize-none"
             placeholder="描述环境的整体氛围和情绪感受"
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">视觉细节</label>
+          <label className="block text-sm font-medium text-dark-text-secondary mb-1">视觉细节</label>
           <textarea
             value={environmentData.visualDetails || ''}
             onChange={(e) => handleDataChange({ ...environmentData, visualDetails: e.target.value })}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 h-20 resize-none"
+            className="w-full bg-dark-input text-dark-text-primary border border-dark-border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-dark-accent h-24 resize-none"
             placeholder="描述可见的具体细节，如建筑、植物、物品等"
           />
         </div>
       </div>
 
-      <div className="border-t pt-4">
-        <label className="block text-sm font-medium text-gray-700 mb-2">完整JSON数据</label>
+      <div className="border-t border-dark-border pt-4">
+        <label className="block text-sm font-medium text-dark-text-secondary mb-2">完整JSON数据</label>
         <JSONEditor
           data={environmentData}
           onChange={handleDataChange}
-          height="300px"
+          height="400px"
         />
       </div>
     </div>

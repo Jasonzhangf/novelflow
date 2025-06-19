@@ -1,53 +1,70 @@
+/* 
+  新暗色主题样式 New Dark Theme Styles
+  色板 (Palette):
+  - dark-bg: #1E1E1E
+  - dark-surface: #2D2D2D
+  - dark-input: #3C3C3C
+  - dark-hover: #4A4A4A
+  - dark-border: #4A4A4A
+  - dark-text-primary: #E0E0E0
+  - dark-text-secondary: #B0B0B0
+*/
+
 .node-common {
-  border: 1px solid #ccc;
+  border: 1px solid #4A4A4A; /* dark-border */
   border-radius: 8px;
-  background-color: #f9f9f9;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-  min-width: 250px;
+  background-color: #2D2D2D; /* dark-surface */
+  box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+  min-width: 300px;
+  color: #E0E0E0; /* dark-text-primary */
 }
 
 .interactive-node:hover {
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  box-shadow: 0 0 8px rgba(94, 129, 172, 0.5); /* dark-accent glow */
+  border-color: #5E81AC; /* dark-accent */
 }
 
 .node-header {
-  background-color: #e0e0e0;
-  color: #333;
-  padding: 8px 12px;
-  border-top-left-radius: 8px;
-  border-top-right-radius: 8px;
-  border-bottom: 1px solid #ccc;
+  background-color: #2D2D2D; /* dark-surface */
+  color: #E0E0E0; /* dark-text-primary */
+  padding: 10px 15px;
+  border-top-left-radius: 7px;
+  border-top-right-radius: 7px;
+  border-bottom: 1px solid #4A4A4A; /* dark-border */
   font-weight: bold;
 }
 
 .node-content {
-  padding: 12px;
+  padding: 15px;
 }
 
 .config-form {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 16px;
 }
 
 .config-form fieldset {
-  border: 1px solid #ddd;
-  padding: 10px;
-  border-radius: 4px;
+  border: 1px solid #4A4A4A; /* dark-border */
+  padding: 15px;
+  border-radius: 6px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 12px;
 }
 
 .config-form legend {
-  padding: 0 5px;
+  padding: 0 8px;
   font-weight: bold;
-  color: #555;
+  font-size: 1em;
+  color: #B0B0B0; /* dark-text-secondary */
 }
 
 .config-form label {
   font-size: 14px;
-  color: #333;
+  color: #B0B0B0; /* dark-text-secondary */
+  margin-bottom: 4px;
+  display: block;
 }
 
 .config-form input[type="text"],
@@ -55,10 +72,22 @@
 .config-form select,
 .config-form textarea {
   width: 100%;
-  padding: 6px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+  padding: 10px;
+  border: 1px solid var(--border-dark);
+  border-radius: 6px;
   font-size: 14px;
+  background-color: var(--bg-darkest);
+  color: var(--text-light);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.config-form input[type="text"]:focus,
+.config-form input[type="number"]:focus,
+.config-form select:focus,
+.config-form textarea:focus {
+  outline: none;
+  border-color: #5E81AC; /* dark-accent */
+  box-shadow: 0 0 0 2px rgba(94, 129, 172, 0.3);
 }
 
 .config-form .checkbox-label {
@@ -66,22 +95,27 @@
   align-items: center;
   gap: 8px;
   font-size: 14px;
+  color: #E0E0E0;
 }
 
 .node-actions {
   margin-top: 16px;
   display: flex;
   justify-content: flex-end;
+  gap: 8px;
 }
 
 .node-actions button {
-  padding: 6px 12px;
-  border: 1px solid #ccc;
-  background-color: #f0f0f0;
-  border-radius: 4px;
+  padding: 8px 16px;
+  border: 1px solid #4A4A4A; /* dark-border */
+  background-color: #3C3C3C; /* dark-input */
+  color: #E0E0E0; /* dark-text-primary */
+  border-radius: 6px;
   cursor: pointer;
+  transition: background-color 0.2s, border-color 0.2s;
 }
 
 .node-actions button:hover {
-  background-color: #e0e0e0;
+  background-color: #4A4A4A; /* dark-hover */
+  border-color: #5E81AC; /* dark-accent */
 } 

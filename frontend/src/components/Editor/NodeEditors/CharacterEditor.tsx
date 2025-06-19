@@ -2,10 +2,25 @@ import React, { useState, useRef } from 'react';
 import { type Node } from 'reactflow';
 import { useFlowContext } from '../FlowContext';
 import { JSONEditor } from '../Components/JSONEditor';
+import './CharacterEditor.css';
 
 interface CharacterEditorProps {
   node: Node;
 }
+
+const CollapsibleSection: React.FC<{ title: string, children: React.ReactNode, initiallyOpen?: boolean }> = ({ title, children, initiallyOpen = true }) => {
+  const [isOpen, setIsOpen] = useState(initiallyOpen);
+
+  return (
+    <div className="form-group">
+      <div className="form-group-header" onClick={() => setIsOpen(!isOpen)}>
+        <h3>{title}</h3>
+        <span>{isOpen ? '▼' : '►'}</span>
+      </div>
+      {isOpen && <div className="form-group-content">{children}</div>}
+    </div>
+  );
+};
 
 export const CharacterEditor: React.FC<CharacterEditorProps> = ({ node }) => {
   const { updateNodeData } = useFlowContext();
@@ -13,6 +28,7 @@ export const CharacterEditor: React.FC<CharacterEditorProps> = ({ node }) => {
   const [characterData, setCharacterData] = useState(node.data.characterData || {
     name: '',
     age: null,
+    gender: 'other',
     background: {
       origin: '',
       occupation: '',
@@ -29,6 +45,7 @@ export const CharacterEditor: React.FC<CharacterEditorProps> = ({ node }) => {
       characterData: newData,
       name: newData.name,
       age: newData.age,
+      gender: newData.gender,
       occupation: newData.background?.occupation
     });
   };
@@ -71,26 +88,17 @@ export const CharacterEditor: React.FC<CharacterEditorProps> = ({ node }) => {
   };
 
   return (
-    <div className="p-4 space-y-4">
-      <div className="flex justify-between items-center">
-        <h3 className="text-lg font-semibold">角色设定</h3>
-        <div className="flex space-x-2">
-          <button
-            onClick={() => fileInputRef.current?.click()}
-            className="px-3 py-1 bg-blue-500 text-white rounded text-sm hover:bg-blue-600"
-          >
+    <div className="editor-container">
+      <div className="editor-header">
+        <h3 className="editor-title">角色设定</h3>
+        <div className="editor-actions">
+          <button onClick={() => fileInputRef.current?.click()} className="editor-button">
             导入
           </button>
-          <button
-            onClick={handleExportJSON}
-            className="px-3 py-1 bg-green-500 text-white rounded text-sm hover:bg-green-600"
-          >
+          <button onClick={handleExportJSON} className="editor-button">
             导出
           </button>
-          <button
-            onClick={loadTemplate}
-            className="px-3 py-1 bg-gray-500 text-white rounded text-sm hover:bg-gray-600"
-          >
+          <button onClick={loadTemplate} className="editor-button editor-button-secondary">
             模板
           </button>
         </div>
@@ -101,62 +109,89 @@ export const CharacterEditor: React.FC<CharacterEditorProps> = ({ node }) => {
         ref={fileInputRef}
         onChange={handleImportJSON}
         accept=".json"
-        className="hidden"
+        className="hidden-file-input"
       />
 
-      {/* 基本信息快速编辑 */}
-      <div className="space-y-3">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">角色名称</label>
-          <input
-            type="text"
-            value={characterData.name || ''}
-            onChange={(e) => handleDataChange({ ...characterData, name: e.target.value })}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="输入角色名称"
-          />
-        </div>
-        
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">年龄</label>
-          <input
-            type="number"
-            value={characterData.age || ''}
-            onChange={(e) => handleDataChange({ 
-              ...characterData, 
-              age: e.target.value ? parseInt(e.target.value) : null 
-            })}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="输入年龄"
-          />
-        </div>
+      <div className="form-section">
+        <CollapsibleSection title="基本信息">
+          <div className="form-field">
+            <label className="form-label">角色名称</label>
+            <input
+              type="text"
+              value={characterData.name || ''}
+              onChange={(e) => handleDataChange({ ...characterData, name: e.target.value })}
+              className="form-input"
+              placeholder="输入角色名称"
+            />
+          </div>
+          
+          <div className="form-field">
+            <label className="form-label">年龄</label>
+            <input
+              type="number"
+              value={characterData.age || ''}
+              onChange={(e) => handleDataChange({ 
+                ...characterData, 
+                age: e.target.value ? parseInt(e.target.value) : null 
+              })}
+              className="form-input"
+              placeholder="输入年龄"
+            />
+          </div>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">职业</label>
-          <input
-            type="text"
-            value={characterData.background?.occupation || ''}
-            onChange={(e) => handleDataChange({ 
-              ...characterData, 
-              background: { 
-                ...characterData.background, 
-                occupation: e.target.value 
-              }
-            })}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="输入职业"
-          />
-        </div>
+          <div className="form-field">
+            <label className="form-label">性别</label>
+            <select
+              value={characterData.gender || 'other'}
+              onChange={(e) => handleDataChange({ ...characterData, gender: e.target.value })}
+              className="form-select"
+            >
+              <option value="male">男</option>
+              <option value="female">女</option>
+              <option value="other">其他</option>
+            </select>
+          </div>
+        </CollapsibleSection>
+
+        <CollapsibleSection title="背景设定">
+          <div className="form-field">
+            <label className="form-label">职业</label>
+            <input
+              type="text"
+              value={characterData.background?.occupation || ''}
+              onChange={(e) => handleDataChange({ 
+                ...characterData, 
+                background: { 
+                  ...characterData.background, 
+                  occupation: e.target.value 
+                }
+              })}
+              className="form-input"
+              placeholder="输入职业"
+            />
+          </div>
+        </CollapsibleSection>
+
+        <CollapsibleSection title="角色简介">
+          <div className="form-field">
+            <label className="form-label">角色简介</label>
+            <textarea
+              value={characterData.summary || ''}
+              onChange={(e) => handleDataChange({ ...characterData, summary: e.target.value })}
+              className="form-textarea"
+              placeholder="简要描述角色的核心特征"
+            />
+          </div>
+        </CollapsibleSection>
       </div>
 
-      <div className="border-t pt-4">
-        <label className="block text-sm font-medium text-gray-700 mb-2">完整JSON数据</label>
+      <CollapsibleSection title="完整JSON数据">
         <JSONEditor
           data={characterData}
           onChange={handleDataChange}
           height="400px"
         />
-      </div>
+      </CollapsibleSection>
     </div>
   );
 };

@@ -6,19 +6,20 @@ import { LLMEditor } from './NodeEditors/LLMEditor';
 import { EnvironmentEditor } from './NodeEditors/EnvironmentEditor';
 import { SystemPromptEditor } from './NodeEditors/SystemPromptEditor';
 import { UserPromptEditor } from './NodeEditors/UserPromptEditor';
+import './NodeEditor.css';
 
-interface SidebarProps {
+interface NodeEditorProps {
   selectedNode: Node | null;
 }
 
-export const Sidebar: React.FC<SidebarProps> = ({ selectedNode }) => {
+export const NodeEditor: React.FC<NodeEditorProps> = ({ selectedNode }) => {
   if (!selectedNode) {
     return (
-      <div className="w-80 bg-gray-50 border-l border-gray-200 p-4">
-        <div className="text-center text-gray-500 mt-20">
-          <div className="text-4xl mb-4">📝</div>
-          <h3 className="text-lg font-medium mb-2">选择一个节点</h3>
-          <p className="text-sm">点击画布中的节点来编辑其属性</p>
+      <div className="sidebar-container">
+        <div className="sidebar-placeholder">
+          <div className="sidebar-placeholder-icon">📝</div>
+          <h3>选择一个节点</h3>
+          <p>点击画布中的节点来编辑其属性</p>
         </div>
       </div>
     );
@@ -49,17 +50,19 @@ export const Sidebar: React.FC<SidebarProps> = ({ selectedNode }) => {
   };
 
   return (
-    <div className="w-80 bg-white border-l border-gray-200 overflow-y-auto">
-      <div className="sticky top-0 bg-white border-b border-gray-200 p-4">
-        <div className="flex items-center space-x-2">
-          <div className="w-3 h-3 rounded-full bg-blue-500"></div>
-          <h2 className="text-lg font-semibold text-gray-800">
+    <div className="sidebar-container">
+      <div className="sidebar-header">
+        <div className="sidebar-header-title-container">
+          <div className="sidebar-header-indicator"></div>
+          <h2 className="sidebar-header-title">
             {selectedNode.data.label || '节点编辑'}
           </h2>
         </div>
-        <p className="text-sm text-gray-500 mt-1">ID: {selectedNode.id}</p>
+        <p className="sidebar-header-id">ID: {selectedNode.id}</p>
       </div>
-      {renderEditor()}
+      <div className="sidebar-content">
+        {renderEditor()}
+      </div>
     </div>
   );
 };
