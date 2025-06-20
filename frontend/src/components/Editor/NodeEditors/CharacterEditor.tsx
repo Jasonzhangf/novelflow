@@ -151,6 +151,31 @@ export const CharacterEditor: React.FC<CharacterEditorProps> = ({ node }) => {
     handleDataChange({ ...characterData, personality: newPersonality });
   };
 
+  // 获取角色概览信息
+  const getCharacterOverview = () => {
+    const overview: { [key: string]: string } = {};
+    
+    if (characterData.name) overview['姓名'] = characterData.name;
+    if (characterData.age) overview['年龄'] = `${characterData.age} 岁`;
+    if (characterData.background?.occupation) overview['职业'] = characterData.background.occupation;
+    if (characterData.background?.origin) overview['出身'] = characterData.background.origin;
+    if (characterData.language) overview['语言'] = characterData.language === 'chinese' ? '中文' : characterData.language;
+    
+    // 关系数量
+    if (characterData.relationships?.length) {
+      overview['关系数量'] = `${characterData.relationships.length} 个`;
+    }
+    
+    // 性格设定完成度
+    if (characterData.personality) {
+      const totalGroups = Object.keys(PERSONALITY_TEMPLATE).length;
+      const completedGroups = Object.keys(characterData.personality).length;
+      overview['性格设定'] = `${completedGroups}/${totalGroups} 完成`;
+    }
+    
+    return overview;
+  };
+
   return (
     <div className="editor-container">
       <div className="editor-header">
@@ -165,6 +190,19 @@ export const CharacterEditor: React.FC<CharacterEditorProps> = ({ node }) => {
           <button onClick={loadTemplate} className="editor-button editor-button-secondary">
             模板
           </button>
+        </div>
+      </div>
+
+      {/* 角色概览卡片 */}
+      <div className="character-overview-card">
+        <h4 className="overview-title">角色概览</h4>
+        <div className="overview-grid">
+          {Object.entries(getCharacterOverview()).map(([key, value]) => (
+            <div key={key} className="overview-item">
+              <span className="overview-label">{key}</span>
+              <span className="overview-value">{value}</span>
+            </div>
+          ))}
         </div>
       </div>
 
@@ -245,6 +283,26 @@ export const CharacterEditor: React.FC<CharacterEditorProps> = ({ node }) => {
               className="form-textarea"
               placeholder="简要描述角色的核心特征"
             />
+          </div>
+        </CollapsibleSection>
+
+        <CollapsibleSection title="人物关系">
+          <div className="relationships-section">
+            {characterData.relationships && characterData.relationships.length > 0 ? (
+              <div className="relationships-list">
+                {characterData.relationships.map((relationship: any, index: number) => (
+                  <div key={index} className="relationship-card">
+                    <div className="relationship-header">
+                      <span className="relationship-character">{relationship.character}</span>
+                      <span className="relationship-type">{relationship.type}</span>
+                    </div>
+                    <div className="relationship-description">{relationship.description}</div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="empty-state">暂无人物关系设定</div>
+            )}
           </div>
         </CollapsibleSection>
 

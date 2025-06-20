@@ -164,4 +164,109 @@
 
 .personality-group-header, .personality-group-title, .personality-group-toggle {
   color: var(--text-light, #fff) !important;
+}
+
+/* Character Overview Card */
+.character-overview-card {
+  background-color: var(--color-background-surface, #242528);
+  border: 1px solid var(--color-border-default, #3a3b3d);
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.overview-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-text-primary, #f0f0f0);
+  margin: 0 0 0.75rem 0;
+}
+
+.overview-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 0.75rem;
+}
+
+.overview-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem;
+  background-color: var(--color-background-element, #2c2d30);
+  border-radius: 4px;
+  border: 1px solid var(--color-border-subtle, #4a4b4d);
+}
+
+.overview-label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-text-secondary, #a0a0a0);
+}
+
+.overview-value {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-text-primary, #f0f0f0);
+  text-align: right;
+}
+
+/* Relationships Section */
+.relationships-section {
+  color: var(--color-text-primary, #f0f0f0);
+}
+
+.relationships-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.relationship-card {
+  background-color: var(--color-background-element, #2c2d30);
+  border: 1px solid var(--color-border-default, #3a3b3d);
+  border-radius: 6px;
+  padding: 0.75rem;
+  transition: border-color 0.2s ease;
+}
+
+.relationship-card:hover {
+  border-color: var(--color-border-subtle, #4a4b4d);
+}
+
+.relationship-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.relationship-character {
+  font-weight: 600;
+  color: var(--color-text-primary, #f0f0f0);
+  font-size: 0.95rem;
+}
+
+.relationship-type {
+  background-color: var(--color-background-base, #1a1b1e);
+  color: var(--color-text-secondary, #a0a0a0);
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  border: 1px solid var(--color-border-default, #3a3b3d);
+}
+
+.relationship-description {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary, #a0a0a0);
+  line-height: 1.4;
+}
+
+.empty-state {
+  text-align: center;
+  color: var(--color-text-secondary, #a0a0a0);
+  font-style: italic;
+  padding: 2rem;
+  border: 2px dashed var(--color-border-default, #3a3b3d);
+  border-radius: 8px;
 } 

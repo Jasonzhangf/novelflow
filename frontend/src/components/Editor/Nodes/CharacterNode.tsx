@@ -5,16 +5,33 @@ import { useFlowContext } from '../FlowContext';
 
 export const CharacterNode: React.FC<NodeProps> = ({ data, id }) => {
   const { deleteNode, duplicateNode } = useFlowContext();
-  const characterName = data.name || data.characterName || data.label || '未命名角色';
-  const age = data.age || data.characterData?.age || '';
-  const occupation = data.occupation || data.characterData?.background?.occupation || '';
-  const personality = data.personality || data.characterData?.personality || '';
+  
+  // Extract character data from either direct properties or characterData object
+  const characterData = data.characterData || {};
+  const characterName = data.name || characterData.name || data.label || '未命名角色';
+  const age = data.age || characterData.age || '';
+  const occupation = data.occupation || characterData.background?.occupation || '';
+  
+  // Show key personality traits if available
+  const getPersonalityPreview = () => {
+    if (!characterData.personality) return '未设置';
+    
+    const coreTemperament = characterData.personality.CoreTemperament;
+    if (!coreTemperament) return '已设置';
+    
+    // Show top 2 personality traits
+    const traits = Object.entries(coreTemperament)
+      .map(([key, value]: [string, any]) => `${value.Caption}: ${value.Value}`)
+      .slice(0, 2);
+    
+    return traits.length > 0 ? traits.join(', ') : '已设置';
+  };
 
   const configItems = [
     { label: '角色名称', value: characterName, key: 'name' },
     { label: '年龄', value: age ? `${age} 岁` : '未设置', key: 'age' },
     { label: '职业', value: occupation || '未设置', key: 'occupation' },
-    { label: '性格', value: personality || '未设置', key: 'personality' },
+    { label: '性格特征', value: getPersonalityPreview(), key: 'personality' },
   ];
 
   const handleEdit = (key: string) => {
