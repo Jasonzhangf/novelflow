@@ -1,0 +1,24 @@
+{
+  // LLM配置对象，必填
+  // LLM config object, required
+  "config": {
+    // 提供商，字符串，必填
+    // Provider, string, required
+    "provider": "gemini",
+    // 模型名称，字符串，必填
+    // Model name, string, required
+    "model": "gemini-2.5-flash-preview-05-20",
+    // 温度，数字，选填
+    // Temperature, number, optional
+    "temperature": 0.7,
+    // API密钥，布尔或字符串，选填
+    // API key, boolean or string, optional
+    "apiKey": false,
+    // 最大Token数，数字，选填
+    // Max tokens, number, optional
+    "maxTokens": 2000,
+    // 结果，字符串，选填
+    // Result, string, optional
+    "result": ""
+  }
+} 

@@ -1,0 +1,11 @@
+{
+  // 提示名称，字符串，必填
+  // Prompt name, string, required
+  "promptName": "主线剧情提示",
+  // 内容，字符串，必填
+  // Content, string, required
+  "content": "请描述主角的冒险经历。",
+  // 章节类型，字符串，选填
+  // Chapter type, string, optional
+  "chapterType": "冒险"
+} 

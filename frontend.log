@@ -210,3 +210,6 @@
 12:05:30 PM [vite] (client) hmr update /src/components/Editor/Nodes/WorldNode.tsx
 12:05:43 PM [vite] (client) hmr update /src/components/Editor/Nodes/RelationshipNode.tsx
 12:05:43 PM [vite] (client) hmr update /src/components/Editor/Nodes/RelationshipNode.tsx
+10:27:28 PM [vite] (client) hmr update /src/components/ProjectManager/ProjectFileSelector.tsx
+10:27:28 PM [vite] (client) hmr update /src/components/ProjectManager/ProjectToolbar.tsx
+10:27:28 PM [vite] (client) hmr update /src/components/ProjectManager/ProjectList.tsx

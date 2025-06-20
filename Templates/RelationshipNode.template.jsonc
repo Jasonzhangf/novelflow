@@ -1,0 +1,16 @@
+{
+  // 连接的角色列表，字符串数组，必填
+  // Connected character names, array of strings, required
+  "connectedCharacters": ["Alice", "Bob"],
+
+  // 关系数据对象，必填
+  // Relationship data object, required
+  "relationshipData": {
+    // 关系内容，字符串，选填
+    // Relationship content, string, optional
+    "relationships": "Alice和Bob是朋友",
+    // 关系条目总数，数字，选填
+    // Total number of relationships, number, optional
+    "totalRelationships": 1
+  }
+} 

@@ -1,0 +1,39 @@
+{
+  // 角色数据对象，必填
+  // Character data object, required
+  "characterData": {
+    // 角色名称，字符串，必填
+    // Character name, string, required
+    "name": "主角A",
+    // 年龄，数字或字符串，选填
+    // Age, number or string, optional
+    "age": 25,
+    // 背景故事对象，选填
+    // Background story object, optional
+    "background": {
+      // 职业，字符串，选填
+      // Occupation, string, optional
+      "occupation": "探险家"
+    },
+    // 性格特征对象，选填
+    // Personality traits object, optional
+    "personality": {
+      // 核心性格，对象，选填
+      // Core temperament, object, optional
+      "CoreTemperament": {
+        // 示例：特征1，对象，包含标题和值
+        // Example: Trait 1, object with Caption and Value
+        "Trait1": {
+          "Caption": "勇敢",
+          "Value": "在危险面前从不退缩"
+        },
+        // 示例：特征2
+        // Example: Trait 2
+        "Trait2": {
+          "Caption": "好奇",
+          "Value": "对未知事物充满探索欲"
+        }
+      }
+    }
+  }
+} 

@@ -1,0 +1,18 @@
+{
+  // 环境数据对象，必填
+  // Environment data object, required
+  "environmentData": {
+    // 环境名称，字符串，必填
+    // Environment name, string, required
+    "environmentName": "神秘森林",
+    // 地点，字符串，选填
+    // Location, string, optional
+    "location": "王国边境",
+    // 时间（如早晨、黄昏），字符串，选填
+    // Time of day (e.g., morning, dusk), string, optional
+    "timeOfDay": "黄昏",
+    // 天气，字符串，选填
+    // Weather, string, optional
+    "weather": "多云"
+  }
+} 

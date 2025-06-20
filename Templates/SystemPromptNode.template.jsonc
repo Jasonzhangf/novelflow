@@ -1,0 +1,14 @@
+{
+  // 提示名称，字符串，必填
+  // Prompt name, string, required
+  "promptName": "系统设定",
+  // 内容，字符串，必填
+  // Content, string, required
+  "content": "你是一个世界设定助手。",
+  // 角色，字符串，选填
+  // Role, string, optional
+  "role": "助手",
+  // 变量列表，数组，选填
+  // Variables, array, optional
+  "variables": ["worldName", "era"]
+} 

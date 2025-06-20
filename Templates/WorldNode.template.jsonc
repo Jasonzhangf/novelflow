@@ -1,0 +1,21 @@
+{
+  // 世界数据对象，必填
+  // World data object, required
+  "worldData": {
+    // 世界名称，字符串，必填
+    // World name, string, required
+    "worldName": "奇幻大陆",
+    // 时代，字符串，选填
+    // Era, string, optional
+    "era": "中世纪",
+    // 地理，字符串，选填
+    // Geography, string, optional
+    "geography": "山脉、森林",
+    // 文化，字符串，选填
+    // Culture, string, optional
+    "culture": "骑士文化",
+    // 科技，字符串，选填
+    // Technology, string, optional
+    "technology": "冷兵器"
+  }
+} 
