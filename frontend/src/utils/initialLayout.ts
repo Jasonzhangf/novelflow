@@ -63,8 +63,31 @@ export const getInitialNodes = (): Node[] => [
     type: 'textOutput',
     position: { x: 800, y: 750 },
     data: {
-      label: '文本显示',
-      text: 'LLM 的输出将在这里显示',
+      label: '文本输出',
+      title: '文本输出',
+      content: '',
+    },
+  },
+  // 世界设定节点（左上角）
+  {
+    id: 'world-1',
+    type: 'world',
+    position: { x: 50, y: 50 },
+    data: {
+      label: '世界设定',
+      worldName: '',
+      worldData: {}
+    },
+  },
+  // 人物关系节点（独立位置）
+  {
+    id: 'relationship-1',
+    type: 'relationship',
+    position: { x: 1100, y: 350 },
+    data: {
+      label: '人物关系',
+      relationshipData: {},
+      connectedCharacters: []
     },
   },
 ];
@@ -86,19 +109,19 @@ export const getInitialEdges = (): Edge[] => [
     sourceHandle: 'bottom',
     targetHandle: 'top',
   },
-  // 系统提示词 -> 场景节点
+  // 系统提示词 -> LLM节点
   {
-    id: 'systemPrompt-1-scene-1',
+    id: 'systemPrompt-1-llm-1',
     source: 'systemPrompt-1',
-    target: 'scene-1',
+    target: 'llm-1',
     sourceHandle: 'bottom',
     targetHandle: 'top',
   },
-  // 用户提示词 -> 场景节点
+  // 用户提示词 -> LLM节点
   {
-    id: 'userPrompt-1-scene-1',
+    id: 'userPrompt-1-llm-1',
     source: 'userPrompt-1',
-    target: 'scene-1',
+    target: 'llm-1',
     sourceHandle: 'bottom',
     targetHandle: 'top',
   },
@@ -118,5 +141,13 @@ export const getInitialEdges = (): Edge[] => [
     sourceHandle: 'bottom',
     targetHandle: 'top',
     animated: true,
+  },
+  // 世界设定 -> 场景节点
+  {
+    id: 'world-1-scene-1',
+    source: 'world-1',
+    target: 'scene-1',
+    sourceHandle: 'bottom',
+    targetHandle: 'top',
   },
 ];

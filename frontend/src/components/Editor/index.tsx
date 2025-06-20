@@ -1,4 +1,4 @@
-import React, { useCallback, useState, useEffect } from 'react';
+import React, { useCallback, useState, useEffect, useMemo } from 'react';
 import ReactFlow, {
   addEdge,
   useNodesState,
@@ -22,6 +22,7 @@ import { nodeTypes } from './nodeTypes';
 import { ProjectToolbar } from '../ProjectManager/ProjectToolbar';
 import { ProjectList } from '../ProjectManager/ProjectList';
 import { useProject } from '../../hooks/useProject';
+import { getLayoutedElements } from '../../utils/layout';
 import './Editor.css';
 
 const EditorComponent: React.FC = () => {
@@ -40,13 +41,27 @@ const EditorComponent: React.FC = () => {
   // This effect syncs the editor's state with the central project state
   useEffect(() => {
     if (currentProject) {
-      setNodes(currentProject.flowData.nodes || []);
-      setEdges(currentProject.flowData.edges || []);
-      if (currentProject.flowData.viewport) {
-        reactFlowInstance.setViewport(currentProject.flowData.viewport);
-      } else {
-        reactFlowInstance.fitView();
-      }
+      const projectNodes = currentProject.flowData.nodes || [];
+      const projectEdges = currentProject.flowData.edges || [];
+      
+      setNodes(projectNodes);
+      setEdges(projectEdges);
+      
+      // 自动排版并适应视图
+      setTimeout(() => {
+        if (projectNodes.length > 0) {
+          const layoutedNodes = getLayoutedElements(projectNodes, projectEdges, 'TB');
+          setNodes(layoutedNodes);
+          // 排版后适应视图
+          setTimeout(() => {
+            reactFlowInstance.fitView();
+          }, 50);
+        } else if (currentProject.flowData.viewport) {
+          reactFlowInstance.setViewport(currentProject.flowData.viewport);
+        } else {
+          reactFlowInstance.fitView();
+        }
+      }, 100);
     }
   }, [currentProject, setNodes, setEdges, reactFlowInstance]);
 
@@ -176,6 +191,18 @@ const EditorComponent: React.FC = () => {
     setShowProjectList(false);
   };
 
+  const handleAutoLayout = useCallback(() => {
+    const layoutedNodes = getLayoutedElements(nodes, edges, 'TB');
+    setNodes(layoutedNodes);
+    // 自动排版后适应视图
+    setTimeout(() => {
+      reactFlowInstance.fitView();
+    }, 100);
+  }, [nodes, edges, setNodes, reactFlowInstance]);
+
+  // Memoize nodeTypes to prevent React Flow warning
+  const memoizedNodeTypes = useMemo(() => nodeTypes, []);
+
   return (
     <FlowContext.Provider value={{ updateNodeData, addNode, deleteNode, duplicateNode }}>
       <div className="editor-layout">
@@ -196,7 +223,7 @@ const EditorComponent: React.FC = () => {
               onConnect={onConnect}
               onNodeClick={handleNodeClick}
               onPaneClick={handlePaneClick}
-              nodeTypes={nodeTypes}
+              nodeTypes={memoizedNodeTypes}
               fitView
               minZoom={0.3}
               maxZoom={2}
@@ -207,6 +234,15 @@ const EditorComponent: React.FC = () => {
               <Background variant={BackgroundVariant.Dots} gap={12} size={1} />
               <Panel position="top-left">
                 <NodeToolbar onAddNode={addNode} />
+              </Panel>
+              <Panel position="top-right">
+                <button
+                  onClick={handleAutoLayout}
+                  className="px-3 py-1.5 bg-blue-500 text-white rounded text-sm hover:bg-blue-600 transition-colors"
+                  title="自动排版节点"
+                >
+                  自动排版
+                </button>
               </Panel>
             </ReactFlow>
           </div>

@@ -11,7 +11,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@types/dagre": "^0.7.52",
     "@types/node": "^22.15.30",
+    "dagre": "^0.8.5",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "reactflow": "^11.11.4"

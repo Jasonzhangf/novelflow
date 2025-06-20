@@ -15,7 +15,7 @@ interface TextOutputNodeProps {
 }
 
 export const TextOutputNode: React.FC<TextOutputNodeProps> = ({ data, id }) => {
-  const { deleteNode, duplicateNode, updateNodeData } = useFlowContext();
+  const { deleteNode, duplicateNode } = useFlowContext();
   const [showFullscreen, setShowFullscreen] = useState(false);
   const [editableContent, setEditableContent] = useState(data.content || '');
 
@@ -25,10 +25,6 @@ export const TextOutputNode: React.FC<TextOutputNodeProps> = ({ data, id }) => {
       setEditableContent(data.content);
     }
   }, [data.content]);
-
-  const handleShowFullscreen = () => {
-    setShowFullscreen(true);
-  };
 
   const handleCloseFullscreen = () => {
     setShowFullscreen(false);
@@ -73,15 +69,29 @@ export const TextOutputNode: React.FC<TextOutputNodeProps> = ({ data, id }) => {
 
         <div className="p-3">
           <div className="mb-2">
-            <label className="block text-xs font-medium text-gray-700 mb-1">
-              输出内容 ({editableContent.length} 字符)
-            </label>
-            <div 
-              className="w-full p-2 border border-gray-300 rounded text-xs bg-gray-50 min-h-20 max-h-32 overflow-y-auto cursor-pointer hover:bg-gray-100"
-              style={{ whiteSpace: 'pre-wrap', lineHeight: '1.4' }}
-            >
-              {truncatedContent || '暂无内容，点击可在侧边栏编辑...'}
+            <div className="flex justify-between items-center mb-1">
+              <label className="block text-xs font-medium text-gray-700">
+                {data.title || '文本输出'}
+              </label>
+              <span className="text-xs text-gray-500">
+                {editableContent.length} 字符
+              </span>
             </div>
+            <div 
+              className="w-full p-3 border border-gray-300 rounded text-xs bg-gray-50 min-h-24 max-h-40 overflow-y-auto cursor-pointer hover:bg-gray-100 transition-colors"
+              style={{ 
+                whiteSpace: 'pre-wrap', 
+                lineHeight: '1.5',
+                fontFamily: 'Consolas, Monaco, "Courier New", monospace'
+              }}
+            >
+              {truncatedContent || '暂无内容，点击节点查看侧边栏编辑器...'}
+            </div>
+            {editableContent.length > 200 && (
+              <div className="text-xs text-gray-500 mt-1">
+                显示前200字符，完整内容请在侧边栏查看
+              </div>
+            )}
           </div>
           
           <div className="flex space-x-2">

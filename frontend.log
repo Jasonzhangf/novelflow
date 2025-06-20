@@ -1,15 +1,192 @@
 
 > novel-flow-react@0.0.0 dev
-> vite --port 4008
+> vite
 
+10:29:36 AM [vite] (client) Re-optimizing dependencies because lockfile has changed
 
-  [32m[1mVITE[22m v6.3.5[39m  [2mready in [0m[1m286[22m[2m[0m ms[22m
+  VITE v6.3.5  ready in 111 ms
 
-  [32m➜[39m  [1mLocal[22m:   [36mhttp://localhost:[1m4008[22m/[39m
-[2m[32m  ➜[39m[22m[2m  press [22m[1mh + enter[22m[2m to show help[22m
-[2m22:41:55[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/components/Editor/index.tsx[22m
-[2m22:42:09[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/components/Editor/index.tsx[22m
-[2m22:42:23[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/components/Editor/index.tsx[22m
-[2m22:42:38[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/components/Editor/index.tsx[22m
-[2m22:43:07[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/components/Editor/index.tsx[22m
-[2m22:43:45[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/components/Editor/index.tsx[22m
+  ➜  Local:   http://localhost:4008/
+10:35:21 AM [vite] (client) hmr update /src/components/Editor/NodeEditors/LLMEditor.tsx
+10:35:33 AM [vite] (client) hmr update /src/components/Editor/NodeEditors/LLMEditor.tsx
+10:35:43 AM [vite] (client) hmr update /src/components/Editor/NodeEditors/LLMEditor.tsx
+10:35:57 AM [vite] (client) hmr update /src/components/Editor/NodeEditors/LLMEditor.tsx
+10:36:18 AM [vite] (client) hmr update /src/components/Editor/NodeEditors/SceneEditor.tsx
+10:36:36 AM [vite] (client) hmr update /src/components/Editor/NodeEditors/SceneEditor.tsx
+10:37:05 AM [vite] (client) hmr update /src/components/Editor/NodeEditors/SceneEditor.tsx
+10:37:05 AM [vite] Internal server error: /Users/fanzhang/Documents/github/novelflow/frontend/src/components/Editor/NodeEditors/SceneEditor.tsx: Unterminated JSX contents. (278:10)
+
+  276 |         />
+  277 |       </div>
+> 278 |     </div>
+      |           ^
+  279 |   );
+  280 | };
+  Plugin: vite:react-babel
+  File: /Users/fanzhang/Documents/github/novelflow/frontend/src/components/Editor/NodeEditors/SceneEditor.tsx:278:10
+  276|          />
+  277|        </div>
+  278|      </div>
+     |            ^
+  279|    );
+  280|  };
+      at constructor (/Users/fanzhang/Documents/github/novelflow/frontend/node_modules/@babel/parser/lib/index.js:363:19)
+      at TypeScriptParserMixin.raise (/Users/fanzhang/Documents/github/novelflow/frontend/node_modules/@babel/parser/lib/index.js:6609:19)
+      at TypeScriptParserMixin.jsxReadToken (/Users/fanzhang/Documents/github/novelflow/frontend/node_modules/@babel/parser/lib/index.js:4460:20)
+      at TypeScriptParserMixin.getTokenFromCode (/Users/fanzhang/Documents/github/novelflow/frontend/node_modules/@babel/parser/lib/index.js:4786:12)
+      at TypeScriptParserMixin.getTokenFromCode (/Users/fanzhang/Documents/github/novelflow/frontend/node_modules/@babel/parser/lib/index.js:9946:11)
+      at TypeScriptParserMixin.nextToken (/Users/fanzhang/Documents/github/novelflow/frontend/node_modules/@babel/parser/lib/index.js:5792:10)
+      at TypeScriptParserMixin.next (/Users/fanzhang/Documents/github/novelflow/frontend/node_modules/@babel/parser/lib/index.js:5702:10)
+      at TypeScriptParserMixin.eat (/Users/fanzhang/Documents/github/novelflow/frontend/node_modules/@babel/parser/lib/index.js:5706:12)
+      at TypeScriptParserMixin.expect (/Users/fanzhang/Documents/github/novelflow/frontend/node_modules/@babel/parser/lib/index.js:6909:15)
+      at TypeScriptParserMixin.jsxParseClosingElementAt (/Users/fanzhang/Documents/github/novelflow/frontend/node_modules/@babel/parser/lib/index.js:4692:10)
+      at TypeScriptParserMixin.jsxParseElementAt (/Users/fanzhang/Documents/github/novelflow/frontend/node_modules/@babel/parser/lib/index.js:4707:37)
+      at TypeScriptParserMixin.jsxParseElementAt (/Users/fanzhang/Documents/github/novelflow/frontend/node_modules/@babel/parser/lib/index.js:4710:32)
+      at TypeScriptParserMixin.jsxParseElement (/Users/fanzhang/Documents/github/novelflow/frontend/node_modules/@babel/parser/lib/index.js:4761:17)
+      at TypeScriptParserMixin.parseExprAtom (/Users/fanzhang/Documents/github/novelflow/frontend/node_modules/@babel/parser/lib/index.js:4771:19)
+      at TypeScriptParserMixin.parseExprSubscripts (/Users/fanzhang/Documents/github/novelflow/frontend/node_modules/@babel/parser/lib/index.js:11012:23)
+      at TypeScriptParserMixin.parseUpdate (/Users/fanzhang/Documents/github/novelflow/frontend/node_modules/@babel/parser/lib/index.js:10997:21)
+      at TypeScriptParserMixin.parseMaybeUnary (/Users/fanzhang/Documents/github/novelflow/frontend/node_modules/@babel/parser/lib/index.js:10977:23)
+      at TypeScriptParserMixin.parseMaybeUnary (/Users/fanzhang/Documents/github/novelflow/frontend/node_modules/@babel/parser/lib/index.js:9794:18)
+      at TypeScriptParserMixin.parseMaybeUnaryOrPrivate (/Users/fanzhang/Documents/github/novelflow/frontend/node_modules/@babel/parser/lib/index.js:10830:61)
+      at TypeScriptParserMixin.parseExprOps (/Users/fanzhang/Documents/github/novelflow/frontend/node_modules/@babel/parser/lib/index.js:10835:23)
+      at TypeScriptParserMixin.parseMaybeConditional (/Users/fanzhang/Documents/github/novelflow/frontend/node_modules/@babel/parser/lib/index.js:10812:23)
+      at TypeScriptParserMixin.parseMaybeAssign (/Users/fanzhang/Documents/github/novelflow/frontend/node_modules/@babel/parser/lib/index.js:10765:21)
+      at /Users/fanzhang/Documents/github/novelflow/frontend/node_modules/@babel/parser/lib/index.js:9732:39
+      at TypeScriptParserMixin.tryParse (/Users/fanzhang/Documents/github/novelflow/frontend/node_modules/@babel/parser/lib/index.js:6918:20)
+      at TypeScriptParserMixin.parseMaybeAssign (/Users/fanzhang/Documents/github/novelflow/frontend/node_modules/@babel/parser/lib/index.js:9732:18)
+      at /Users/fanzhang/Documents/github/novelflow/frontend/node_modules/@babel/parser/lib/index.js:10734:39
+      at TypeScriptParserMixin.allowInAnd (/Users/fanzhang/Documents/github/novelflow/frontend/node_modules/@babel/parser/lib/index.js:12361:12)
+      at TypeScriptParserMixin.parseMaybeAssignAllowIn (/Users/fanzhang/Documents/github/novelflow/frontend/node_modules/@babel/parser/lib/index.js:10734:17)
+      at TypeScriptParserMixin.parseParenAndDistinguishExpression (/Users/fanzhang/Documents/github/novelflow/frontend/node_modules/@babel/parser/lib/index.js:11608:28)
+      at TypeScriptParserMixin.parseExprAtom (/Users/fanzhang/Documents/github/novelflow/frontend/node_modules/@babel/parser/lib/index.js:11262:23)
+      at TypeScriptParserMixin.parseExprAtom (/Users/fanzhang/Documents/github/novelflow/frontend/node_modules/@babel/parser/lib/index.js:4776:20)
+      at TypeScriptParserMixin.parseExprSubscripts (/Users/fanzhang/Documents/github/novelflow/frontend/node_modules/@babel/parser/lib/index.js:11012:23)
+      at TypeScriptParserMixin.parseUpdate (/Users/fanzhang/Documents/github/novelflow/frontend/node_modules/@babel/parser/lib/index.js:10997:21)
+      at TypeScriptParserMixin.parseMaybeUnary (/Users/fanzhang/Documents/github/novelflow/frontend/node_modules/@babel/parser/lib/index.js:10977:23)
+      at TypeScriptParserMixin.parseMaybeUnary (/Users/fanzhang/Documents/github/novelflow/frontend/node_modules/@babel/parser/lib/index.js:9794:18)
+      at TypeScriptParserMixin.parseMaybeUnaryOrPrivate (/Users/fanzhang/Documents/github/novelflow/frontend/node_modules/@babel/parser/lib/index.js:10830:61)
+      at TypeScriptParserMixin.parseExprOps (/Users/fanzhang/Documents/github/novelflow/frontend/node_modules/@babel/parser/lib/index.js:10835:23)
+      at TypeScriptParserMixin.parseMaybeConditional (/Users/fanzhang/Documents/github/novelflow/frontend/node_modules/@babel/parser/lib/index.js:10812:23)
+      at TypeScriptParserMixin.parseMaybeAssign (/Users/fanzhang/Documents/github/novelflow/frontend/node_modules/@babel/parser/lib/index.js:10765:21)
+      at TypeScriptParserMixin.parseMaybeAssign (/Users/fanzhang/Documents/github/novelflow/frontend/node_modules/@babel/parser/lib/index.js:9743:20)
+      at TypeScriptParserMixin.parseExpressionBase (/Users/fanzhang/Documents/github/novelflow/frontend/node_modules/@babel/parser/lib/index.js:10718:23)
+      at /Users/fanzhang/Documents/github/novelflow/frontend/node_modules/@babel/parser/lib/index.js:10714:39
+      at TypeScriptParserMixin.allowInAnd (/Users/fanzhang/Documents/github/novelflow/frontend/node_modules/@babel/parser/lib/index.js:12356:16)
+      at TypeScriptParserMixin.parseExpression (/Users/fanzhang/Documents/github/novelflow/frontend/node_modules/@babel/parser/lib/index.js:10714:17)
+      at TypeScriptParserMixin.parseReturnStatement (/Users/fanzhang/Documents/github/novelflow/frontend/node_modules/@babel/parser/lib/index.js:13061:28)
+      at TypeScriptParserMixin.parseStatementContent (/Users/fanzhang/Documents/github/novelflow/frontend/node_modules/@babel/parser/lib/index.js:12716:21)
+      at TypeScriptParserMixin.parseStatementContent (/Users/fanzhang/Documents/github/novelflow/frontend/node_modules/@babel/parser/lib/index.js:9469:18)
+      at TypeScriptParserMixin.parseStatementLike (/Users/fanzhang/Documents/github/novelflow/frontend/node_modules/@babel/parser/lib/index.js:12685:17)
+      at TypeScriptParserMixin.parseStatementListItem (/Users/fanzhang/Documents/github/novelflow/frontend/node_modules/@babel/parser/lib/index.js:12665:17)
+      at TypeScriptParserMixin.parseBlockOrModuleBlockBody (/Users/fanzhang/Documents/github/novelflow/frontend/node_modules/@babel/parser/lib/index.js:13235:61)
+10:37:30 AM [vite] (client) hmr update /src/components/Editor/NodeEditors/SceneEditor.tsx
+10:37:50 AM [vite] (client) hmr update /src/components/Editor/NodeEditors/EnvironmentEditor.tsx
+10:38:17 AM [vite] (client) hmr update /src/components/Editor/NodeEditors/EnvironmentEditor.tsx
+10:39:07 AM [vite] (client) hmr update /src/components/Editor/NodeEditors/EnvironmentEditor.tsx
+10:39:21 AM [vite] .env changed, restarting server...
+10:39:21 AM [vite] .env changed, restarting server...
+10:39:21 AM [vite] server restarted.
+11:01:15 AM [vite] (client) hmr update /src/components/Editor/Nodes/LLMNode.tsx
+11:02:15 AM [vite] (client) hmr update /src/components/Editor/index.tsx, /src/components/ProjectManager/ProjectToolbar.tsx, /src/components/ProjectManager/ProjectList.tsx, /src/components/ProjectManager/ProjectFileSelector.tsx, /src/components/Editor/NodeEditors/TextOutputEditor.tsx
+11:02:29 AM [vite] (client) hmr update /src/components/Editor/index.tsx, /src/components/ProjectManager/ProjectToolbar.tsx, /src/components/ProjectManager/ProjectList.tsx, /src/components/ProjectManager/ProjectFileSelector.tsx, /src/components/Editor/NodeEditors/TextOutputEditor.tsx
+11:02:41 AM [vite] (client) hmr update /src/components/Editor/index.tsx, /src/components/ProjectManager/ProjectToolbar.tsx, /src/components/ProjectManager/ProjectList.tsx, /src/components/ProjectManager/ProjectFileSelector.tsx, /src/components/Editor/NodeEditors/TextOutputEditor.tsx
+11:11:56 AM [vite] (client) hmr update /src/components/Editor/index.tsx
+11:30:33 AM [vite] (client) hmr update /src/components/Editor/NodeEditor.tsx
+11:31:42 AM [vite] (client) hmr update /src/components/Editor/NodeEditor.tsx
+11:32:09 AM [vite] (client) hmr update /src/components/Editor/NodeToolbar.tsx
+11:33:27 AM [vite] (client) hmr update /src/components/Editor/index.tsx
+11:33:27 AM [vite] (client) Pre-transform error: Failed to resolve import "dagre" from "src/utils/layout.ts". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /Users/fanzhang/Documents/github/novelflow/frontend/src/utils/layout.ts:2:23
+  1  |  import { Position } from "reactflow";
+  2  |  import * as dagre from "dagre";
+     |                          ^
+  3  |  const dagreGraph = new dagre.graphlib.Graph();
+  4  |  dagreGraph.setDefaultEdgeLabel(() => ({}));
+11:33:27 AM [vite] Internal server error: Failed to resolve import "dagre" from "src/utils/layout.ts". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /Users/fanzhang/Documents/github/novelflow/frontend/src/utils/layout.ts:2:23
+  1  |  import { Position } from "reactflow";
+  2  |  import * as dagre from "dagre";
+     |                          ^
+  3  |  const dagreGraph = new dagre.graphlib.Graph();
+  4  |  dagreGraph.setDefaultEdgeLabel(() => ({}));
+      at TransformPluginContext._formatLog (file:///Users/fanzhang/Documents/github/novelflow/frontend/node_modules/vite/dist/node/chunks/dep-DBxKXgDP.js:42499:41)
+      at TransformPluginContext.error (file:///Users/fanzhang/Documents/github/novelflow/frontend/node_modules/vite/dist/node/chunks/dep-DBxKXgDP.js:42496:16)
+      at normalizeUrl (file:///Users/fanzhang/Documents/github/novelflow/frontend/node_modules/vite/dist/node/chunks/dep-DBxKXgDP.js:40475:23)
+      at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+      at async file:///Users/fanzhang/Documents/github/novelflow/frontend/node_modules/vite/dist/node/chunks/dep-DBxKXgDP.js:40594:37
+      at async Promise.all (index 1)
+      at async TransformPluginContext.transform (file:///Users/fanzhang/Documents/github/novelflow/frontend/node_modules/vite/dist/node/chunks/dep-DBxKXgDP.js:40521:7)
+      at async EnvironmentPluginContainer.transform (file:///Users/fanzhang/Documents/github/novelflow/frontend/node_modules/vite/dist/node/chunks/dep-DBxKXgDP.js:42294:18)
+      at async loadAndTransform (file:///Users/fanzhang/Documents/github/novelflow/frontend/node_modules/vite/dist/node/chunks/dep-DBxKXgDP.js:35735:27)
+      at async viteTransformMiddleware (file:///Users/fanzhang/Documents/github/novelflow/frontend/node_modules/vite/dist/node/chunks/dep-DBxKXgDP.js:37250:24)
+11:33:35 AM [vite] (client) hmr update /src/components/Editor/index.tsx
+11:33:35 AM [vite] (client) Pre-transform error: Failed to resolve import "dagre" from "src/utils/layout.ts". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /Users/fanzhang/Documents/github/novelflow/frontend/src/utils/layout.ts:2:23
+  1  |  import { Position } from "reactflow";
+  2  |  import * as dagre from "dagre";
+     |                          ^
+  3  |  const dagreGraph = new dagre.graphlib.Graph();
+  4  |  dagreGraph.setDefaultEdgeLabel(() => ({}));
+11:33:43 AM [vite] (client) hmr update /src/components/Editor/index.tsx
+11:33:43 AM [vite] (client) Pre-transform error: Failed to resolve import "dagre" from "src/utils/layout.ts". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /Users/fanzhang/Documents/github/novelflow/frontend/src/utils/layout.ts:2:23
+  1  |  import { Position } from "reactflow";
+  2  |  import * as dagre from "dagre";
+     |                          ^
+  3  |  const dagreGraph = new dagre.graphlib.Graph();
+  4  |  dagreGraph.setDefaultEdgeLabel(() => ({}));
+11:34:51 AM [vite] Internal server error: Failed to resolve import "dagre" from "src/utils/layout.ts". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /Users/fanzhang/Documents/github/novelflow/frontend/src/utils/layout.ts:2:23
+  1  |  import { Position } from "reactflow";
+  2  |  import * as dagre from "dagre";
+     |                          ^
+  3  |  const dagreGraph = new dagre.graphlib.Graph();
+  4  |  dagreGraph.setDefaultEdgeLabel(() => ({}));
+      at TransformPluginContext._formatLog (file:///Users/fanzhang/Documents/github/novelflow/frontend/node_modules/vite/dist/node/chunks/dep-DBxKXgDP.js:42499:41)
+      at TransformPluginContext.error (file:///Users/fanzhang/Documents/github/novelflow/frontend/node_modules/vite/dist/node/chunks/dep-DBxKXgDP.js:42496:16)
+      at normalizeUrl (file:///Users/fanzhang/Documents/github/novelflow/frontend/node_modules/vite/dist/node/chunks/dep-DBxKXgDP.js:40475:23)
+      at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+      at async file:///Users/fanzhang/Documents/github/novelflow/frontend/node_modules/vite/dist/node/chunks/dep-DBxKXgDP.js:40594:37
+      at async Promise.all (index 1)
+      at async TransformPluginContext.transform (file:///Users/fanzhang/Documents/github/novelflow/frontend/node_modules/vite/dist/node/chunks/dep-DBxKXgDP.js:40521:7)
+      at async EnvironmentPluginContainer.transform (file:///Users/fanzhang/Documents/github/novelflow/frontend/node_modules/vite/dist/node/chunks/dep-DBxKXgDP.js:42294:18)
+      at async loadAndTransform (file:///Users/fanzhang/Documents/github/novelflow/frontend/node_modules/vite/dist/node/chunks/dep-DBxKXgDP.js:35735:27)
+      at async viteTransformMiddleware (file:///Users/fanzhang/Documents/github/novelflow/frontend/node_modules/vite/dist/node/chunks/dep-DBxKXgDP.js:37250:24)
+11:34:58 AM [vite] Internal server error: Failed to resolve import "dagre" from "src/utils/layout.ts". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /Users/fanzhang/Documents/github/novelflow/frontend/src/utils/layout.ts:2:23
+  1  |  import { Position } from "reactflow";
+  2  |  import * as dagre from "dagre";
+     |                          ^
+  3  |  const dagreGraph = new dagre.graphlib.Graph();
+  4  |  dagreGraph.setDefaultEdgeLabel(() => ({}));
+      at TransformPluginContext._formatLog (file:///Users/fanzhang/Documents/github/novelflow/frontend/node_modules/vite/dist/node/chunks/dep-DBxKXgDP.js:42499:41)
+      at TransformPluginContext.error (file:///Users/fanzhang/Documents/github/novelflow/frontend/node_modules/vite/dist/node/chunks/dep-DBxKXgDP.js:42496:16)
+      at normalizeUrl (file:///Users/fanzhang/Documents/github/novelflow/frontend/node_modules/vite/dist/node/chunks/dep-DBxKXgDP.js:40475:23)
+      at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+      at async file:///Users/fanzhang/Documents/github/novelflow/frontend/node_modules/vite/dist/node/chunks/dep-DBxKXgDP.js:40594:37
+      at async Promise.all (index 1)
+      at async TransformPluginContext.transform (file:///Users/fanzhang/Documents/github/novelflow/frontend/node_modules/vite/dist/node/chunks/dep-DBxKXgDP.js:40521:7)
+      at async EnvironmentPluginContainer.transform (file:///Users/fanzhang/Documents/github/novelflow/frontend/node_modules/vite/dist/node/chunks/dep-DBxKXgDP.js:42294:18)
+      at async loadAndTransform (file:///Users/fanzhang/Documents/github/novelflow/frontend/node_modules/vite/dist/node/chunks/dep-DBxKXgDP.js:35735:27)
+      at async viteTransformMiddleware (file:///Users/fanzhang/Documents/github/novelflow/frontend/node_modules/vite/dist/node/chunks/dep-DBxKXgDP.js:37250:24)
+11:35:57 AM [vite] (client) ✨ new dependencies optimized: dagre
+11:35:57 AM [vite] (client) ✨ optimized dependencies changed. reloading
+11:39:05 AM [vite] (client) hmr update /src/components/Editor/Nodes/LLMNode.tsx
+11:39:13 AM [vite] (client) hmr update /src/components/Editor/index.tsx
+11:39:22 AM [vite] (client) hmr update /src/components/Editor/index.tsx
+11:39:29 AM [vite] (client) hmr update /src/components/Editor/index.tsx
+11:44:34 AM [vite] (client) hmr update /src/components/Editor/index.tsx
+11:44:59 AM [vite] (client) hmr update /src/components/Editor/NodeEditors/SystemPromptEditor.tsx
+11:45:15 AM [vite] (client) hmr update /src/components/Editor/NodeEditors/SystemPromptEditor.tsx
+11:45:29 AM [vite] (client) hmr update /src/components/Editor/NodeEditors/SystemPromptEditor.tsx
+11:46:01 AM [vite] (client) hmr update /src/components/Editor/NodeEditors/SystemPromptEditor.tsx
+11:46:17 AM [vite] (client) hmr update /src/components/Editor/NodeEditors/UserPromptEditor.tsx
+11:46:34 AM [vite] (client) hmr update /src/components/Editor/NodeEditors/UserPromptEditor.tsx
+11:47:27 AM [vite] (client) hmr update /src/components/Editor/NodeEditors/UserPromptEditor.tsx

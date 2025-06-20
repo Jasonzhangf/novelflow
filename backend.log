@@ -7,139 +7,30 @@
 [33m[nodemon] watching path(s): *.*[39m
 [33m[nodemon] watching extensions: js,mjs,cjs,json[39m
 [32m[nodemon] starting `node src/server.js`[39m
-NovelFlow Backend Server running on port 8888
-Projects directory: D:\github\novelflow\data\projects
-[FILES] Getting project files from: D:\github\novelflow\data\projects
-[FILES] Found 20 files: 07543364-a366-4916-982a-202fbae65c66.json, 0bc783c7-a965-4257-b647-a2e763dd471d.json, 216fddb8-0a98-4322-8440-15c6c5b2dd0c.json, 450bc2ae-840a-4655-b684-a9b65819c24d.json, 49f51458-3e4e-4bf9-89ff-ab9c10183f20.json, 52de6a37-60f7-49ca-b289-63ccd3cacd4d.json, 532cbbe0-097d-4643-830a-5fd82173f049.json, 5400c0ff-d0cd-4d59-a700-10347b79e33f.json, 68d8088c-9fd1-464d-84d2-2c958e9017d8.json, 748867b0-a844-4c43-a4df-5caa5128ed63.json, 851736c9-2df5-43d2-9749-f0942f97bcfc.json, 9de4abaa-5dfb-491f-9668-8e199c2b882b.json, add463b7-bdff-41b8-8254-de36dd6930cf.json, b0da8682-5dcf-42de-836a-3b82eae615e5.json, c9ec6bd1-b8bc-4a94-9db6-cabb4329da7c.json, cf905709-5ce6-4f7b-b8dc-c8f546a20ab8.json, e1784405-ecf9-4966-ab7d-d1adf4d3b34d.json, e55bce4b-cc98-4ef3-9fb1-f06659fe6c60.json, ef795f24-b610-4fca-bc3c-bb88c5e5d5e5.json, exports
-[FILES] Returning 19 project files
-[FILES] Getting project files from: D:\github\novelflow\data\projects
-[FILES] Found 20 files: 07543364-a366-4916-982a-202fbae65c66.json, 0bc783c7-a965-4257-b647-a2e763dd471d.json, 216fddb8-0a98-4322-8440-15c6c5b2dd0c.json, 450bc2ae-840a-4655-b684-a9b65819c24d.json, 49f51458-3e4e-4bf9-89ff-ab9c10183f20.json, 52de6a37-60f7-49ca-b289-63ccd3cacd4d.json, 532cbbe0-097d-4643-830a-5fd82173f049.json, 5400c0ff-d0cd-4d59-a700-10347b79e33f.json, 68d8088c-9fd1-464d-84d2-2c958e9017d8.json, 748867b0-a844-4c43-a4df-5caa5128ed63.json, 851736c9-2df5-43d2-9749-f0942f97bcfc.json, 9de4abaa-5dfb-491f-9668-8e199c2b882b.json, add463b7-bdff-41b8-8254-de36dd6930cf.json, b0da8682-5dcf-42de-836a-3b82eae615e5.json, c9ec6bd1-b8bc-4a94-9db6-cabb4329da7c.json, cf905709-5ce6-4f7b-b8dc-c8f546a20ab8.json, e1784405-ecf9-4966-ab7d-d1adf4d3b34d.json, e55bce4b-cc98-4ef3-9fb1-f06659fe6c60.json, ef795f24-b610-4fca-bc3c-bb88c5e5d5e5.json, exports
-[FILES] Returning 19 project files
+node:events:485
+      throw er; // Unhandled 'error' event
+      ^
+
+Error: listen EADDRINUSE: address already in use :::8888
+    at Server.setupListenHandle [as _listen2] (node:net:1939:16)
+    at listenInCluster (node:net:1996:12)
+    at Server.listen (node:net:2101:7)
+    at Function.listen (/Users/fanzhang/Documents/github/novelflow/backend/node_modules/express/lib/application.js:635:24)
+    at Object.<anonymous> (/Users/fanzhang/Documents/github/novelflow/backend/src/server.js:346:5)
+    at Module._compile (node:internal/modules/cjs/loader:1734:14)
+    at Object..js (node:internal/modules/cjs/loader:1899:10)
+    at Module.load (node:internal/modules/cjs/loader:1469:32)
+    at Function._load (node:internal/modules/cjs/loader:1286:12)
+    at TracingChannel.traceSync (node:diagnostics_channel:322:14)
+Emitted 'error' event on Server instance at:
+    at emitErrorNT (node:net:1975:8)
+    at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+  code: 'EADDRINUSE',
+  errno: -48,
+  syscall: 'listen',
+  address: '::',
+  port: 8888
+}
+
+Node.js v23.11.0
 [31m[nodemon] app crashed - waiting for file changes before starting...[39m
-[32m[nodemon] restarting due to changes...[39m
-[32m[nodemon] starting `node src/server.js`[39m
-[32m[nodemon] restarting due to changes...[39m
-NovelFlow Backend Server running on port 8888
-Projects directory: D:\github\novelflow\data\projects
-[32m[nodemon] starting `node src/server.js`[39m
-NovelFlow Backend Server running on port 8888
-Projects directory: D:\github\novelflow\data\projects
-[FILES] Getting project files from: D:\github\novelflow\data\projects
-[FILES] Found 25 files: 07543364-a366-4916-982a-202fbae65c66.json, 0bc783c7-a965-4257-b647-a2e763dd471d.json, 201396fb-f401-4f1f-817f-d907bef876bf.json, 216fddb8-0a98-4322-8440-15c6c5b2dd0c.json, 450bc2ae-840a-4655-b684-a9b65819c24d.json, 49f51458-3e4e-4bf9-89ff-ab9c10183f20.json, 52de6a37-60f7-49ca-b289-63ccd3cacd4d.json, 532cbbe0-097d-4643-830a-5fd82173f049.json, 5400c0ff-d0cd-4d59-a700-10347b79e33f.json, 68d8088c-9fd1-464d-84d2-2c958e9017d8.json, 748867b0-a844-4c43-a4df-5caa5128ed63.json, 851736c9-2df5-43d2-9749-f0942f97bcfc.json, 8534543b-7b70-4260-b5fc-c8b5cebb6e5d.json, 9b0a812a-f9c9-4f33-896e-7639aa74c2f9.json, 9de4abaa-5dfb-491f-9668-8e199c2b882b.json, add463b7-bdff-41b8-8254-de36dd6930cf.json, b0da8682-5dcf-42de-836a-3b82eae615e5.json, c30c4d9a-f5c5-4807-abfe-79c727671747.json, c9ec6bd1-b8bc-4a94-9db6-cabb4329da7c.json, cf905709-5ce6-4f7b-b8dc-c8f546a20ab8.json, e1784405-ecf9-4966-ab7d-d1adf4d3b34d.json, e55bce4b-cc98-4ef3-9fb1-f06659fe6c60.json, ef795f24-b610-4fca-bc3c-bb88c5e5d5e5.json, exports, fe235c58-c1cb-45a1-85fc-e2e6f30787f0.json
-[FILES] Returning 24 project files
-[FILES] Getting project files from: D:\github\novelflow\data\projects
-[FILES] Found 25 files: 07543364-a366-4916-982a-202fbae65c66.json, 0bc783c7-a965-4257-b647-a2e763dd471d.json, 201396fb-f401-4f1f-817f-d907bef876bf.json, 216fddb8-0a98-4322-8440-15c6c5b2dd0c.json, 450bc2ae-840a-4655-b684-a9b65819c24d.json, 49f51458-3e4e-4bf9-89ff-ab9c10183f20.json, 52de6a37-60f7-49ca-b289-63ccd3cacd4d.json, 532cbbe0-097d-4643-830a-5fd82173f049.json, 5400c0ff-d0cd-4d59-a700-10347b79e33f.json, 68d8088c-9fd1-464d-84d2-2c958e9017d8.json, 748867b0-a844-4c43-a4df-5caa5128ed63.json, 851736c9-2df5-43d2-9749-f0942f97bcfc.json, 8534543b-7b70-4260-b5fc-c8b5cebb6e5d.json, 9b0a812a-f9c9-4f33-896e-7639aa74c2f9.json, 9de4abaa-5dfb-491f-9668-8e199c2b882b.json, add463b7-bdff-41b8-8254-de36dd6930cf.json, b0da8682-5dcf-42de-836a-3b82eae615e5.json, c30c4d9a-f5c5-4807-abfe-79c727671747.json, c9ec6bd1-b8bc-4a94-9db6-cabb4329da7c.json, cf905709-5ce6-4f7b-b8dc-c8f546a20ab8.json, e1784405-ecf9-4966-ab7d-d1adf4d3b34d.json, e55bce4b-cc98-4ef3-9fb1-f06659fe6c60.json, ef795f24-b610-4fca-bc3c-bb88c5e5d5e5.json, exports, fe235c58-c1cb-45a1-85fc-e2e6f30787f0.json
-[FILES] Returning 24 project files
-[31m[nodemon] app crashed - waiting for file changes before starting...[39m
-[32m[nodemon] restarting due to changes...[39m
-[32m[nodemon] starting `node src/server.js`[39m
-[32m[nodemon] restarting due to changes...[39m
-NovelFlow Backend Server running on port 8888
-Projects directory: D:\github\novelflow\data\projects
-[32m[nodemon] starting `node src/server.js`[39m
-NovelFlow Backend Server running on port 8888
-Projects directory: D:\github\novelflow\data\projects
-[FILES] Getting project files from: D:\github\novelflow\data\projects
-[FILES] Found 31 files: 07543364-a366-4916-982a-202fbae65c66.json, 0bc783c7-a965-4257-b647-a2e763dd471d.json, 16746936-23e2-433a-b07a-2b6fe107d18b.json, 201396fb-f401-4f1f-817f-d907bef876bf.json, 216fddb8-0a98-4322-8440-15c6c5b2dd0c.json, 450bc2ae-840a-4655-b684-a9b65819c24d.json, 49f51458-3e4e-4bf9-89ff-ab9c10183f20.json, 52de6a37-60f7-49ca-b289-63ccd3cacd4d.json, 532cbbe0-097d-4643-830a-5fd82173f049.json, 5400c0ff-d0cd-4d59-a700-10347b79e33f.json, 5bcfade6-9187-4e3f-9101-800b436a7ced.json, 68d8088c-9fd1-464d-84d2-2c958e9017d8.json, 748867b0-a844-4c43-a4df-5caa5128ed63.json, 851736c9-2df5-43d2-9749-f0942f97bcfc.json, 8534543b-7b70-4260-b5fc-c8b5cebb6e5d.json, 94ee3d6e-7fce-4391-81b3-927fe51acebe.json, 9b0a812a-f9c9-4f33-896e-7639aa74c2f9.json, 9de4abaa-5dfb-491f-9668-8e199c2b882b.json, a6980b4c-1e71-4a34-85dd-3ef0b19fcc19.json, add463b7-bdff-41b8-8254-de36dd6930cf.json, b0da8682-5dcf-42de-836a-3b82eae615e5.json, c30c4d9a-f5c5-4807-abfe-79c727671747.json, c9ec6bd1-b8bc-4a94-9db6-cabb4329da7c.json, cf905709-5ce6-4f7b-b8dc-c8f546a20ab8.json, d33e5d55-19a6-4a5c-941c-e107659d64f6.json, e1784405-ecf9-4966-ab7d-d1adf4d3b34d.json, e55bce4b-cc98-4ef3-9fb1-f06659fe6c60.json, ef795f24-b610-4fca-bc3c-bb88c5e5d5e5.json, exports, fe235c58-c1cb-45a1-85fc-e2e6f30787f0.json, fe9054b6-d252-475c-950c-51310ee7ed67.json
-[FILES] Returning 30 project files
-[FILES] Getting project files from: D:\github\novelflow\data\projects
-[FILES] Found 31 files: 07543364-a366-4916-982a-202fbae65c66.json, 0bc783c7-a965-4257-b647-a2e763dd471d.json, 16746936-23e2-433a-b07a-2b6fe107d18b.json, 201396fb-f401-4f1f-817f-d907bef876bf.json, 216fddb8-0a98-4322-8440-15c6c5b2dd0c.json, 450bc2ae-840a-4655-b684-a9b65819c24d.json, 49f51458-3e4e-4bf9-89ff-ab9c10183f20.json, 52de6a37-60f7-49ca-b289-63ccd3cacd4d.json, 532cbbe0-097d-4643-830a-5fd82173f049.json, 5400c0ff-d0cd-4d59-a700-10347b79e33f.json, 5bcfade6-9187-4e3f-9101-800b436a7ced.json, 68d8088c-9fd1-464d-84d2-2c958e9017d8.json, 748867b0-a844-4c43-a4df-5caa5128ed63.json, 851736c9-2df5-43d2-9749-f0942f97bcfc.json, 8534543b-7b70-4260-b5fc-c8b5cebb6e5d.json, 94ee3d6e-7fce-4391-81b3-927fe51acebe.json, 9b0a812a-f9c9-4f33-896e-7639aa74c2f9.json, 9de4abaa-5dfb-491f-9668-8e199c2b882b.json, a6980b4c-1e71-4a34-85dd-3ef0b19fcc19.json, add463b7-bdff-41b8-8254-de36dd6930cf.json, b0da8682-5dcf-42de-836a-3b82eae615e5.json, c30c4d9a-f5c5-4807-abfe-79c727671747.json, c9ec6bd1-b8bc-4a94-9db6-cabb4329da7c.json, cf905709-5ce6-4f7b-b8dc-c8f546a20ab8.json, d33e5d55-19a6-4a5c-941c-e107659d64f6.json, e1784405-ecf9-4966-ab7d-d1adf4d3b34d.json, e55bce4b-cc98-4ef3-9fb1-f06659fe6c60.json, ef795f24-b610-4fca-bc3c-bb88c5e5d5e5.json, exports, fe235c58-c1cb-45a1-85fc-e2e6f30787f0.json, fe9054b6-d252-475c-950c-51310ee7ed67.json
-[FILES] Returning 30 project files
-[32m[nodemon] restarting due to changes...[39m
-[32m[nodemon] starting `node src/server.js`[39m
-NovelFlow Backend Server running on port 8888
-Projects directory: D:\github\novelflow\data\projects
-[31m[nodemon] app crashed - waiting for file changes before starting...[39m
-[32m[nodemon] restarting due to changes...[39m
-[32m[nodemon] starting `node src/server.js`[39m
-[32m[nodemon] restarting due to changes...[39m
-NovelFlow Backend Server running on port 8888
-Projects directory: D:\github\novelflow\data\projects
-[32m[nodemon] starting `node src/server.js`[39m
-NovelFlow Backend Server running on port 8888
-Projects directory: D:\github\novelflow\data\projects
-[31m[nodemon] app crashed - waiting for file changes before starting...[39m
-[32m[nodemon] restarting due to changes...[39m
-[32m[nodemon] starting `node src/server.js`[39m
-[32m[nodemon] restarting due to changes...[39m
-NovelFlow Backend Server running on port 8888
-Projects directory: D:\github\novelflow\data\projects
-[32m[nodemon] starting `node src/server.js`[39m
-NovelFlow Backend Server running on port 8888
-Projects directory: D:\github\novelflow\data\projects
-[31m[nodemon] app crashed - waiting for file changes before starting...[39m
-[32m[nodemon] restarting due to changes...[39m
-[32m[nodemon] starting `node src/server.js`[39m
-[32m[nodemon] restarting due to changes...[39m
-NovelFlow Backend Server running on port 8888
-Projects directory: D:\github\novelflow\data\projects
-[32m[nodemon] starting `node src/server.js`[39m
-NovelFlow Backend Server running on port 8888
-Projects directory: D:\github\novelflow\data\projects
-[31m[nodemon] app crashed - waiting for file changes before starting...[39m
-[32m[nodemon] restarting due to changes...[39m
-[32m[nodemon] starting `node src/server.js`[39m
-[32m[nodemon] restarting due to changes...[39m
-NovelFlow Backend Server running on port 8888
-Projects directory: D:\github\novelflow\data\projects
-[32m[nodemon] starting `node src/server.js`[39m
-NovelFlow Backend Server running on port 8888
-Projects directory: D:\github\novelflow\data\projects
-[31m[nodemon] app crashed - waiting for file changes before starting...[39m
-[32m[nodemon] restarting due to changes...[39m
-[32m[nodemon] starting `node src/server.js`[39m
-NovelFlow Backend Server running on port 8888
-Projects directory: D:\github\novelflow\data\projects
-[31m[nodemon] app crashed - waiting for file changes before starting...[39m
-[32m[nodemon] restarting due to changes...[39m
-[32m[nodemon] starting `node src/server.js`[39m
-[32m[nodemon] restarting due to changes...[39m
-NovelFlow Backend Server running on port 8888
-Projects directory: D:\github\novelflow\data\projects
-[32m[nodemon] starting `node src/server.js`[39m
-NovelFlow Backend Server running on port 8888
-Projects directory: D:\github\novelflow\data\projects
-[32m[nodemon] restarting due to changes...[39m
-[32m[nodemon] starting `node src/server.js`[39m
-NovelFlow Backend Server running on port 8888
-Projects directory: D:\github\novelflow\data\projects
-[32m[nodemon] restarting due to changes...[39m
-[32m[nodemon] starting `node src/server.js`[39m
-NovelFlow Backend Server running on port 8888
-Projects directory: D:\github\novelflow\data\projects
-[31m[nodemon] app crashed - waiting for file changes before starting...[39m
-[32m[nodemon] restarting due to changes...[39m
-[32m[nodemon] starting `node src/server.js`[39m
-[32m[nodemon] restarting due to changes...[39m
-NovelFlow Backend Server running on port 8888
-Projects directory: D:\github\novelflow\data\projects
-[32m[nodemon] starting `node src/server.js`[39m
-NovelFlow Backend Server running on port 8888
-Projects directory: D:\github\novelflow\data\projects
-[31m[nodemon] app crashed - waiting for file changes before starting...[39m
-[32m[nodemon] restarting due to changes...[39m
-[32m[nodemon] starting `node src/server.js`[39m
-[32m[nodemon] restarting due to changes...[39m
-NovelFlow Backend Server running on port 8888
-Projects directory: D:\github\novelflow\data\projects
-[32m[nodemon] starting `node src/server.js`[39m
-NovelFlow Backend Server running on port 8888
-Projects directory: D:\github\novelflow\data\projects
-[31m[nodemon] app crashed - waiting for file changes before starting...[39m
-[32m[nodemon] restarting due to changes...[39m
-[32m[nodemon] starting `node src/server.js`[39m
-[32m[nodemon] restarting due to changes...[39m
-NovelFlow Backend Server running on port 8888
-Projects directory: D:\github\novelflow\data\projects
-[32m[nodemon] starting `node src/server.js`[39m
-NovelFlow Backend Server running on port 8888
-Projects directory: D:\github\novelflow\data\projects
-[31m[nodemon] app crashed - waiting for file changes before starting...[39m
-[32m[nodemon] restarting due to changes...[39m
-[32m[nodemon] starting `node src/server.js`[39m
-[32m[nodemon] restarting due to changes...[39m
-NovelFlow Backend Server running on port 8888
-Projects directory: D:\github\novelflow\data\projects
-[32m[nodemon] starting `node src/server.js`[39m
-NovelFlow Backend Server running on port 8888
-Projects directory: D:\github\novelflow\data\projects

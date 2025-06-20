@@ -8,6 +8,8 @@ interface NodeToolbarProps {
 const nodeButtons = [
   { type: 'character', label: '角色' },
   { type: 'environment', label: '环境' },
+  { type: 'world', label: '世界设定' },
+  { type: 'relationship', label: '人物关系' },
   { type: 'systemPrompt', label: '系统提示' },
   { type: 'userPrompt', label: '用户提示' },
   { type: 'llm', label: 'LLM' },

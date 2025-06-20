@@ -11,17 +11,21 @@ interface ConfigItem {
 
 export const LLMNode: React.FC<NodeProps> = ({ data, id }) => {
   const { deleteNode, duplicateNode } = useFlowContext();
-  const modelType = data.modelType || 'gpt-3.5-turbo';
-  const temperature = data.temperature || 0.5;
-  const systemPrompt = data.systemPrompt || 'You are an AI assistant.';
-  const prompt = data.prompt || 'Please Input String';
-  const result = data.result || '';
+  
+  // 从config中读取LLM配置，如果没有config则使用旧格式
+  const config = data.config || {};
+  const provider = data.provider || config.provider || 'gemini';
+  const model = data.model || config.model || 'gemini-2.5-flash-preview-05-20';
+  const temperature = data.temperature || config.temperature || 0.7;
+  const apiKeyConfigured = data.apiKey || config.apiKey || false;
+  const maxTokens = config.maxTokens || 2000;
+  const result = data.result || config.result || '';
 
   const configItems: ConfigItem[] = [
-    { label: 'modelType', value: modelType, key: 'modelType' },
-    { label: 'temperature', value: temperature, key: 'temperature' },
-    { label: 'systemPrompt', value: systemPrompt, key: 'systemPrompt' },
-    { label: 'prompt', value: prompt, key: 'prompt' },
+    { label: '提供商', value: provider, key: 'provider' },
+    { label: '模型', value: model, key: 'model' },
+    { label: 'Temperature', value: temperature.toFixed(1), key: 'temperature' },
+    { label: 'API密钥', value: apiKeyConfigured ? '已配置' : '未配置', key: 'apiKey' },
   ];
 
   const handleEdit = (key: string) => {

@@ -6,6 +6,8 @@ import { LLMNode } from './Nodes/LLMNode';
 import { SystemPromptNode } from './Nodes/SystemPromptNode';
 import { UserPromptNode } from './Nodes/UserPromptNode';
 import { TextOutputNode } from './Nodes/TextOutputNode';
+import { WorldNode } from './Nodes/WorldNode';
+import { RelationshipNode } from './Nodes/RelationshipNode';
 
 export const nodeTypes: NodeTypes = {
   scene: SceneNode,
@@ -15,4 +17,6 @@ export const nodeTypes: NodeTypes = {
   systemPrompt: SystemPromptNode,
   userPrompt: UserPromptNode,
   textOutput: TextOutputNode,
+  world: WorldNode,
+  relationship: RelationshipNode,
 };

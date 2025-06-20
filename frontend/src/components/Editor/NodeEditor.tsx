@@ -7,6 +7,8 @@ import { EnvironmentEditor } from './NodeEditors/EnvironmentEditor';
 import { SystemPromptEditor } from './NodeEditors/SystemPromptEditor';
 import { UserPromptEditor } from './NodeEditors/UserPromptEditor';
 import { TextOutputEditor } from './NodeEditors/TextOutputEditor';
+import { WorldEditor } from './NodeEditors/WorldEditor';
+import { RelationshipEditor } from './NodeEditors/RelationshipEditor';
 import './NodeEditor.css';
 
 interface NodeEditorProps {
@@ -42,6 +44,10 @@ export const NodeEditor: React.FC<NodeEditorProps> = ({ selectedNode }) => {
         return <UserPromptEditor node={selectedNode} />;
       case 'textOutput':
         return <TextOutputEditor node={selectedNode} />;
+      case 'world':
+        return <WorldEditor node={selectedNode} />;
+      case 'relationship':
+        return <RelationshipEditor node={selectedNode} />;
       default:
         return (
           <div className="p-4">
