@@ -94,12 +94,27 @@ const EditorComponent: React.FC = () => {
     setNodes((nds) => [...nds, newNode]);
     
     const sceneNode = nodes.find(node => node.type === 'scene');
+    const llmNode = nodes.find(node => node.type === 'llm');
+    
     if (sceneNode && type !== 'scene' && type !== 'textOutput') {
       const newEdgeId = `${newNodeId}-${sceneNode.id}`;
       const newEdge = {
         id: newEdgeId,
         source: type === 'llm' ? sceneNode.id : newNodeId,
         target: type === 'llm' ? newNodeId : sceneNode.id,
+        sourceHandle: 'bottom',
+        targetHandle: 'top',
+      };
+      setEdges((eds) => [...eds, newEdge]);
+    }
+    
+    // 文本输出节点自动连接到LLM节点
+    if (type === 'textOutput' && llmNode) {
+      const newEdgeId = `${llmNode.id}-${newNodeId}`;
+      const newEdge = {
+        id: newEdgeId,
+        source: llmNode.id,
+        target: newNodeId,
         sourceHandle: 'bottom',
         targetHandle: 'top',
       };

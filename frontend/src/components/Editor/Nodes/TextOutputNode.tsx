@@ -15,9 +15,16 @@ interface TextOutputNodeProps {
 }
 
 export const TextOutputNode: React.FC<TextOutputNodeProps> = ({ data, id }) => {
-  const { deleteNode, duplicateNode } = useFlowContext();
+  const { deleteNode, duplicateNode, updateNodeData } = useFlowContext();
   const [showFullscreen, setShowFullscreen] = useState(false);
   const [editableContent, setEditableContent] = useState(data.content || '');
+
+  // 当data.content发生变化时更新本地状态
+  React.useEffect(() => {
+    if (data.content !== undefined) {
+      setEditableContent(data.content);
+    }
+  }, [data.content]);
 
   const handleShowFullscreen = () => {
     setShowFullscreen(true);
@@ -43,8 +50,8 @@ export const TextOutputNode: React.FC<TextOutputNodeProps> = ({ data, id }) => {
     URL.revokeObjectURL(url);
   };
 
-  const truncatedContent = editableContent.length > 100 
-    ? editableContent.substring(0, 100) + '...' 
+  const truncatedContent = editableContent.length > 200 
+    ? editableContent.substring(0, 200) + '...' 
     : editableContent;
 
   return (
@@ -67,33 +74,20 @@ export const TextOutputNode: React.FC<TextOutputNodeProps> = ({ data, id }) => {
         <div className="p-3">
           <div className="mb-2">
             <label className="block text-xs font-medium text-gray-700 mb-1">
-              输出内容
+              输出内容 ({editableContent.length} 字符)
             </label>
             <div 
-              className="w-full p-2 border border-gray-300 rounded text-xs bg-gray-50 min-h-16 cursor-pointer hover:bg-gray-100"
-              onClick={handleShowFullscreen}
+              className="w-full p-2 border border-gray-300 rounded text-xs bg-gray-50 min-h-20 max-h-32 overflow-y-auto cursor-pointer hover:bg-gray-100"
+              style={{ whiteSpace: 'pre-wrap', lineHeight: '1.4' }}
             >
-              {truncatedContent || '点击查看完整内容...'}
+              {truncatedContent || '暂无内容，点击可在侧边栏编辑...'}
             </div>
           </div>
           
           <div className="flex space-x-2">
             <button
-              onClick={handleShowFullscreen}
-              className="flex-1 px-2 py-1 bg-indigo-500 text-white rounded text-xs hover:bg-indigo-600"
-            >
-              查看全文
-            </button>
-            <button
-              onClick={handleCopy}
-              className="px-2 py-1 bg-gray-500 text-white rounded text-xs hover:bg-gray-600"
-              disabled={!editableContent}
-            >
-              复制
-            </button>
-            <button
               onClick={handleExport}
-              className="px-2 py-1 bg-green-500 text-white rounded text-xs hover:bg-green-600"
+              className="flex-1 px-2 py-1 bg-green-500 text-white rounded text-xs hover:bg-green-600"
               disabled={!editableContent}
             >
               导出
