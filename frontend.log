@@ -190,3 +190,23 @@
 11:46:17 AM [vite] (client) hmr update /src/components/Editor/NodeEditors/UserPromptEditor.tsx
 11:46:34 AM [vite] (client) hmr update /src/components/Editor/NodeEditors/UserPromptEditor.tsx
 11:47:27 AM [vite] (client) hmr update /src/components/Editor/NodeEditors/UserPromptEditor.tsx
+11:54:11 AM [vite] (client) hmr update /src/components/Editor/index.tsx
+11:54:55 AM [vite] (client) hmr update /src/components/Editor/Nodes/CharacterNode.tsx
+11:55:11 AM [vite] (client) hmr update /src/components/Editor/Nodes/SceneNode.tsx
+11:55:29 AM [vite] (client) hmr update /src/components/Editor/Nodes/EnvironmentNode.tsx
+11:55:47 AM [vite] (client) hmr update /src/components/Editor/Nodes/SystemPromptNode.tsx
+11:56:06 AM [vite] (client) hmr update /src/components/Editor/Nodes/UserPromptNode.tsx
+11:56:49 AM [vite] (client) hmr update /src/components/Editor/Nodes/LLMNode.tsx
+11:57:03 AM [vite] (client) hmr update /src/components/Editor/Nodes/WorldNode.tsx
+11:57:22 AM [vite] (client) hmr update /src/components/Editor/Nodes/RelationshipNode.tsx
+12:02:57 PM [vite] (client) hmr update /src/components/Editor/index.tsx, /src/components/ProjectManager/ProjectToolbar.tsx, /src/components/ProjectManager/ProjectList.tsx, /src/components/ProjectManager/ProjectFileSelector.tsx, /src/components/Editor/NodeEditors/TextOutputEditor.tsx
+12:04:01 PM [vite] (client) hmr update /src/components/Editor/Nodes/CharacterNode.tsx
+12:04:14 PM [vite] (client) hmr update /src/components/Editor/Nodes/SceneNode.tsx
+12:04:27 PM [vite] (client) hmr update /src/components/Editor/Nodes/SceneNode.tsx
+12:04:39 PM [vite] (client) hmr update /src/components/Editor/Nodes/EnvironmentNode.tsx
+12:04:52 PM [vite] (client) hmr update /src/components/Editor/Nodes/SystemPromptNode.tsx
+12:05:04 PM [vite] (client) hmr update /src/components/Editor/Nodes/UserPromptNode.tsx
+12:05:17 PM [vite] (client) hmr update /src/components/Editor/Nodes/LLMNode.tsx
+12:05:30 PM [vite] (client) hmr update /src/components/Editor/Nodes/WorldNode.tsx
+12:05:43 PM [vite] (client) hmr update /src/components/Editor/Nodes/RelationshipNode.tsx
+12:05:43 PM [vite] (client) hmr update /src/components/Editor/Nodes/RelationshipNode.tsx

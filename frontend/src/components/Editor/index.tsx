@@ -111,30 +111,48 @@ const EditorComponent: React.FC = () => {
     const sceneNode = nodes.find(node => node.type === 'scene');
     const llmNode = nodes.find(node => node.type === 'llm');
     
-    if (sceneNode && type !== 'scene' && type !== 'textOutput') {
-      const newEdgeId = `${newNodeId}-${sceneNode.id}`;
-      const newEdge = {
-        id: newEdgeId,
-        source: type === 'llm' ? sceneNode.id : newNodeId,
-        target: type === 'llm' ? newNodeId : sceneNode.id,
-        sourceHandle: 'bottom',
-        targetHandle: 'top',
-      };
-      setEdges((eds) => [...eds, newEdge]);
+    // 根据节点类型设置正确的连接关系
+    if (type === 'character' || type === 'environment' || type === 'world') {
+      // 角色、环境、世界设定 -> 场景节点
+      if (sceneNode) {
+        const newEdgeId = `${newNodeId}-${sceneNode.id}`;
+        const newEdge = {
+          id: newEdgeId,
+          source: newNodeId,
+          target: sceneNode.id,
+          sourceHandle: 'bottom',
+          targetHandle: 'top',
+        };
+        setEdges((eds) => [...eds, newEdge]);
+      }
+    } else if (type === 'systemPrompt' || type === 'userPrompt') {
+      // 系统提示词、用户提示词 -> LLM节点
+      if (llmNode) {
+        const newEdgeId = `${newNodeId}-${llmNode.id}`;
+        const newEdge = {
+          id: newEdgeId,
+          source: newNodeId,
+          target: llmNode.id,
+          sourceHandle: 'bottom',
+          targetHandle: 'top',
+        };
+        setEdges((eds) => [...eds, newEdge]);
+      }
+    } else if (type === 'textOutput') {
+      // LLM节点 -> 文本输出节点
+      if (llmNode) {
+        const newEdgeId = `${llmNode.id}-${newNodeId}`;
+        const newEdge = {
+          id: newEdgeId,
+          source: llmNode.id,
+          target: newNodeId,
+          sourceHandle: 'bottom',
+          targetHandle: 'top',
+        };
+        setEdges((eds) => [...eds, newEdge]);
+      }
     }
-    
-    // 文本输出节点自动连接到LLM节点
-    if (type === 'textOutput' && llmNode) {
-      const newEdgeId = `${llmNode.id}-${newNodeId}`;
-      const newEdge = {
-        id: newEdgeId,
-        source: llmNode.id,
-        target: newNodeId,
-        sourceHandle: 'bottom',
-        targetHandle: 'top',
-      };
-      setEdges((eds) => [...eds, newEdge]);
-    }
+    // 场景节点 -> LLM节点的连接已在初始化时设置，新添加的场景节点不需要额外处理
   }, [nodes, setNodes, setEdges]);
 
   const deleteNode = useCallback((nodeId: string) => {

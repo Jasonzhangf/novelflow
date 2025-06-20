@@ -19,25 +19,11 @@ export const useProject = () => {
         const projects = await projectService.getProjectList();
         setProjectList(projects);
 
-        if (projects && projects.length > 0) {
-          // Backend sorts projects by last updated, so the first one is the most recent.
-          const mostRecentProject = await projectService.loadProject(projects[0].id);
-          if (mostRecentProject) {
-            setCurrentProject(mostRecentProject);
-          } else {
-            // If loading the specific project fails for some reason, start fresh.
-            setCurrentProject({
-              metadata: { id: null, name: '未命名项目', description: '', createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(), version: '1.0.0' },
-              flowData: { nodes: getInitialNodes(), edges: getInitialEdges(), viewport: { x: 0, y: 0, zoom: 1 } },
-            });
-          }
-        } else {
-          // No projects exist on the backend, create a new unsaved project in memory.
-          setCurrentProject({
-            metadata: { id: null, name: '未命名项目', description: '', createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(), version: '1.0.0' },
-            flowData: { nodes: getInitialNodes(), edges: getInitialEdges(), viewport: { x: 0, y: 0, zoom: 1 } },
-          });
-        }
+        // 临时强制使用新的默认布局来测试
+        setCurrentProject({
+          metadata: { id: null, name: '未命名项目', description: '', createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(), version: '1.0.0' },
+          flowData: { nodes: getInitialNodes(), edges: getInitialEdges(), viewport: { x: 0, y: 0, zoom: 1 } },
+        });
       } catch (err) {
         console.error("Failed to initialize app:", err);
         setError("无法连接到后端服务。将创建一个新的本地项目。");
